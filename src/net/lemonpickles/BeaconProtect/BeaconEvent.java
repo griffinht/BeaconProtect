@@ -29,8 +29,8 @@ public class BeaconEvent implements Listener{
         if(!this.plugin.CustomBeacons.checkForBlocks(block)){
             if(block.getType()==Material.BEACON){
                 Location location = block.getLocation();
-                if(!this.plugin.beacons.contains(location)){
-                    this.plugin.beacons.add(location);
+                if(!this.plugin.beacons.containsKey(location)){
+                    this.plugin.beacons.put(location, block);
                     String msg = "The beacon at " +block.getX()+", "+block.getY()+", "+block.getZ() + " has been registered";
                     player.sendMessage(msg);
                     this.plugin.logger.info(msg);
@@ -81,7 +81,7 @@ public class BeaconEvent implements Listener{
         //normal block breakage
         if (block.getType() == Material.BEACON) {
             Location location = block.getLocation();
-            if (this.plugin.beacons.contains(location)) {
+            if (this.plugin.beacons.containsKey(location)) {
                 this.plugin.beacons.remove(location);
                 String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
                 player.sendMessage(msg);

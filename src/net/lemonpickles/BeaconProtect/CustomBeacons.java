@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import static org.bukkit.Material.BEACON;
 
@@ -35,16 +36,17 @@ public class CustomBeacons {
     }
     public void startBeacons(){
         if(task==null) {
-            task = new CustomBeaconsUpdate(this.plugin).runTaskTimer(this.plugin, 1, 80);
+            task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 1, 80);
         }
     }
     public void refreshBeacons(){
         World world = Bukkit.getServer().getWorld("world");
         this.plugin.beacons.clear();
-        for(Location location:this.plugin.beacons){
+        for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
+            Location location = entry.getKey();
             Block block = world.getBlockAt(location);
             if(block.getType()==BEACON) {
-                this.plugin.beacons.add(location);
+                plugin.beacons.put(location,block);
             }
         }
     }
@@ -55,9 +57,9 @@ public class CustomBeacons {
         //check for changed blocks
         checkBeacon(block, world);
         //check if new block is beacon
-        if(block.getType()==BEACON&&!this.plugin.beacons.contains(block.getLocation())){
-            this.plugin.beacons.add(block.getLocation());
-        }else if(block.getType()!=BEACON&&this.plugin.beacons.contains(block.getLocation())){
+        if(block.getType()==BEACON&&!plugin.beacons.containsKey(block.getLocation())){
+            plugin.beacons.put(block.getLocation(), block);
+        }else if(block.getType()!=BEACON&&plugin.beacons.containsKey(block.getLocation())){
             this.plugin.beacons.remove(block.getLocation());
         }
     }
@@ -70,7 +72,8 @@ public class CustomBeacons {
     public boolean checkForBlocks(Block blk){
         Location l = blk.getLocation();
         Vector vector = new Vector(l.getBlockX(), l.getBlockY(), l.getBlockZ());
-        for(Block block:locToBlock(this.plugin.beacons)){
+        for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
+            Block block = entry.getValue();
             Beacon beacon = ((Beacon) block.getState());
             int tier;
             int beaconTier = beacon.getTier();
@@ -86,11 +89,12 @@ public class CustomBeacons {
         }
         return false;
     }
-    public void beaconEffectPlayers(ArrayList<Block> beacons){
+    public void beaconEffectPlayers(){
         for(Player player: Bukkit.getOnlinePlayers()){
             Location playerLocation = player.getLocation();
             Vector vector = new Vector(playerLocation.getBlockX(), playerLocation.getBlockY(), playerLocation.getBlockZ());
-            for(Block block:beacons){
+            for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
+                Block block = entry.getValue();
                 Beacon beacon = ((Beacon) block.getState());
                 int tier;
                 int beaconTier = beacon.getTier();
@@ -127,7 +131,7 @@ public class CustomBeacons {
         }
         @Override
         public void run(){
-            this.plugin.CustomBeacons.beaconEffectPlayers(locToBlock(this.plugin.beacons));
+            this.plugin.CustomBeacons.beaconEffectPlayers();
         }
     }
     public ArrayList<Block> locToBlock(ArrayList<Location> blocks){

@@ -9,6 +9,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 import static java.lang.Integer.parseInt;
 import static org.bukkit.Material.BEACON;
 
@@ -21,14 +23,14 @@ public class BeaconCmd implements CommandExecutor {
         return "("+block.getX()+", "+block.getY()+", "+block.getZ()+")";
     }
     private boolean add(Location location){
-        if(!this.plugin.beacons.contains(location)){
-            this.plugin.beacons.add(location);
+        if(!plugin.beacons.containsKey(location)){
+            plugin.beacons.put(location, location.getBlock());
             return false;
         }else{return true;}
     }
     private boolean remove(Location location){
-        if(this.plugin.beacons.contains(location)){
-            this.plugin.beacons.remove(location);
+        if(plugin.beacons.containsKey(location)){
+            plugin.beacons.remove(location);
             return true;
         }else{return false;}
     }
@@ -113,8 +115,8 @@ public class BeaconCmd implements CommandExecutor {
         }else if(args[0].equalsIgnoreCase("list")) {
             if(this.plugin.beacons.size()>0) {
                 sender.sendMessage("List of registered beacons:");
-            for (Location location : this.plugin.beacons) {
-                sender.sendMessage(blockToCoordinates(location.getBlock()));
+            for (Map.Entry<Location, Block> entry:plugin.beacons.entrySet()) {
+                sender.sendMessage(blockToCoordinates(entry.getValue()));
             }
         }else{sender.sendMessage("There are no currently registered beacons");}
         }else if(args[0].equalsIgnoreCase("loadBeacons")) {

@@ -15,29 +15,29 @@ public class FileMgmt {
 
     public FileMgmt(BeaconProtect plugin, String fileName) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), fileName);
-        if(!this.file.exists()){
+        file = new File(plugin.getDataFolder(), fileName);
+        if(!file.exists()){
             try{
-                this.file.createNewFile();
+                file.createNewFile();
                 this.plugin.logger.info("Created "+fileName);
             }catch(IOException e){
-                this.plugin.logger.warning("Could not create "+fileName);
+                plugin.logger.warning("Could not create "+fileName);
                 System.out.println(e);
             }
 
         }
-        this.config = YamlConfiguration.loadConfiguration(this.file);
+        this.config = YamlConfiguration.loadConfiguration(file);
     }
     public void save(){
         try {
-            this.config.save(this.file);
+            this.config.save(file);
         }catch(IOException e){
             this.plugin.logger.warning("Could not save file to disk");
             System.out.println(e);
         }
     }
     public void load(){
-        this.config = YamlConfiguration.loadConfiguration(this.file);
+        this.config = YamlConfiguration.loadConfiguration(file);
     }
 
     public FileConfiguration getConfig(){

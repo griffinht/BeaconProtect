@@ -1,6 +1,7 @@
 package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class BeaconProtect extends JavaPlugin {
-    public ArrayList<Location> beacons = new ArrayList<>();
+    public Map<Location, Block> beacons = new HashMap<>();
     public Map<Location, BlockDurability> durabilities = new HashMap();
     public BeaconList beaconList;
     public CustomBeacons CustomBeacons;
@@ -26,17 +27,17 @@ public class BeaconProtect extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
         //initialize beacons
-        this.beaconList = new BeaconList(this);
-        this.beaconList.load();
-        logger.info("Loaded "+this.beacons.size()+" beacon(s)");
+        beaconList = new BeaconList(this);
+        beaconList.load();
+        logger.info("Loaded "+beacons.size()+" beacon(s)");
         //CustomBeacons event
-        this.CustomBeacons = new CustomBeacons(this);
-        this.CustomBeacons.startBeacons();
+        CustomBeacons = new CustomBeacons(this);
+        CustomBeacons.startBeacons();
         logger.info("Started updating all beacons");
         //block events
-        this.beaconEvent = new BeaconEvent(this);
+        beaconEvent = new BeaconEvent(this);
         //commands
-        this.getCommand("beacon").setExecutor(new BeaconCmd(this));
+        getCommand("beacon").setExecutor(new BeaconCmd(this));
 
         //done
         logger.info("BeaconProtect has been enabled");
@@ -44,8 +45,8 @@ public class BeaconProtect extends JavaPlugin {
 
     @Override
     public void onDisable(){
-        this.CustomBeacons.stopBeacons();
-        this.beaconList.save();
+        CustomBeacons.stopBeacons();
+        beaconList.save();
         getLogger().info("BeaconProtect has been disabled");
     }
 
