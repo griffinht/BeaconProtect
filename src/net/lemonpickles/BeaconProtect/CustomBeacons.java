@@ -23,10 +23,10 @@ public class CustomBeacons {
     private int[] tiers = new int[4];
     public CustomBeacons(BeaconProtect plugin){
         this.plugin = plugin;
-        tiers[0] = this.plugin.getConfig().getInt("tier1");
-        tiers[1] = this.plugin.getConfig().getInt("tier2");
-        tiers[2] = this.plugin.getConfig().getInt("tier3");
-        tiers[3] = this.plugin.getConfig().getInt("tier4");
+        tiers[0] = this.plugin.getConfig().getInt("beacon_tiers.tier1");
+        tiers[1] = this.plugin.getConfig().getInt("beacon_tiers.tier2");
+        tiers[2] = this.plugin.getConfig().getInt("beacon_tiers.tier3");
+        tiers[3] = this.plugin.getConfig().getInt("beacon_tiers.tier4");
         //refreshBeacons();
     }
     //clear customBeacons and add again
@@ -36,7 +36,7 @@ public class CustomBeacons {
     }
     public void startBeacons(){
         if(task==null) {
-            task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 1, 80);
+            task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 0, 80);
         }
     }
     public void refreshBeacons(){

@@ -1,13 +1,14 @@
-#Data Storage
-#If use-mysql is false, the plugin will use flatfile
+# Data Storage
+# If use-mysql is false, the plugin will use flatfile
 use-mysql: false
 
-#turn this on when using the same SQL db across multiple servers, doesn't apply to flatfile too
+# turn this on when using the same SQL db across multiple servers, doesn't apply to flatfile too
 live-sync: false
 
-#range in block of beacon
-#a 256 block radius would affect a 257x257 square area area with the beacon in the center block
-tier1: 40
-tier2: 60
-tier3: 80
-tier4: 100
+# range in block of beacon
+# a 256 block radius would affect a 257x257 square area area with the beacon in the center block
+beacon_tiers:
+  tier1: 40
+  tier2: 60
+  tier3: 80
+  tier4: 100

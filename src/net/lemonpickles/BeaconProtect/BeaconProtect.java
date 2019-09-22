@@ -2,16 +2,19 @@ package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class BeaconProtect extends JavaPlugin {
     public Map<Location, Block> beacons = new HashMap<>();
-    public Map<Location, BlockDurability> durabilities = new HashMap();
+    public Map<Location, BlockDurability> durabilities = new HashMap<>();
+    public Map<Player, BossBar> durabilityBars = new HashMap<>();
+    public DurabilityBar DurabilityBar;
     public BeaconList beaconList;
     public CustomBeacons CustomBeacons;
     public BeaconEvent beaconEvent;
@@ -26,6 +29,8 @@ public class BeaconProtect extends JavaPlugin {
         }
         getConfig().options().copyDefaults(true);
         saveConfig();
+        //initialize
+        DurabilityBar = new DurabilityBar(this);
         //initialize beacons
         beaconList = new BeaconList(this);
         beaconList.load();
