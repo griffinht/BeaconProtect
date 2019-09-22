@@ -1,0 +1,10 @@
+name: BeaconProtect
+version: 0.1
+author: LemonPickles
+api-version: 1.14
+main: net.lemonpickles.BeaconProtect.BeaconProtect
+website: lemonpickles.net
+commands:
+  beacon:
+    description: Main command for BeaconProtect
+    usage: /beacon <arguments>
