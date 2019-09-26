@@ -1,6 +1,5 @@
 package net.lemonpickles.BeaconProtect;
 
-import com.mysql.fabric.xmlrpc.base.Array;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -31,8 +30,10 @@ public class CustomBeacons {
     }
     //clear customBeacons and add again
     public void stopBeacons(){
-        task.cancel();
-        task = null;
+        if(task!=null){
+            task.cancel();
+            task = null;
+        }
     }
     public void startBeacons(){
         if(task==null) {

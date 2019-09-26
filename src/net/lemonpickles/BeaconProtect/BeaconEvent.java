@@ -1,12 +1,8 @@
 package net.lemonpickles.BeaconProtect;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -55,6 +51,11 @@ public class BeaconEvent implements Listener{
                     if (plugin.CustomBeacons.checkForBlocks(block)) {
                         event.setCancelled(true);
                         player.sendMessage("You cannot interact here! This area is protected by a beacon");
+                    }else if(plugin.durabilities.containsKey(block.getLocation())){
+                        int dur = plugin.durabilities.get(block.getLocation()).getDurability();
+                        if(dur==1){
+                            event.setCancelled(true);
+                        }else{player.sendMessage("You cannot interact here! This chest has "+dur+" remaining!");}
                     }
                 }
             }

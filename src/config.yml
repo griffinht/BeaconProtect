@@ -12,3 +12,15 @@ beacon_tiers:
   tier2: 60
   tier3: 80
   tier4: 100
+
+#add/remove as needed
+# if there is no max durability the plugin will use the global default durability
+# 'BLOCK: <default durability>,(max reinforcable durability)
+# setting both to 1 would result in vanilla behavior
+default_durability: 1
+
+block_durabilities:
+  - 'OBSIDIAN: 5'
+  - 'STONE: 2'
+  - 'STONE_BRICKS: 3'
+  - 'BEACON: 1, 1'
