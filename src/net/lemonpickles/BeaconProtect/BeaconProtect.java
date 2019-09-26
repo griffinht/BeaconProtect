@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
+//TODO:remove this unecessary line
 public class BeaconProtect extends JavaPlugin {
     public Map<Location, Block> beacons = new HashMap<>();
     public Map<Location, BlockDurability> durabilities = new HashMap<>();
