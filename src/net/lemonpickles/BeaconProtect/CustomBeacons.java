@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.bukkit.Material.BEACON;
@@ -19,13 +20,8 @@ import static org.bukkit.Material.BEACON;
 public class CustomBeacons {
     private BeaconProtect plugin;
     private BukkitTask task;
-    private int[] tiers = new int[4];
     public CustomBeacons(BeaconProtect plugin){
         this.plugin = plugin;
-        tiers[0] = this.plugin.getConfig().getInt("beacon_tiers.tier1");
-        tiers[1] = this.plugin.getConfig().getInt("beacon_tiers.tier2");
-        tiers[2] = this.plugin.getConfig().getInt("beacon_tiers.tier3");
-        tiers[3] = this.plugin.getConfig().getInt("beacon_tiers.tier4");
         //refreshBeacons();
     }
     //clear customBeacons and add again
@@ -70,25 +66,26 @@ public class CustomBeacons {
             this.plugin.beacons.remove(block.getLocation());
         }
     }
-    public boolean checkForBlocks(Block blk){
+    public List<Location> checkForBlocks(Block blk){
+        List<Location> blocks = new ArrayList<>();
         Location l = blk.getLocation();
         Vector vector = new Vector(l.getBlockX(), l.getBlockY(), l.getBlockZ());
         for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
             Block block = entry.getValue();
-            Beacon beacon = ((Beacon) block.getState());
+            Beacon beacon = (Beacon) block.getState();
             int tier;
             int beaconTier = beacon.getTier();
             if(beaconTier!=0){
-                tier = tiers[beaconTier-1];
+                tier = plugin.defaultBeaconRange[beaconTier-1];
                 Location location = block.getLocation();
                 Vector min = new Vector(location.getBlockX()-tier, 0, location.getBlockZ()-tier);
                 Vector max = new Vector(location.getBlockX()+tier, 256, location.getBlockZ()+tier);
                 if(vector.isInAABB(min, max)){
-                    return true;
+                    blocks.add(block.getLocation());
                 }
             }
         }
-        return false;
+        return blocks;
     }
     public void beaconEffectPlayers(){
         for(Player player: Bukkit.getOnlinePlayers()){
@@ -100,7 +97,7 @@ public class CustomBeacons {
                 int tier;
                 int beaconTier = beacon.getTier();
                 if(beaconTier!=0){
-                    tier = tiers[beaconTier-1];
+                    tier = plugin.defaultBeaconRange[beaconTier-1];
                     Location location = block.getLocation();
                     Vector min = new Vector(location.getBlockX()-tier, 0, location.getBlockZ()-tier);
                     Vector max = new Vector(location.getBlockX()+tier, 256, location.getBlockZ()+tier);

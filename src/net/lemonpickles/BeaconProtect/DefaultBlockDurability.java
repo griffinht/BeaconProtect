@@ -9,6 +9,7 @@ public class DefaultBlockDurability {
     }
     public DefaultBlockDurability(int defaultBlockDurability){
         this.defaultBlockDurability = defaultBlockDurability;
+        this.maxBlockDurability = defaultBlockDurability;
     }
     public int getDefaultBlockDurability(){
         return defaultBlockDurability;

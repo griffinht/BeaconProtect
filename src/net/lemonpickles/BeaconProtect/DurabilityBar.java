@@ -18,7 +18,7 @@ public class DurabilityBar {
         public bossBarRemove(BeaconProtect plugin, BossBar bar, Player player, int ticks){
             this.plugin = plugin;
             this.bar = bar;
-            if(plugin.durabilityBars.containsKey(player)){
+            if(plugin.durabilityBars.containsKey(player)){//TODO:unnecessary check?
                 plugin.durabilityBars.get(player).removeAll();
             }
             plugin.durabilityBars.put(player, bar);

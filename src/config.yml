@@ -7,20 +7,32 @@ live-sync: false
 
 # range in block of beacon
 # a 256 block radius would affect a 257x257 square area area with the beacon in the center block
+# reinforce is the multiplier of durability
+# reinforce makes a block x times harder to break and uses materials from chests place on the beacon pyramid
 beacon_tiers:
-  tier1: 40
-  tier2: 60
-  tier3: 80
-  tier4: 100
+  tier1:
+    range: 40
+    reinforce: 2
+  tier2:
+    range: 60
+    reinforce: 3
+  tier3:
+    range: 80
+    reinforce: 4
+  tier4:
+    range: 100
+    reinforce: 5
 
 #add/remove as needed
 # if there is no max durability the plugin will use the global default durability
 # 'BLOCK: <default durability>,(max reinforcable durability)
 # setting both to 1 would result in vanilla behavior
 default_durability: 1
+default_max_durability: 10
 
 block_durabilities:
   - 'OBSIDIAN: 5'
   - 'STONE: 2'
   - 'STONE_BRICKS: 3'
   - 'BEACON: 1, 1'
+  - 'ANDESITE: 5, 20'
