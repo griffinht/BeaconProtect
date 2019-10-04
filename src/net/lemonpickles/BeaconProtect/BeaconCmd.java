@@ -120,21 +120,24 @@ public class BeaconCmd implements CommandExecutor {
             }
         }else{sender.sendMessage("There are no currently registered beacons");}
         }else if(args[0].equalsIgnoreCase("loadBeacons")) {
-            this.plugin.beaconList.load();
+            plugin.beaconList.load();
             sender.sendMessage("Beacons have been loaded from disk");
         }else if(args[0].equalsIgnoreCase("saveBeacons")) {
-            this.plugin.beaconList.save();
+            plugin.beaconList.save();
             sender.sendMessage("Beacons have been saved to disk");
         }else if(args[0].equalsIgnoreCase("stop")) {
-            this.plugin.CustomBeacons.stopBeacons();
+            plugin.CustomBeacons.stopBeacons();
             sender.sendMessage("Stopped running beacons");
-        }else if(args[0].equalsIgnoreCase("start")){
-            this.plugin.CustomBeacons.startBeacons();
+        }else if(args[0].equalsIgnoreCase("start")) {
+            plugin.CustomBeacons.startBeacons();
             sender.sendMessage("Started running beacons");
+        }else if(args[0].equalsIgnoreCase("clearDurabilities")){
+            plugin.durabilities.clear();
+            sender.sendMessage("Cleared all set block durabilities.");
         }else {
             sender.sendMessage("Incorrect argument");
             return false;
-        }
+        }//TODO perms, cleanup xtra commands, tab autocomplete
         return true;
     }
 }

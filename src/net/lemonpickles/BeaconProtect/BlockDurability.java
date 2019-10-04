@@ -2,7 +2,6 @@ package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -10,16 +9,15 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BlockDurability {
     private Block block;
     private int maxDurability;
     private int durability;
     private int setDurability;
-    private List<Location> beacons = new ArrayList<>();//TODO:handle new and old beacons
+    private int beaconDurability = -69;//this is bad
+    private List<Location> beacons = new ArrayList<>();//TODO:handle new and old beacons TODO what is a new or old beacon
     public BlockDurability(Block block, int durability, int setDurability, int maxDurability){//for loading BlockDurability from disk
         this.block = block;
         this.durability = durability;
@@ -33,9 +31,9 @@ public class BlockDurability {
         int defaultDurability = defaultDur.getDefaultBlockDurability();
         this.durability = defaultDurability;
         this.setDurability = defaultDurability;
-        changeDurability(changeDur);
-        beacons = plugin.CustomBeacons.checkForBlocks(block);
-        if(durability>1) {//only show boss bar if the block has more than 1 durability
+        changeDurability(plugin, player, changeDur, false);
+        beacons = plugin.CustomBeacons.checkForBlocks(block);//TODO figure out why this variable is set
+        if(durability>1||plugin.CustomBeacons.getMaxPenalty(player, block)>0&&beaconDurability>0) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
             if(changeDur>0){
                 playerBar(plugin, player, true);
             }else {
@@ -49,18 +47,34 @@ public class BlockDurability {
         addToHash(this, plugin);
     }
 
-    private void playerBar(BeaconProtect plugin, Player player, boolean reinforcing) {
+    private void playerBar(BeaconProtect plugin, Player player, boolean reinforcing){
         DefaultBlockDurability a = plugin.defaultBlockDurability;
         if(plugin.defaultBlockDurabilities.containsKey(block.getType())){
             a = plugin.defaultBlockDurabilities.get(block.getType());
         }
-        if(!(a.getDefaultBlockDurability()==durability&&a.getMaxBlockDurability()==maxDurability&&a.getDefaultBlockDurability()==setDurability)){
-            BossBar bar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
+        //this if statement runs if the block is at default durability and set durability
+        //a.getMaxBlockDurability()==maxDurability&& is extra
+        boolean isTheBeaconActiveForThePlayer = plugin.CustomBeacons.getMaxPenalty(player, block)>0;
+        if((!(a.getDefaultBlockDurability()==durability&&a.getDefaultBlockDurability()==setDurability))||isTheBeaconActiveForThePlayer){
+            BarColor color;
+            if(plugin.CustomBeacons.checkFriendly(player)){
+                color = BarColor.WHITE;
+            }else{
+                if(isTheBeaconActiveForThePlayer&&beaconDurability>0){
+                    color = BarColor.PURPLE;//purple if the player has to break through beacon durability
+                }else {
+                    color = BarColor.RED;
+                }
+            }
+            BossBar bar = Bukkit.createBossBar("", color, BarStyle.SOLID);
             int b = setDurability;
             if(reinforcing){b=maxDurability;}
             float bossDur = (float) durability / b;
             if (bossDur > 1) {
                 bossDur = 1;
+            }else if(bossDur<0){
+                plugin.logger.warning("Tried to set the bossbar for "+player+" to "+bossDur+" (can only be between 0 and 1)");
+                bossDur = 0;
             }
             bar.setProgress(bossDur);
             bar.addPlayer(player);
@@ -77,36 +91,60 @@ public class BlockDurability {
     private int checkDurability(int newDurability){
         if(newDurability>maxDurability){return maxDurability;}else{return newDurability;}
     }
-    private int takeFromBeacons(int amount){
-        for(Location location:beacons){
-            //check beacon if it has inventory
+
+    private int setBeaconDurability(int newDurability, int maxBeaconPenalty){//beacon hit is a maximum, beacondurability is mostly just durability
+        //TODO remove sys out println
+        System.out.println(" ");
+        System.out.println("old durability: "+durability+", max durability: "+maxDurability+", new durability: "+newDurability+", max beacon penalty "+maxBeaconPenalty+", old beacon durability "+beaconDurability);
+        int changeDurability = newDurability-durability;
+        int maxBeaconDurability = beaconDurability;
+        beaconDurability = beaconDurability+changeDurability;
+        if(beaconDurability>maxBeaconDurability){
+            //System.out.println("beacondur is over maxbeacondur");
+            int change = maxBeaconDurability-beaconDurability;
+            beaconDurability = beaconDurability+change;//xtra is lost
         }
-        return amount;
+        int importantChange = 0;
+        if(beaconDurability<0){
+            //System.out.println("beacondur is under 0");
+            importantChange = importantChange-beaconDurability;
+            beaconDurability = beaconDurability+importantChange;
+            durability = durability-importantChange;
+        }
+        if(changeDurability>0) {//for reinforcing
+            //System.out.println("changedur is over 0");
+            durability = checkDurability(durability+changeDurability);
+        }
+        //TODO test beacon durabilities and block breakage
+        System.out.println("new durability: "+durability+", beacon durability "+beaconDurability);
+        System.out.println(" ");
+        return importantChange;//return the change in blocks that need to be removed
+    }
+    private int getBeaconDurability(){
+        return beaconDurability;
     }
 
-
-
-    private boolean setDurability(int newDurability, boolean setDurability){
+    private boolean setDurability(BeaconProtect plugin, int newDurability, boolean setDurability, int maxBeaconPenalty){
         int oldDur = durability;
-        durability = takeFromBeacons(checkDurability(newDurability));
+        if(maxBeaconPenalty>0){//can be zero if player is friendly
+            setBeaconDurability(checkDurability(newDurability), maxBeaconPenalty);
+        }else{durability = checkDurability(newDurability);}
         if(setDurability&&durability>this.setDurability){
             this.setDurability = durability;
-        }//durability should only be set when a block is reinforced not broken
+        }//setDurability should only be changed when a block is reinforced not broken
         return oldDur!=durability;
     }
-    private boolean changeDurability(int changeDurability){
-        return setDurability(durability+changeDurability, false);
-    }
 
 
 
-    public boolean setDurability(BeaconProtect plugin, Player player, int newDurability, boolean setDurability){
-        boolean value = setDurability(newDurability, setDurability);
-        playerBar(plugin, player, false);
-        return value;
-    }
+
+
     public boolean changeDurability(BeaconProtect plugin, Player player, int changeDurability, boolean setDurability){
-        boolean value = setDurability(durability+changeDurability, setDurability);
+        if(beaconDurability==-69){beaconDurability = plugin.CustomBeacons.getMaxDurability(block);}//initializer value
+        if(changeDurability>0){//reinforcing so reset beacon durability
+            beaconDurability = plugin.CustomBeacons.getMaxDurability(block);
+        }
+        boolean value = setDurability(plugin, durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
         if(changeDurability>0) {
             playerBar(plugin, player, true);
         }else{
@@ -115,7 +153,21 @@ public class BlockDurability {
         return value;
     }
 
-    public int getDurability(){return durability;}
+
+
+    public int getDurability(){
+        return durability;
+    }
+    public int getBeaconDurability(BeaconProtect plugin){
+        if(plugin.CustomBeacons.getMaxDurability(block)>=0) {//durability uses beacondurability when in range
+            return durability + beaconDurability;
+        }else{return durability;}
+    }
+    public int getBeaconSetDurability(BeaconProtect plugin){
+        if(plugin.CustomBeacons.getMaxDurability(block)>=0) {//durability uses beacondurability when in range
+            return setDurability + beaconDurability;
+        }else{return setDurability;}
+    }
     public int getMaxDurability(){return maxDurability;}
     public int getSetDurability(){return setDurability;}
     public Block getBlock(){return block;}

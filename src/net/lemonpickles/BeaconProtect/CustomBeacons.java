@@ -2,6 +2,7 @@ package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
@@ -55,7 +56,7 @@ public class CustomBeacons {
         checkBeacon(block, world);
         //check if new block is beacon
         if(block.getType()==BEACON&&!plugin.beacons.containsKey(block.getLocation())){
-            plugin.beacons.put(block.getLocation(), block);
+            plugin.beacons.put(block.getLocation(),block);
         }else if(block.getType()!=BEACON&&plugin.beacons.containsKey(block.getLocation())){
             this.plugin.beacons.remove(block.getLocation());
         }
@@ -66,6 +67,49 @@ public class CustomBeacons {
             this.plugin.beacons.remove(block.getLocation());
         }
     }
+    public int checkForMaterial(Block block){
+        List<Location> beacons = checkForBlocks(block);
+        for(Location location:beacons){
+            Material material = block.getType();
+            //TODO:check if beacon's invent has the stuff
+        }
+        return 0;
+    }
+    public boolean checkOwner(Player player){//true if player is also beacon's owner
+        return true;//TODO
+    }
+    public boolean checkFriendly(Player player){//true if player is friendly with beacon
+        return false;//TODO
+    }
+    public int getMaxDurability(Block block){
+        int maxTier = 0;
+        List<Location> locations = checkForBlocks(block);
+        for(Location location:locations){
+            Beacon beacon = (Beacon)location.getBlock().getState();
+            int tier = beacon.getTier();
+            if(tier>maxTier){maxTier = tier;}
+        }
+        if(maxTier==0){return 0;}
+        return plugin.defaultBeaconMultiplier[maxTier-1];
+    }
+    public int getMaxPenalty(Player player, Block block){//friendly players have no penalty
+        if(checkFriendly(player)){
+            return 0;//friendly players bypass beacon
+        }else{
+            return getMaxHit(block);
+        }
+    }
+    private int getMaxHit(Block block){
+        List<Location> locations = checkForBlocks(block);
+        for(Location location:locations){
+            Beacon beacon = (Beacon)location.getBlock().getState();
+            //TODO check if beacon has the blocks
+        }
+        return 5;
+    }
+
+
+
     public List<Location> checkForBlocks(Block blk){
         List<Location> blocks = new ArrayList<>();
         Location l = blk.getLocation();
@@ -120,7 +164,7 @@ public class CustomBeacons {
             }
         }
     }
-    //i don't think this needs to be a class
+
     public class CustomBeaconsUpdate extends BukkitRunnable {
         private final BeaconProtect plugin;
         public CustomBeaconsUpdate(BeaconProtect plugin){
