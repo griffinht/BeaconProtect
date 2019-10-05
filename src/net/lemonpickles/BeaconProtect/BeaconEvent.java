@@ -14,6 +14,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
@@ -35,7 +36,7 @@ public class BeaconEvent implements Listener{
                 if(!plugin.beacons.containsKey(location)){
                     plugin.beacons.put(location, block);
                     String msg = "The beacon at " +block.getX()+", "+block.getY()+", "+block.getZ() + " has been registered";
-                    for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){//add beacon if player is in a group
+                    for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){//add beacon if player is in a group
                         if(entry.getValue().checkMember(player)){
                             entry.getValue().addBeacon(location);
                             msg = msg+" to group "+entry.getValue().getName();
@@ -133,7 +134,7 @@ public class BeaconEvent implements Listener{
         if (block.getType() == Material.BEACON) {
             Location location = block.getLocation();
             if (plugin.beacons.containsKey(location)) {
-                for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){//remove from group ownership too
+                for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){//remove from group ownership too
                     if(entry.getValue().checkBeacon(location)){
                         entry.getValue().removeBeacon(location);
                     }

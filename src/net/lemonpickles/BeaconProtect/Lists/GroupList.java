@@ -28,10 +28,12 @@ public class GroupList extends FileMgmt {
         super.save();
     }
     public void save(){
-        for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){
+        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             String path = "groups."+entry.getKey();
             Group value = entry.getValue();
             config.createSection(path);
+            config.createSection(path+".name");
+            config.set(path+".name", value.getName());
             config.createSection(path+".owner");
             if(value.getOwner()!=null) {
                 config.set(path + ".owner", value.getOwner().getUniqueId().toString());
@@ -68,7 +70,7 @@ public class GroupList extends FileMgmt {
                 for(Map.Entry<String, Object> entry2:memorySection1.getValues(false).entrySet()){
                     if(entry2.getValue() instanceof MemorySection){
                         MemorySection memorySection2 = (MemorySection) entry2.getValue();
-                        String name = entry2.getKey();
+                        String name = memorySection2.getString("name");
                         String ownerStr = memorySection2.getString("owner");
                         OfflinePlayer owner = null;
                         if(ownerStr!=null){
@@ -112,7 +114,7 @@ public class GroupList extends FileMgmt {
                             }
                             beacons.add(new Location(getServer().getWorld("world"), loc[0], loc[1], loc[2]));
                         }
-                        plugin.groups.put(name, new Group(plugin, name, description, owner, members, beacons));
+                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons));
                     }
                 }
             }

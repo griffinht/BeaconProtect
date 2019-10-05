@@ -16,6 +16,7 @@ import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.Material.BEACON;
 
@@ -69,7 +70,7 @@ public class CustomBeacons {
         }
     }
     public boolean checkOwner(Player player, Block block){//true if player is also beacon's owner
-        for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){
+        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             if(entry.getValue().getOwner()==player){
                 if(entry.getValue().checkBeacon(block.getLocation())){
                     return true;
@@ -79,7 +80,7 @@ public class CustomBeacons {
         return false;
     }
     public boolean checkFriendly(Player player, Block block){//true if player is friendly with beacon
-        for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){
+        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             Group group = entry.getValue();
             if(!group.checkMember(player)){
                 List<Location> beacons = checkForBlocks(block);

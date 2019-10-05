@@ -10,10 +10,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class BeaconProtect extends JavaPlugin {
@@ -21,7 +18,7 @@ public class BeaconProtect extends JavaPlugin {
     public Map<Location, BlockDurability> durabilities = new HashMap<>();
     public Map<Player, BossBar> durabilityBars = new HashMap<>();
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
-    public Map<String, Group> groups = new HashMap<>();
+    public Map<UUID, Group> groups = new HashMap<>();
     public Map<String, BlockPermissions> blockPermissions = new HashMap<>();//TODO
     public ArrayList<Player> isReinforcing = new ArrayList<>();
     public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?

@@ -14,7 +14,7 @@ public class Group {
     //TODO private roles for roles and stuff
     private List<Location> beacons;//TODO list all owned beacons here or something
     private Map<OfflinePlayer, Member> members;
-    public Group(BeaconProtect plugin, String name, String description, OfflinePlayer owner, Map<OfflinePlayer, Member> members, List<Location> beacons){
+    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer, Member> members, List<Location> beacons){
         this.name = name;
         this.description = description;
         this.owner = owner;
@@ -33,10 +33,8 @@ public class Group {
     public String getName(){
         return name;
     }
-    public void setName(BeaconProtect plugin, String name){
-        plugin.groups.remove(this.name);
+    public void setName(String name){
         this.name = name;
-        plugin.groups.put(this.name, this);
     }
     public String getDescription(){
         return description;
