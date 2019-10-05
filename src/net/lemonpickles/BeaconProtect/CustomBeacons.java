@@ -11,6 +11,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,19 +68,29 @@ public class CustomBeacons {
             this.plugin.beacons.remove(block.getLocation());
         }
     }
-    public int checkForMaterial(Block block){
-        List<Location> beacons = checkForBlocks(block);
-        for(Location location:beacons){
-            Material material = block.getType();
-            //TODO:check if beacon's invent has the stuff
+    public boolean checkOwner(Player player, Block block){//true if player is also beacon's owner
+        for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){
+            if(entry.getValue().getOwner()==player){
+                if(entry.getValue().checkBeacon(block.getLocation())){
+                    return true;
+                }
+            }
         }
-        return 0;
+        return false;
     }
-    public boolean checkOwner(Player player){//true if player is also beacon's owner
-        return true;//TODO
-    }
-    public boolean checkFriendly(Player player){//true if player is friendly with beacon
-        return false;//TODO
+    public boolean checkFriendly(Player player, Block block){//true if player is friendly with beacon
+        for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){
+            Group group = entry.getValue();
+            if(!group.checkMember(player)){
+                List<Location> beacons = checkForBlocks(block);
+                for(Location location:group.getBeacons()){
+                    if(beacons.contains(location)){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
     public int getMaxDurability(Block block){
         int maxTier = 0;
@@ -90,10 +101,13 @@ public class CustomBeacons {
             if(tier>maxTier){maxTier = tier;}
         }
         if(maxTier==0){return 0;}
-        return plugin.defaultBeaconMultiplier[maxTier-1];
+        return getMaxTier(maxTier);
+    }
+    public int getMaxTier(int tier){
+        return plugin.defaultBeaconMultiplier[tier-1];
     }
     public int getMaxPenalty(Player player, Block block){//friendly players have no penalty
-        if(checkFriendly(player)){
+        if(checkFriendly(player, block)){
             return 0;//friendly players bypass beacon
         }else{
             return getMaxHit(block);
@@ -110,7 +124,7 @@ public class CustomBeacons {
 
 
 
-    public List<Location> checkForBlocks(Block blk){
+    public List<Location> checkForBlocks(Block blk){//returns beacons that touch the block
         List<Location> blocks = new ArrayList<>();
         Location l = blk.getLocation();
         Vector vector = new Vector(l.getBlockX(), l.getBlockY(), l.getBlockZ());

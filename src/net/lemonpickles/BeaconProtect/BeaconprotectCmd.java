@@ -1,7 +1,9 @@
 package net.lemonpickles.BeaconProtect;
 
+import com.sun.istack.internal.NotNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -10,13 +12,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static java.lang.Integer.parseInt;
 import static org.bukkit.Material.BEACON;
 
-public class BeaconCmd implements CommandExecutor {
+public class BeaconprotectCmd implements CommandExecutor {
     private BeaconProtect plugin;
-    public BeaconCmd(BeaconProtect plugin){
+    public BeaconprotectCmd(BeaconProtect plugin){
         this.plugin = plugin;
     }
     private String blockToCoordinates(Block block){
@@ -131,9 +134,11 @@ public class BeaconCmd implements CommandExecutor {
         }else if(args[0].equalsIgnoreCase("start")) {
             plugin.CustomBeacons.startBeacons();
             sender.sendMessage("Started running beacons");
-        }else if(args[0].equalsIgnoreCase("clearDurabilities")){
+        }else if(args[0].equalsIgnoreCase("clearDurabilities")) {
             plugin.durabilities.clear();
             sender.sendMessage("Cleared all set block durabilities.");
+        }else if(args[0].equalsIgnoreCase("groups")){
+
         }else {
             sender.sendMessage("Incorrect argument");
             return false;

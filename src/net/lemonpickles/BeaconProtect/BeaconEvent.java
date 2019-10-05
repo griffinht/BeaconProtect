@@ -13,6 +13,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
     public BeaconEvent(BeaconProtect plugin){
@@ -26,12 +28,19 @@ public class BeaconEvent implements Listener{
     public void blockPlace(BlockPlaceEvent event){
         Block block = event.getBlock();
         Player player = event.getPlayer();
-        if(plugin.CustomBeacons.checkForBlocks(block).size()==0){
+        System.out.println("Checking friendly from blockPlace");
+        if(plugin.CustomBeacons.checkFriendly(player, block)){
             if(block.getType()==Material.BEACON){
                 Location location = block.getLocation();
                 if(!plugin.beacons.containsKey(location)){
                     plugin.beacons.put(location, block);
                     String msg = "The beacon at " +block.getX()+", "+block.getY()+", "+block.getZ() + " has been registered";
+                    for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){//add beacon if player is in a group
+                        if(entry.getValue().checkMember(player)){
+                            entry.getValue().addBeacon(location);
+                            msg = msg+" to group "+entry.getValue().getName();
+                        }
+                    }
                     player.sendMessage(msg);
                     plugin.logger.info(msg);
                 }
@@ -54,14 +63,18 @@ public class BeaconEvent implements Listener{
         }else if(event.getHand()== EquipmentSlot.HAND&&event.getAction()==Action.RIGHT_CLICK_BLOCK){
             if(block!=null) {
                 if (block.getType() == Material.CHEST) {
-                    if (plugin.CustomBeacons.checkForBlocks(block).size()!=0) {
+                    System.out.println("Checking friendly from interact");
+                    if (!plugin.CustomBeacons.checkFriendly(player, block)) {
                         event.setCancelled(true);
                         player.sendMessage("You cannot interact here! This area is protected by a beacon");
-                    }else if(plugin.durabilities.containsKey(block.getLocation())){
-                        int dur = plugin.durabilities.get(block.getLocation()).getDurability();
-                        if(dur==1){
-                            event.setCancelled(true);
-                        }else{player.sendMessage("You cannot interact here! This chest has "+dur+" remaining!");}
+                        if (plugin.durabilities.containsKey(block.getLocation())) {//this is broken
+                            int dur = plugin.durabilities.get(block.getLocation()).getDurability();
+                            if (dur == 1) {
+                                event.setCancelled(true);
+                            } else {
+                                player.sendMessage("You cannot interact here! This chest has " + dur + " remaining!");
+                            }
+                        }
                     }
                 }
             }
@@ -120,6 +133,11 @@ public class BeaconEvent implements Listener{
         if (block.getType() == Material.BEACON) {
             Location location = block.getLocation();
             if (plugin.beacons.containsKey(location)) {
+                for(Map.Entry<String, Group> entry:plugin.groups.entrySet()){//remove from group ownership too
+                    if(entry.getValue().checkBeacon(location)){
+                        entry.getValue().removeBeacon(location);
+                    }
+                }
                 plugin.beacons.remove(location);
                 String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
                 player.sendMessage(msg);

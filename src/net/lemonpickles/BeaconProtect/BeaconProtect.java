@@ -1,5 +1,8 @@
 package net.lemonpickles.BeaconProtect;
 
+import net.lemonpickles.BeaconProtect.Lists.BeaconList;
+import net.lemonpickles.BeaconProtect.Lists.DurabilityList;
+import net.lemonpickles.BeaconProtect.Lists.GroupList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,10 +21,13 @@ public class BeaconProtect extends JavaPlugin {
     public Map<Location, BlockDurability> durabilities = new HashMap<>();
     public Map<Player, BossBar> durabilityBars = new HashMap<>();
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
+    public Map<String, Group> groups = new HashMap<>();
+    public Map<String, BlockPermissions> blockPermissions = new HashMap<>();//TODO
     public ArrayList<Player> isReinforcing = new ArrayList<>();
-    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read
+    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
     public int[] defaultBeaconRange = new int[4];
     public int[] defaultBeaconMultiplier = new int[4];
+    public GroupList groupList;
     public DurabilityBar DurabilityBar;
     public BeaconList beaconList;
     public CustomBeacons CustomBeacons;
@@ -52,6 +58,7 @@ public class BeaconProtect extends JavaPlugin {
         logger.info("Loaded global default durability of "+defaultBlockDurability.getDefaultBlockDurability()+" and max durability of "+defaultBlockDurability.getMaxBlockDurability());
         //build defaultDurabilities
         //yaml with bukkit sucks
+        //probably because i don't know how to use it
         List<String> durs = getConfig().getStringList("block_durabilities");
         for(String line:durs){
             String[] split = line.split(":",2);
@@ -81,6 +88,10 @@ public class BeaconProtect extends JavaPlugin {
         durabilityList = new DurabilityList(this);
         durabilityList.load();
         logger.info("Loaded "+durabilities.size()+" blocks with a set durability");
+        //initialize groups from file
+        groupList = new GroupList(this);
+        groupList.load();
+        logger.info("Loaded "+groups.size()+" groups");
         //CustomBeacons event
         CustomBeacons = new CustomBeacons(this);
         CustomBeacons.startBeacons();
@@ -88,18 +99,23 @@ public class BeaconProtect extends JavaPlugin {
         //block events
         beaconEvent = new BeaconEvent(this);
         //commands
-        getCommand("beacon").setExecutor(new BeaconCmd(this));
+        getCommand("beaconprotect").setExecutor(new BeaconprotectCmd(this));
+        getCommand("group").setExecutor(new GroupCmd(this));
 
         //done
         logger.info("BeaconProtect has been enabled");
     }
 
     @Override
-    public void onDisable(){
+    public void onDisable(){//TODO should i set a lot of variables to null here?
+        for(Map.Entry<Player, BossBar> entry:durabilityBars.entrySet()){//remove all active boss bars for durability
+            entry.getValue().removeAll();
+        }
         CustomBeacons.stopBeacons();
         beaconList.save();
         durabilityList.save();
-        logger.info("Saved beacons and blocks with a set durability to file");
+        groupList.save();
+        logger.info("Saved beacons, blocks durabilities, and groups to file");
         getLogger().info("BeaconProtect has been disabled");
     }
 

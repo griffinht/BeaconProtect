@@ -5,6 +5,10 @@ api-version: 1.14
 main: net.lemonpickles.BeaconProtect.BeaconProtect
 website: lemonpickles.net
 commands:
-  beacon:
+  beaconprotect:
     description: Main command for BeaconProtect
-    usage: /beacon <arguments>
+    usage: /beaconprotect <arguments>
+    aliases: [bp]
+  group:
+    description: BeaconProtect command for managing groups
+    usage: /group arguments

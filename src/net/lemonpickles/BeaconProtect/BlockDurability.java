@@ -18,11 +18,12 @@ public class BlockDurability {
     private int setDurability;
     private int beaconDurability = -69;//this is bad
     private List<Location> beacons = new ArrayList<>();//TODO:handle new and old beacons TODO what is a new or old beacon
-    public BlockDurability(Block block, int durability, int setDurability, int maxDurability){//for loading BlockDurability from disk
+    public BlockDurability(Block block, int durability, int setDurability, int maxDurability, int beaconDurability){//for loading BlockDurability from disk
         this.block = block;
         this.durability = durability;
         this.setDurability = setDurability;
         this.maxDurability = maxDurability;
+        this.beaconDurability = beaconDurability;
     }
     public BlockDurability(BeaconProtect plugin, Block block, Player player, int changeDur){
         this.block = block;
@@ -57,7 +58,7 @@ public class BlockDurability {
         boolean isTheBeaconActiveForThePlayer = plugin.CustomBeacons.getMaxPenalty(player, block)>0;
         if((!(a.getDefaultBlockDurability()==durability&&a.getDefaultBlockDurability()==setDurability))||isTheBeaconActiveForThePlayer){
             BarColor color;
-            if(plugin.CustomBeacons.checkFriendly(player)){
+            if(plugin.CustomBeacons.checkFriendly(player, block)){
                 color = BarColor.WHITE;
             }else{
                 if(isTheBeaconActiveForThePlayer&&beaconDurability>0){
@@ -93,9 +94,8 @@ public class BlockDurability {
     }
 
     private int setBeaconDurability(int newDurability, int maxBeaconPenalty){//beacon hit is a maximum, beacondurability is mostly just durability
-        //TODO remove sys out println
-        System.out.println(" ");
-        System.out.println("old durability: "+durability+", max durability: "+maxDurability+", new durability: "+newDurability+", max beacon penalty "+maxBeaconPenalty+", old beacon durability "+beaconDurability);
+        //System.out.println(" ");
+        //System.out.println("old durability: "+durability+", max durability: "+maxDurability+", new durability: "+newDurability+", max beacon penalty "+maxBeaconPenalty+", old beacon durability "+beaconDurability);
         int changeDurability = newDurability-durability;
         int maxBeaconDurability = beaconDurability;
         beaconDurability = beaconDurability+changeDurability;
@@ -116,12 +116,9 @@ public class BlockDurability {
             durability = checkDurability(durability+changeDurability);
         }
         //TODO test beacon durabilities and block breakage
-        System.out.println("new durability: "+durability+", beacon durability "+beaconDurability);
-        System.out.println(" ");
+        //System.out.println("new durability: "+durability+", beacon durability "+beaconDurability);
+        //System.out.println(" ");
         return importantChange;//return the change in blocks that need to be removed
-    }
-    private int getBeaconDurability(){
-        return beaconDurability;
     }
 
     private boolean setDurability(BeaconProtect plugin, int newDurability, boolean setDurability, int maxBeaconPenalty){
@@ -154,20 +151,10 @@ public class BlockDurability {
     }
 
 
-
     public int getDurability(){
         return durability;
     }
-    public int getBeaconDurability(BeaconProtect plugin){
-        if(plugin.CustomBeacons.getMaxDurability(block)>=0) {//durability uses beacondurability when in range
-            return durability + beaconDurability;
-        }else{return durability;}
-    }
-    public int getBeaconSetDurability(BeaconProtect plugin){
-        if(plugin.CustomBeacons.getMaxDurability(block)>=0) {//durability uses beacondurability when in range
-            return setDurability + beaconDurability;
-        }else{return setDurability;}
-    }
+    public int getBeaconDurability(){return beaconDurability;}
     public int getMaxDurability(){return maxDurability;}
     public int getSetDurability(){return setDurability;}
     public Block getBlock(){return block;}

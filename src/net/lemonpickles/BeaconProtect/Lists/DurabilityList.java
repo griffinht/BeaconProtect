@@ -1,5 +1,8 @@
-package net.lemonpickles.BeaconProtect;
+package net.lemonpickles.BeaconProtect.Lists;
 
+import net.lemonpickles.BeaconProtect.BeaconProtect;
+import net.lemonpickles.BeaconProtect.BlockDurability;
+import net.lemonpickles.BeaconProtect.DefaultBlockDurability;
 import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -27,8 +30,10 @@ public class DurabilityList extends FileMgmt {
             Location location = entry.getKey();
             BlockDurability blockDurability = entry.getValue();
             DefaultBlockDurability a = plugin.defaultBlockDurabilities.get(blockDurability.getBlock().getType());
-            if(!(a!=null&&a.getDefaultBlockDurability()==blockDurability.getDurability())){
-                durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability());
+            if(a!=null) {
+                if (a.getDefaultBlockDurability()!=blockDurability.getDurability()||blockDurability.getBeaconDurability()!=a.getMaxBlockDurability()) {
+                    durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability());
+                }
             }
         }
         super.getConfig().set("durabilities",durs);
@@ -39,6 +44,7 @@ public class DurabilityList extends FileMgmt {
         plugin.durabilities.clear();
         //deserialize
         for(String rawData:super.getConfig().getStringList("durabilities")){
+            String original = rawData;
             rawData = rawData.replaceAll("\\s","");//remove spaces
             int open = rawData.indexOf("[");
             int close = rawData.indexOf("]");
@@ -55,13 +61,17 @@ public class DurabilityList extends FileMgmt {
             rawData = rawData.substring(0,open)+rawData.substring(close+2);//trim out location [0,0,0] from rawData
 
             //find ints
-            String[] split = rawData.split(",",3);
-            int durability = Integer.parseInt(split[0]);
-            int setDurability = Integer.parseInt(split[1]);
-            int maxDurability = Integer.parseInt(split[2]);
-
-            BlockDurability blockDurability = new BlockDurability(block, durability, setDurability, maxDurability);
-            plugin.durabilities.put(blockDurability.getBlock().getLocation(),blockDurability);
+            String[] split = rawData.split(",");
+            if(split.length==4){
+                int durability = Integer.parseInt(split[0]);
+                int setDurability = Integer.parseInt(split[1]);
+                int maxDurability = Integer.parseInt(split[2]);
+                int beaconDurability = Integer.parseInt(split[3]);
+                BlockDurability blockDurability = new BlockDurability(block, durability, setDurability, maxDurability, beaconDurability);
+                plugin.durabilities.put(blockDurability.getBlock().getLocation(),blockDurability);
+            }else{
+                plugin.logger.warning("Could not the following line as a set block durability from disk: "+original);
+            }
         }
     }
 }
