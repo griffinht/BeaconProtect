@@ -10,7 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
+
 
 import java.util.*;
 
@@ -32,15 +32,15 @@ public class GroupList extends FileMgmt {
             String path = "groups."+entry.getKey();
             Group value = entry.getValue();
             config.createSection(path);
-            config.createSection(path+".name");
+            //config.createSection(path+".name");
             config.set(path+".name", value.getName());
-            config.createSection(path+".owner");
+            //config.createSection(path+".owner");
             if(value.getOwner()!=null) {
                 config.set(path + ".owner", value.getOwner().getUniqueId().toString());
             }
-            config.createSection(path+".description");
+            //config.createSection(path+".description");
             config.set(path+".description", value.getDescription());
-            config.createSection(path+".members");
+            //config.createSection(path+".members");
             if(value.getMembers()!=null) {
                 for (Map.Entry<OfflinePlayer, Member> membersEntry : value.getMembers().entrySet()) {
                     config.set(path + ".members." + membersEntry.getKey().getUniqueId().toString(), membersEntry.getValue().role);
@@ -52,6 +52,13 @@ public class GroupList extends FileMgmt {
                     cfg.add("["+location.getBlockX()+","+location.getBlockY()+","+location.getBlockZ()+"]");
                 }
                 config.set(path + ".beacons", cfg);
+            }
+            if(value.getVaults()!=null){
+                List<String> cfg = new ArrayList<>();
+                for(Location location:value.getVaults()){
+                    cfg.add("["+location.getBlockX()+","+location.getBlockY()+","+location.getBlockZ()+"]");
+                }
+                config.set(path+".vaults", cfg);
             }
         }
         super.save();
@@ -114,7 +121,20 @@ public class GroupList extends FileMgmt {
                             }
                             beacons.add(new Location(getServer().getWorld("world"), loc[0], loc[1], loc[2]));
                         }
-                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons));
+
+                        List<Location> vaults = new ArrayList<>();
+                        for(String string:memorySection2.getStringList("vaults")){
+                            string = string.substring(1, string.length() - 1);
+                            int[] loc = new int[3];
+                            int i = 0;
+                            for(String coord:string.split(",")) {
+                                loc[i] = Integer.parseInt(coord.trim());
+                                i++;
+                            }
+                            vaults.add(new Location(getServer().getWorld("world"), loc[0], loc[1], loc[2]));
+                        }
+
+                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults, plugin.defaultBeaconRange));
                     }
                 }
             }

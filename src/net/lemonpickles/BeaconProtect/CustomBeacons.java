@@ -4,14 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Beacon;
-import org.bukkit.block.Block;
+import org.bukkit.block.*;
+import org.bukkit.craftbukkit.v1_14_R1.block.CraftChest;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,41 +108,49 @@ public class CustomBeacons {
     public int getMaxTier(int tier){
         return plugin.defaultBeaconMultiplier[tier-1];
     }
-    public int getMaxPenalty(Player player, Block block){//friendly players have no penalty
+    public int getMaxPenalty(Player player, Block block){
+        Group group = null;
+        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()) {
+            for (Location location : entry.getValue().getBeacons()) {
+                if (entry.getValue().checkInRange(block.getLocation(), location, ((Beacon) location.getBlock().getState()).getTier())) {
+                    group = entry.getValue();
+                }
+            }
+        }
+        if(group!=null){return getMaxPenalty(player, block, group);}
+        return 0;
+    }
+    public int getMaxPenalty(Player player, Block block, Group group){//friendly players have no penalty
         if(checkFriendly(player, block)){
             return 0;//friendly players bypass beacon
         }else{
-            return getMaxHit(block);
+            return getMaxHit(block, group);
         }
     }
-    private int getMaxHit(Block block){
-        List<Location> locations = checkForBlocks(block);
-        for(Location location:locations){
-            Beacon beacon = (Beacon)location.getBlock().getState();
-            //TODO check if beacon has the blocks
-        }
-        return 5;
+    private int getMaxHit(Block block, Group group){
+        int maxHit = group.getMaterialInVaults(block.getType());
+        return maxHit;
     }
 
-
-
+    public Boolean checkInRange(Location block, Location beacon, int tier){
+        if(tier!=0){
+            tier = plugin.defaultBeaconRange[tier-1];
+            Vector blk = new Vector(block.getX(), block.getY(), block.getZ());
+            Vector min = new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier);
+            Vector max = new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier);
+            if(blk.isInAABB(min, max)){
+                return true;
+            }
+        }
+        return false;
+    }
     public List<Location> checkForBlocks(Block blk){//returns beacons that touch the block
         List<Location> blocks = new ArrayList<>();
-        Location l = blk.getLocation();
-        Vector vector = new Vector(l.getBlockX(), l.getBlockY(), l.getBlockZ());
         for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
             Block block = entry.getValue();
             Beacon beacon = (Beacon) block.getState();
-            int tier;
-            int beaconTier = beacon.getTier();
-            if(beaconTier!=0){
-                tier = plugin.defaultBeaconRange[beaconTier-1];
-                Location location = block.getLocation();
-                Vector min = new Vector(location.getBlockX()-tier, 0, location.getBlockZ()-tier);
-                Vector max = new Vector(location.getBlockX()+tier, 256, location.getBlockZ()+tier);
-                if(vector.isInAABB(min, max)){
-                    blocks.add(block.getLocation());
-                }
+            if(checkInRange(blk.getLocation(), block.getLocation(), beacon.getTier())){
+                blocks.add(block.getLocation());
             }
         }
         return blocks;
@@ -149,19 +158,13 @@ public class CustomBeacons {
     public void beaconEffectPlayers(){
         for(Player player: Bukkit.getOnlinePlayers()){
             Location playerLocation = player.getLocation();
-            Vector vector = new Vector(playerLocation.getBlockX(), playerLocation.getBlockY(), playerLocation.getBlockZ());
             for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
                 Block block = entry.getValue();
                 Beacon beacon = ((Beacon) block.getState());
-                int tier;
                 int beaconTier = beacon.getTier();
                 if(beaconTier!=0){
-                    tier = plugin.defaultBeaconRange[beaconTier-1];
-                    Location location = block.getLocation();
-                    Vector min = new Vector(location.getBlockX()-tier, 0, location.getBlockZ()-tier);
-                    Vector max = new Vector(location.getBlockX()+tier, 256, location.getBlockZ()+tier);
                     if(!beacon.getEntitiesInRange().contains(player)){
-                        if(vector.isInAABB(min, max)){
+                        if(checkInRange(playerLocation, block.getLocation(), beaconTier)){
                             PotionEffect effectPrimary = beacon.getPrimaryEffect();
                             PotionEffect effectSecondary = beacon.getSecondaryEffect();
 

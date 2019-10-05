@@ -2,12 +2,15 @@ package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +50,12 @@ public class GroupCmd implements CommandExecutor {
                     if(a==null){
                         owner = "";
                     }else{owner = a.getName();}
-                    sender.sendMessage("Name: "+g.getName()+", Description: "+g.getDescription()+", Owner: "+owner+", Beacons: "+g.getBeaconsAsString()+", Members: "+g.getMembersAsString());
+                    sender.sendMessage(g.getName());
+                    sender.sendMessage("Owner: "+owner);
+                    sender.sendMessage("Description: "+g.getDescription());
+                    sender.sendMessage("Beacons: "+g.getBeaconsAsString());
+                    sender.sendMessage("Vaults: "+g.getVaultsAsString());
+                    sender.sendMessage("Members: "+g.getMembersAsString());
                 }
             }else if(sender instanceof Player) {
                 Player player = ((Player) sender).getPlayer();
@@ -84,7 +92,38 @@ public class GroupCmd implements CommandExecutor {
                         } else {
                             sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
                         }
-                    }
+                    }else if(args[0].equalsIgnoreCase("addVault")){
+                        Block block = player.getTargetBlock(null, 5);
+                        Location location = block.getLocation();
+                        boolean inRange = false;
+                        if(plugin.CustomBeacons.checkForBlocks(block).size()>0){//this better be a beacon or something will break just kidding
+                            inRange = true;
+                        }
+                        if(block.getType()==Material.CHEST) {
+                            if(inRange) {
+                                if (!group.checkVault(location)) {
+                                    group.addVault(location);
+                                    sender.sendMessage("The chest at " + blockToCoordinates(block) + " has been registered to the group " + group.getName());
+                                } else {
+                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " has already been registered to group " + group.getName());
+                                }
+                            }else{
+                                sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not in the range of a beacon");
+                            }
+                        }else{
+                            sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not a chest (found " + block.getType() + ", maybe move closer?");
+                        }
+                    }else if(args[0].equalsIgnoreCase("removeVault")){
+                        Block block = player.getTargetBlock(null, 5);
+                        Location location = block.getLocation();
+                        if (group.checkVault(location)) {
+                            group.removeVault(location);
+                            sender.sendMessage("The vault at "+blockToCoordinates(block)+" has been removed from group "+group.getName());
+                        } else {
+                            sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " has not been registered to group " + group.getName() + " yet");
+                        }
+                    }else{return false;}
+                    return true;
                 }
             }else{sender.sendMessage("You must be a player to run that command!");}
             return true;
@@ -95,14 +134,23 @@ public class GroupCmd implements CommandExecutor {
                 UUID key = entry.getKey();
                 String name = entry.getValue().getName();
                 if(args[0].equalsIgnoreCase(name)){
-                    if(args[1].equalsIgnoreCase("addMember")){
-                        try{
+                    if(args[1].equalsIgnoreCase("addMember")) {
+                        try {
                             Player player = Bukkit.getServer().getPlayer(args[2]);
                             plugin.groups.get(key).addMember(player, new Member(player, "yeet"));
-                            sender.sendMessage("Added "+args[2]+" to "+name);
-                        }catch(Exception e){
+                            sender.sendMessage("Added " + args[2] + " to " + name);
+                        } catch (Exception e) {
                             System.out.println(e);
-                            sender.sendMessage("Could not find player by the name of "+args[2]);
+                            sender.sendMessage("Could not find player by the name of " + args[2]);
+                        }
+                    }else if(args[1].equalsIgnoreCase("removeMember")){
+                        try {
+                            Player player = Bukkit.getServer().getPlayer(args[2]);
+                            plugin.groups.get(key).removeMember(player);
+                            sender.sendMessage("Removed " + args[2] + " from " + name);
+                        } catch (Exception e) {
+                            System.out.println(e);
+                            sender.sendMessage("Could not find player by the name of " + args[2]);
                         }
                     }else if(args[1].equalsIgnoreCase("setOwner")){
                         try{

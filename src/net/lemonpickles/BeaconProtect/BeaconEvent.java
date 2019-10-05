@@ -29,7 +29,6 @@ public class BeaconEvent implements Listener{
     public void blockPlace(BlockPlaceEvent event){
         Block block = event.getBlock();
         Player player = event.getPlayer();
-        System.out.println("Checking friendly from blockPlace");
         if(plugin.CustomBeacons.checkFriendly(player, block)){
             if(block.getType()==Material.BEACON){
                 Location location = block.getLocation();
@@ -64,7 +63,6 @@ public class BeaconEvent implements Listener{
         }else if(event.getHand()== EquipmentSlot.HAND&&event.getAction()==Action.RIGHT_CLICK_BLOCK){
             if(block!=null) {
                 if (block.getType() == Material.CHEST) {
-                    System.out.println("Checking friendly from interact");
                     if (!plugin.CustomBeacons.checkFriendly(player, block)) {
                         event.setCancelled(true);
                         player.sendMessage("You cannot interact here! This area is protected by a beacon");

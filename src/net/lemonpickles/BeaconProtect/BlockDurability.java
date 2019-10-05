@@ -3,13 +3,18 @@ package net.lemonpickles.BeaconProtect;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class BlockDurability {
     private Block block;
@@ -56,14 +61,14 @@ public class BlockDurability {
         //this if statement runs if the block is at default durability and set durability
         //a.getMaxBlockDurability()==maxDurability&& is extra
         boolean isTheBeaconActiveForThePlayer = plugin.CustomBeacons.getMaxPenalty(player, block)>0;
-        if((!(a.getDefaultBlockDurability()==durability&&a.getDefaultBlockDurability()==setDurability))||isTheBeaconActiveForThePlayer){
+        if((!(a.getDefaultBlockDurability()==durability&&a.getDefaultBlockDurability()==setDurability))||isTheBeaconActiveForThePlayer||!plugin.CustomBeacons.checkFriendly(player, block)){
             BarColor color;
             if(plugin.CustomBeacons.checkFriendly(player, block)){
                 color = BarColor.WHITE;
             }else{
                 if(isTheBeaconActiveForThePlayer&&beaconDurability>0){
                     color = BarColor.PURPLE;//purple if the player has to break through beacon durability
-                }else {
+                }else{
                     color = BarColor.RED;
                 }
             }
@@ -118,18 +123,18 @@ public class BlockDurability {
         //TODO test beacon durabilities and block breakage
         //System.out.println("new durability: "+durability+", beacon durability "+beaconDurability);
         //System.out.println(" ");
-        return importantChange;//return the change in blocks that need to be removed
+        return maxBeaconDurability-beaconDurability;//return the change in blocks that need to be removed
     }
 
-    private boolean setDurability(BeaconProtect plugin, int newDurability, boolean setDurability, int maxBeaconPenalty){
-        int oldDur = durability;
+    private int setDurability(BeaconProtect plugin, int newDurability, boolean setDurability, int maxBeaconPenalty){
+        int returnVal = 0;
         if(maxBeaconPenalty>0){//can be zero if player is friendly
-            setBeaconDurability(checkDurability(newDurability), maxBeaconPenalty);
+            returnVal = setBeaconDurability(checkDurability(newDurability), maxBeaconPenalty);
         }else{durability = checkDurability(newDurability);}
         if(setDurability&&durability>this.setDurability){
             this.setDurability = durability;
         }//setDurability should only be changed when a block is reinforced not broken
-        return oldDur!=durability;
+        return returnVal;
     }
 
 
@@ -141,13 +146,19 @@ public class BlockDurability {
         if(changeDurability>0){//reinforcing so reset beacon durability
             beaconDurability = plugin.CustomBeacons.getMaxDurability(block);
         }
-        boolean value = setDurability(plugin, durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
+        int value = setDurability(plugin, durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
+        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
+            Group group = entry.getValue();
+            if(group.checkForBlock(block)){//this might break with overlapping beacons
+                group.removeMaterialInVaults(block.getType(), value);
+            }
+        }
         if(changeDurability>0) {
             playerBar(plugin, player, true);
         }else{
             playerBar(plugin, player, false);
         }
-        return value;
+        return changeDurability==durability;
     }
 
 
