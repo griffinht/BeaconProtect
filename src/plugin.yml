@@ -15,3 +15,82 @@ commands:
   groups:
     description: BeaconProtect command for all groups
     usage: /groups <arguments>
+    aliases: [g]
+permissions:
+  beaconprotect.admin:
+    description: Gives access to general admin commands
+    default: op
+    children:
+      beaconprotect.bp: true
+
+  beaconprotect.bypass.break:
+    description: Bypass BeaconProtect block breakage
+  beaconprotect.bypass.place:
+    description: Bypass BeaconProtect block placing
+  beaconprotect.bypass.interact:
+    description: Bypass BeaconProtect interaction
+
+  beaconprotect.bp:
+    description: Gives access to /beaconprotect or /bp
+    children:
+      beaconprotect.bp.bypass: true
+
+  beaconprotect.bp.bypass:
+    description: Toggle block bypass (admin mode) on or off
+
+  beaconprotect.groups:
+    description: Gives access to /groups
+    default: true
+  beaconprotect.group.*:
+    description: Gives general access to /group and its related sub-commands
+    default: true
+    children:
+      beaconprotect.group.set.*: true
+      beaconprotect.group: true
+      beaconprotect.group.other: true
+      beaconprotect.group.claimbeacon: true
+      beaconprotect.group.unclaimbeacon: true
+      beaconprotect.group.addvault: true
+      beaconprotect.group.removevault: true
+      beaconprotect.group.invite: true
+      beaconprotect.group.kick: true
+      beaconprotect.group.join: true
+      beaconprotect.group.leave: true
+      beaconprotect.group.create: true
+
+  beaconprotect.group:
+    description: Allows a player to view info about their group
+  beaconprotect.group.other:
+    description: Allows a player to view info about other groups
+  beaconprotect.group.claimbeacon:
+    description: Allows player to claim a beacon for their group
+  beaconprotect.group.unclaimbeaocn:
+    description: Allows player to unclaim a beacon for their group
+  beaconprotect.group.addvault:
+    description: Allows player to add a vault for their group
+  beaconprotect.group.removevault:
+    description: Allows player to remove a vault for their group
+  beaconprotect.group.invite:
+    description: Allows player to invite others to their group
+  beaconprotect.group.kick:
+    description: Allows player to kick members from their group
+  beaconprotect.group.join:
+    description: Allows player to join groups
+  beaconprotect.group.leave:
+    description: Allows player to leave their groups
+  beaconprotect.group.create:
+    description: Allows player to create their own group
+
+  beaconprotect.group.set.*:
+    description: Allows trusted players to manage their group
+    children:
+      beaconprotect.group.set.owner: true
+      beaconprotect.group.set.description: true
+      beaconprotect.group.set.name: true
+
+  beaconprotect.group.set.owner:
+    description: Allows owner to transfer ownership of their group
+  beaconprotect.group.set.description:
+    description: Allows player to set description of their group
+  beaconprotect.group.set.name:
+    description: Allows player to rename their group as owner

@@ -30,6 +30,7 @@ public class BeaconProtect extends JavaPlugin {
     CustomBeacons CustomBeacons;
     private DurabilityList durabilityList;
     public Logger logger = getLogger();
+    List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     @Override
     public void onEnable(){
         //config
