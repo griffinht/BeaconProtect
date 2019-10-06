@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
+import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,12 +22,12 @@ public class BeaconProtect extends JavaPlugin {
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
     public Map<UUID, Group> groups = new HashMap<>();
     ArrayList<Player> isReinforcing = new ArrayList<>();
-    DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
+    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
     public int[] defaultBeaconRange = new int[4];
     int[] defaultBeaconMultiplier = new int[4];
     private GroupList groupList;
     DurabilityBar DurabilityBar;
-    BeaconList beaconList;
+    private BeaconList beaconList;
     CustomBeacons CustomBeacons;
     private DurabilityList durabilityList;
     public Logger logger = getLogger();
@@ -96,11 +97,15 @@ public class BeaconProtect extends JavaPlugin {
         //commands
         PluginCommand pluginCommand1 = getCommand("beaconprotect");
         if(pluginCommand1!=null){
-            pluginCommand1.setExecutor(new BeaconprotectCmd(this));
+            CmdBeaconprotect cmdBeaconprotect = new CmdBeaconprotect(this);
+            pluginCommand1.setExecutor(cmdBeaconprotect);
+            pluginCommand1.setTabCompleter(cmdBeaconprotect);
         }
         PluginCommand pluginCommand2 = getCommand("group");
         if(pluginCommand2!=null){
-            pluginCommand2.setExecutor(new GroupCmd(this));
+            CmdGroup cmdGroup = new CmdGroup(this);
+            pluginCommand2.setExecutor(cmdGroup);
+            pluginCommand2.setTabCompleter(cmdGroup);
         }
 
         //done

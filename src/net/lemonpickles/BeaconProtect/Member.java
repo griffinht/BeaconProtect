@@ -9,4 +9,8 @@ public class Member {
         this.player = player;
         this.role = role;
     }
+    public Member(OfflinePlayer player){
+        this.player = player;
+        this.role = "default or something";
+    }
 }

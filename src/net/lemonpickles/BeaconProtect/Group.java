@@ -24,6 +24,7 @@ public class Group {
     private List<Location> vaults;
     private int[] tiers;
     private Map<OfflinePlayer, Member> members;
+    private List<Player> invites = new ArrayList<>();
     public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer, Member> members, List<Location> beacons, List<Location> vaults, int[] tiers){
         this.name = name;
         this.description = description;
@@ -62,6 +63,8 @@ public class Group {
     void removeMember(Player player){
         members.remove(player);
     }
+    void addMember(Player player){members.put(player, new Member(player));}
+    List<Player> getInvites(){return invites;}
     boolean checkMember(Player player){
         return members.containsKey(player);
     }
@@ -88,7 +91,7 @@ public class Group {
         }
         return beacons.toString();
     }
-    void addBeacon(Location location){
+     void addBeacon(Location location){
         if(!beacons.contains(location)){
             beacons.add(location);
         }
@@ -180,5 +183,14 @@ public class Group {
             return vaults.substring(0,vaults.length()-2);
         }
         return vaults.toString();
+    }
+    public void addInvite(Player player){
+        invites.add(player);
+    }
+    public void removeInvite(Player player){
+        invites.remove(player);
+    }
+    public boolean checkInvite(Player player){
+        return invites.contains(player);
     }
 }

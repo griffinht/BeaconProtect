@@ -9,18 +9,34 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 import static org.bukkit.Material.BEACON;
 
-public class BeaconprotectCmd implements CommandExecutor {
+public class CmdBeaconprotect implements CommandExecutor, TabCompleter {
     private BeaconProtect plugin;
-    BeaconprotectCmd(BeaconProtect plugin){
+    private Map<String, List<String>> usages = new HashMap<>();
+    CmdBeaconprotect(BeaconProtect plugin){
         this.plugin = plugin;
+        List<String> list = new ArrayList<>();
+        list.add("/bp - commands related to managing BeaconProtect");
+        list.add("/bp add <x,y,z> - add a new protection beacon if it does not exist");
+        list.add("/bp remove <x,y,z> - remove a protection beacon if it does not exist");
+        list.add("/bp list - lists all registered protection beacons");
+        list.add("/bp stop - stops giving player effects from protection beacons");
+        list.add("/bp start - starts giving player effects from protection beacons");
+        list.add("/bp durability - commands related to custom block durability");
+        usages.put("beaconprotect", list);
+        list = new ArrayList<>();
+        list.add("/bp durability - commands related to custom block durability");
+        list.add("/bp durability list - lists all blocks with set durability");
+        list.add("/bp durability size - returns the amount of blocks with a set durability");
+        list.add("/bp durability clean - removes block durabilities that are default");
+        usages.put("durability", list);
     }
     private String blockToCoordinates(Block block){
         return "("+block.getX()+", "+block.getY()+", "+block.getZ()+")";
@@ -37,10 +53,16 @@ public class BeaconprotectCmd implements CommandExecutor {
             return true;
         }else{return false;}
     }
+    private void usage(CommandSender sender, String usage){
+        sender.sendMessage("Usage for "+usage);
+        for(String string:usages.get(usage)){
+            sender.sendMessage(string);
+        }
+    }
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         World world = Bukkit.getServer().getWorld("world");
         if (args.length == 0) {
-            sender.sendMessage("Not enough arguments");
+            usage(sender, "beaconprotect");
             return false;
         //add
         }else if (args[0].equalsIgnoreCase("add")) {
@@ -121,41 +143,99 @@ public class BeaconprotectCmd implements CommandExecutor {
                 sender.sendMessage(blockToCoordinates(entry.getValue()));
             }
         }else{sender.sendMessage("There are no currently registered beacons");}
-        }else if(args[0].equalsIgnoreCase("loadBeacons")) {
-            plugin.beaconList.load();
-            sender.sendMessage("Beacons have been loaded from disk");
-        }else if(args[0].equalsIgnoreCase("saveBeacons")) {
-            plugin.beaconList.save();
-            sender.sendMessage("Beacons have been saved to disk");
         }else if(args[0].equalsIgnoreCase("stop")) {
             plugin.CustomBeacons.stopBeacons();
             sender.sendMessage("Stopped running beacons");
         }else if(args[0].equalsIgnoreCase("start")) {
             plugin.CustomBeacons.startBeacons();
             sender.sendMessage("Started running beacons");
-        }else if(args[0].equalsIgnoreCase("clearDurabilities")) {
-            plugin.durabilities.clear();
-            sender.sendMessage("Cleared all set block durabilities.");
-        }else if(args[0].equalsIgnoreCase("groups")){
+        }else if(args[0].equalsIgnoreCase("durability")&&args.length>=2) {
+            if(args[1].equalsIgnoreCase("list")){
+                sender.sendMessage("Listing all set block durabilities ("+plugin.durabilities.size()+")");
+                for(BlockDurability blockDurability:plugin.durabilities.values()){
+                    Block block = blockDurability.getBlock();
+                    Location location = block.getLocation();
+                    sender.sendMessage("["+location.getBlockX()+","+location.getBlockY()+","+location.getBlockZ()+"] - "+block.getType()+": "+blockDurability.getDurability()+"/"+blockDurability.getMaxDurability());
+                }
+            }else if(args[1].equalsIgnoreCase("size")) {
+                sender.sendMessage("There are " + plugin.durabilities.size() + " blocks with a set durability");
+            }else if(args[1].equalsIgnoreCase("clean")){
+                int start = plugin.durabilities.size();
+                sender.sendMessage("Starting check "+start+" for unnecessary entries");
+                for(Map.Entry<Location, BlockDurability> entry:plugin.durabilities.entrySet()){//TODO:this doesn't work - it doesnt remove anything
+                    BlockDurability blockDurability = entry.getValue();
+                    DefaultBlockDurability defaultBlockDurability = plugin.defaultBlockDurabilities.getOrDefault(blockDurability.getBlock().getType(), plugin.defaultBlockDurability);
+                    if (!(defaultBlockDurability.getDefaultBlockDurability() != blockDurability.getDurability() || blockDurability.getBeaconDurability() != defaultBlockDurability.getMaxBlockDurability())) {
+                        plugin.durabilities.remove(entry.getKey());
+                    }
+                }
+                sender.sendMessage("Removed "+(start-plugin.durabilities.size())+" of "+start+" entries");
+            }else{
+                usage(sender, "durability");
+            }
+            return true;
+        }else if(args[0].equalsIgnoreCase("groups")) {
             sender.sendMessage("Groups:");
-            for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
+            for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {
                 Group g = entry.getValue();
                 OfflinePlayer a = g.getOwner();
                 String owner;
-                if(a==null){
+                if (a == null) {
                     owner = "";
-                }else{owner = a.getName();}
+                } else {
+                    owner = a.getName();
+                }
                 sender.sendMessage(g.getName());
-                sender.sendMessage("Owner: "+owner);
-                sender.sendMessage("Description: "+g.getDescription());
-                sender.sendMessage("Beacons: "+g.getBeaconsAsString());
-                sender.sendMessage("Vaults: "+g.getVaultsAsString());
-                sender.sendMessage("Members: "+g.getMembersAsString());
+                sender.sendMessage("Owner: " + owner);
+                sender.sendMessage("Description: " + g.getDescription());
+                sender.sendMessage("Beacons: " + g.getBeaconsAsString());
+                sender.sendMessage("Vaults: " + g.getVaultsAsString());
+                sender.sendMessage("Members: " + g.getMembersAsString());
             }
+        }else if(args[0].equalsIgnoreCase("durability")){
+            usage(sender, "durability");
         }else {
-            sender.sendMessage("Incorrect argument");
-            return false;
+            usage(sender, "beaconprotect");
         }//TODO perms, cleanup xtra commands, tab autocomplete
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args){
+        List<String> completions = new ArrayList<>();
+        if(args.length==1){
+            if(checkCompletions("add", args[0])) {completions.add("add");}
+            if(checkCompletions("remove", args[0])) {completions.add("remove");}
+            if(checkCompletions("list", args[0])) {completions.add("list");}
+            if(checkCompletions("stop", args[0])) {completions.add("stop");}
+            if(checkCompletions("start", args[0])) {completions.add("start");}
+            if(checkCompletions("durability", args[0])) {completions.add("durability");}
+            return completions;
+        }else if(args.length==2){
+            if(args[0].equalsIgnoreCase("durability")){
+                if(checkCompletions("list", args[0])) {completions.add("list");}
+                if(checkCompletions("size", args[0])) {completions.add("size");}
+                if(checkCompletions("clean", args[0])) {completions.add("clean");}
+                return completions;
+            }else if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
+                completions.add("x y z");
+                return completions;
+            }
+        }else if(args.length==3){
+            if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
+                completions.add("y z");
+                return completions;
+            }
+        }else if(args.length==4){
+            if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
+                completions.add("z");
+                return completions;
+            }
+        }
+        return null;
+    }
+    private boolean checkCompletions(String a, String arg){
+        if(a.length()<arg.length()){return false;}
+        return a.substring(0,arg.length()).equals(arg);
     }
 }
