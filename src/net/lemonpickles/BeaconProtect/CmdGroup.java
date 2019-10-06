@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.List;
 
 import static org.bukkit.Bukkit.getServer;
+import static org.bukkit.Bukkit.loadServerIcon;
 import static org.bukkit.Material.BEACON;
 
 public class CmdGroup implements CommandExecutor, TabCompleter {
@@ -39,6 +40,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
         list.add("/group join <group> - join an open group or a group that you were invited to");
         list.add("/group set - set properties related to your group");
         list.add("/group leave - leave your current group");
+        list.add("/group create <name> - create your own group");
         usages.put("group", list);
         list = new ArrayList<>();
         list.add("/group set - set properties related to your group");
@@ -138,30 +140,75 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " has not been registered to group " + group.getName() + " yet");
                             }
                         } else if (args[0].equalsIgnoreCase("leave")) {
-                            group.removeMember(player);
-                            sender.sendMessage("Left group " + group.getName());
+                            if (!group.getOwner().getUniqueId().equals(player.getUniqueId())) {
+                                System.out.println(group.getOwner().getUniqueId()+" and "+player.getUniqueId());
+                                group.removeMember(player);
+                                sender.sendMessage("Left group " + group.getName());
+                            } else {
+                                sender.sendMessage("You cannot leave your group as the owner. Use /group delete to delete your group instead, or make another player the owner");
+                            }
+                        }else if(args[0].equalsIgnoreCase("delete")){
+                            if(group.getOwner().getUniqueId().equals(player.getUniqueId())){
+                                String name = group.getName();
+                                for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
+                                    if(entry.getValue()==group){
+                                        plugin.groups.remove(entry.getKey());
+                                        sender.sendMessage("Deleted your group "+name);
+                                        return true;
+                                    }
+                                }
+                               sender.sendMessage("Could not find your group. That was not supposed to happen...");
+                            }else{sender.sendMessage("You must be the owner of your group to delete it");}
                         } else {
+                            for(Group g:plugin.groups.values()){
+                                if(g.getName().equalsIgnoreCase(args[0])){
+                                    sender.sendMessage("Group:");
+                                    sender.sendMessage("Name: " + g.getName() + ", Description: " + g.getDescription() + ", Owner: " + g.getOwner().getName() + ", Beacons: " + g.getBeaconsAsString() + ", Members: " + g.getMembersAsString());
+                                    return true;
+                                }
+                            }
                             sender.sendMessage("Incorrect argument");
                             usage(sender, "group");
                             return true;
                         }
                         return true;
                     }else{
-                        if(args[0].equalsIgnoreCase("join")){
-                            for(Group a:plugin.groups.values()){
-                                if(a.checkInvite(player)){group = a;}
+                        if(args[0].equalsIgnoreCase("join")) {
+                            for (Group a : plugin.groups.values()) {
+                                if (a.checkInvite(player)) {
+                                    group = a;
+                                }
                             }
-                            if(group!=null){
+                            if (group != null) {
                                 group.removeInvite(player);
                                 group.addMember(player);
-                                sender.sendMessage("You have joined "+group.getName());
-                            }else{sender.sendMessage("You have not been invited to any groups");}
+                                sender.sendMessage("You have joined " + group.getName());
+                            } else {
+                                sender.sendMessage("You have not been invited to any groups");
+                            }
+                        }else if(args[0].equalsIgnoreCase("create")){
+                            sender.sendMessage("Usage: /group create <name>");
                         }else{sender.sendMessage("You must be in a group to run that command");}
 
                     }
                 } else {sender.sendMessage("Error: Could not get player (this should not happen)");}
-            } else {
+            }else{
+                for (Group group : plugin.groups.values()) {
+                    if (group.getName().equalsIgnoreCase(args[0])) {
+                        sender.sendMessage("Group:");
+                        sender.sendMessage("Name: " + group.getName() + ", Description: " + group.getDescription() + ", Owner: " + group.getOwner().getName() + ", Beacons: " + group.getBeaconsAsString() + ", Members: " + group.getMembersAsString());
+                        return true;
+                    }
+                }
                 sender.sendMessage("You must be a player to run that command!");
+                return true;
+            }
+            for (Group group : plugin.groups.values()) {
+                if (group.getName().equalsIgnoreCase(args[0])) {
+                    sender.sendMessage("Group:");
+                    sender.sendMessage("Name: " + group.getName() + ", Description: " + group.getDescription() + ", Owner: " + group.getOwner().getName() + ", Beacons: " + group.getBeaconsAsString() + ", Members: " + group.getMembersAsString());
+                    return true;
+                }
             }
             return true;
         }else if(args.length==2){
@@ -202,18 +249,31 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                             sender.sendMessage("Could not find player " + args[1]);
                         }
                     }else{sender.sendMessage("You must be in a group to use that command");}
-                }else if(args[0].equalsIgnoreCase("join")){
-                    for(Group group:plugin.groups.values()){
-                        if(group.getName().equalsIgnoreCase(args[1])){
-                            if(group.checkMember(player)){
-                                if(group.checkInvite(player)){
+                    return true;
+                }else if(args[0].equalsIgnoreCase("join")) {
+                    for (Group group : plugin.groups.values()) {
+                        if (group.getName().equalsIgnoreCase(args[1])) {
+                            if (group.checkMember(player)) {
+                                if (group.checkInvite(player)) {
                                     group.addMember(player, new Member(player, "poopoo"));
                                     group.removeInvite(player);
-                                    sender.sendMessage("You have join the group "+group.getName());//TODO info for noobs like the spawn????
-                                }else{sender.sendMessage("You have not yet been invited to this group");}
-                            }else{sender.sendMessage("You are already in this group!");}
-                        }else{sender.sendMessage("Could not find a group named "+group.getName()+". Check /groups list");}
+                                    sender.sendMessage("You have joined the group " + group.getName());//TODO info for noobs like the spawn????
+                                } else {
+                                    sender.sendMessage("You have not yet been invited to this group");
+                                }
+                            } else {
+                                sender.sendMessage("You are already in this group!");
+                            }
+                        }
                     }
+                    sender.sendMessage("Could not find a group named " + args[1] + ". Check /groups list");
+                    return true;
+                }else if(args[0].equalsIgnoreCase("create")){
+                    if(findGroup(player)==null){
+                        plugin.groups.put(UUID.randomUUID(), new Group(args[1], player, plugin.defaultBeaconRange));
+                        sender.sendMessage("Created a new group named "+args[1]);
+                    }else{sender.sendMessage("You must leave your current group before you can create a new one");}
+                    return true;
                 }else{
                     sender.sendMessage("Unknown argument");
                     usage(sender, "group");
@@ -282,6 +342,13 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
             if(checkCompletions("set", args[0])) {completions.add("set");}
             if(checkCompletions("join", args[0])){completions.add("join");}
             if(checkCompletions("leave",args[0])){completions.add("leave");}
+            if(checkCompletions("create",args[0])){completions.add("create");}
+            if(checkCompletions("delete",args[0])){completions.add("delete");}
+            if(completions.size()==0){
+                for(Group group:plugin.groups.values()){
+                    if(checkCompletions(group.getName(),args[0])){completions.add(group.getName());}
+                }
+            }
             return completions;
         }else if(args.length==2){
             if(args[0].equalsIgnoreCase("set")){
@@ -331,22 +398,3 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
         return completions;
     }
 }
-//TODO this needs to go in /groups
-/*}else if(args.length==1){
-            if(args[0].equalsIgnoreCase("list")){
-                sender.sendMessage("Groups:");
-                for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
-                    Group g = entry.getValue();
-                    OfflinePlayer a = g.getOwner();
-                    String owner;
-                    if(a==null){
-                        owner = "";
-                    }else{owner = a.getName();}
-                    sender.sendMessage(g.getName());
-                    sender.sendMessage("Owner: "+owner);
-                    sender.sendMessage("Description: "+g.getDescription());
-                    sender.sendMessage("Beacons: "+g.getBeaconsAsString());
-                    sender.sendMessage("Vaults: "+g.getVaultsAsString());
-                    sender.sendMessage("Members: "+g.getMembersAsString());
-                }
-                */

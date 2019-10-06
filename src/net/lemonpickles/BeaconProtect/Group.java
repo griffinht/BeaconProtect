@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class Group {
     private List<Location> beacons;
     private List<Location> vaults;
     private int[] tiers;
-    private Map<OfflinePlayer, Member> members;
+    private Map<OfflinePlayer, Member> members = new HashMap<>();
     private List<Player> invites = new ArrayList<>();
     public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer, Member> members, List<Location> beacons, List<Location> vaults, int[] tiers){
         this.name = name;
@@ -33,6 +34,15 @@ public class Group {
         this.beacons = beacons;
         this.vaults = vaults;
         this.tiers = tiers;
+    }
+    public Group(String name, Player owner, int[] tiers){
+        this.name = name;
+        this.owner = owner;
+        this.tiers = tiers;
+        this.description = "";
+        this.members.put(owner, new Member(owner));
+        this.vaults = new ArrayList<>();
+        this.beacons = new ArrayList<>();
     }
     public OfflinePlayer getOwner(){
         return owner;

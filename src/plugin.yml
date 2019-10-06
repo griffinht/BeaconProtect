@@ -11,4 +11,7 @@ commands:
     aliases: [bp]
   group:
     description: BeaconProtect command for managing groups
-    usage: /group arguments
+    usage: /group <arguments>
+  groups:
+    description: BeaconProtect command for all groups
+    usage: /groups <arguments>

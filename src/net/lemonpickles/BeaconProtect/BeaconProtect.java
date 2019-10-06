@@ -7,7 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
-import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -107,7 +106,12 @@ public class BeaconProtect extends JavaPlugin {
             pluginCommand2.setExecutor(cmdGroup);
             pluginCommand2.setTabCompleter(cmdGroup);
         }
-
+        PluginCommand pluginCommand3 = getCommand("groups");
+        if(pluginCommand3!=null){
+            CmdGroups cmdGroups = new CmdGroups(this);
+            pluginCommand3.setExecutor(cmdGroups);
+            pluginCommand3.setTabCompleter(cmdGroups);
+        }
         //done
         logger.info("BeaconProtect has been enabled");
     }
