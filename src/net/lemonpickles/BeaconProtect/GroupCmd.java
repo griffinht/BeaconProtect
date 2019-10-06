@@ -4,13 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
@@ -20,7 +18,7 @@ import static org.bukkit.Material.BEACON;
 public class GroupCmd implements CommandExecutor {
     private BeaconProtect plugin;
 
-    public GroupCmd(BeaconProtect plugin) {
+    GroupCmd(BeaconProtect plugin) {
         this.plugin = plugin;
     }
     //add() and remove() and blockToCoordinates() were copied from beaconCmd
@@ -65,7 +63,7 @@ public class GroupCmd implements CommandExecutor {
                         group = entry.getValue();
                     }
                 }
-                if(group!=null) {
+                if(group!=null&&player!=null) {
                     if (args[0].equalsIgnoreCase("addBeacon")) {
                         Block beacon = player.getTargetBlock(null, 5);
                         Location location = beacon.getLocation();
@@ -127,8 +125,6 @@ public class GroupCmd implements CommandExecutor {
                 }
             }else{sender.sendMessage("You must be a player to run that command!");}
             return true;
-        }else if(args.length==2){
-
         }else if(args.length==3){
             for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
                 UUID key = entry.getKey();
@@ -140,7 +136,6 @@ public class GroupCmd implements CommandExecutor {
                             plugin.groups.get(key).addMember(player, new Member(player, "yeet"));
                             sender.sendMessage("Added " + args[2] + " to " + name);
                         } catch (Exception e) {
-                            System.out.println(e);
                             sender.sendMessage("Could not find player by the name of " + args[2]);
                         }
                     }else if(args[1].equalsIgnoreCase("removeMember")){
@@ -149,7 +144,6 @@ public class GroupCmd implements CommandExecutor {
                             plugin.groups.get(key).removeMember(player);
                             sender.sendMessage("Removed " + args[2] + " from " + name);
                         } catch (Exception e) {
-                            System.out.println(e);
                             sender.sendMessage("Could not find player by the name of " + args[2]);
                         }
                     }else if(args[1].equalsIgnoreCase("setOwner")){
@@ -158,7 +152,6 @@ public class GroupCmd implements CommandExecutor {
                             plugin.groups.get(key).setOwner(player);
                             sender.sendMessage("Set "+args[2]+" as owner of "+name);
                         }catch(Exception e){
-                            System.out.println(e);
                             sender.sendMessage("Could not find player by the name of "+args[2]);
                         }
                     }else if(args[1].equalsIgnoreCase("setDescription")) {

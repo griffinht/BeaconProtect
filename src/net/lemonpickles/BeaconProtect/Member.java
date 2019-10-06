@@ -1,7 +1,6 @@
 package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 public class Member {
     public OfflinePlayer player;

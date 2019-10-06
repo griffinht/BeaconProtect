@@ -1,18 +1,12 @@
 package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,7 +16,6 @@ public class BlockDurability {
     private int durability;
     private int setDurability;
     private int beaconDurability = -69;//this is bad
-    private List<Location> beacons = new ArrayList<>();//TODO:handle new and old beacons TODO what is a new or old beacon
     public BlockDurability(Block block, int durability, int setDurability, int maxDurability, int beaconDurability){//for loading BlockDurability from disk
         this.block = block;
         this.durability = durability;
@@ -30,7 +23,7 @@ public class BlockDurability {
         this.maxDurability = maxDurability;
         this.beaconDurability = beaconDurability;
     }
-    public BlockDurability(BeaconProtect plugin, Block block, Player player, int changeDur){
+    BlockDurability(BeaconProtect plugin, Block block, Player player, int changeDur){
         this.block = block;
         DefaultBlockDurability defaultDur = plugin.defaultBlockDurabilities.getOrDefault(block.getType(), plugin.defaultBlockDurability);
         this.maxDurability = defaultDur.getMaxBlockDurability();
@@ -38,7 +31,6 @@ public class BlockDurability {
         this.durability = defaultDurability;
         this.setDurability = defaultDurability;
         changeDurability(plugin, player, changeDur, false);
-        beacons = plugin.CustomBeacons.checkForBlocks(block);//TODO figure out why this variable is set
         if(durability>1||plugin.CustomBeacons.getMaxPenalty(player, block)>0&&beaconDurability>0) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
             if(changeDur>0){
                 playerBar(plugin, player, true);
@@ -126,7 +118,7 @@ public class BlockDurability {
         return maxBeaconDurability-beaconDurability;//return the change in blocks that need to be removed
     }
 
-    private int setDurability(BeaconProtect plugin, int newDurability, boolean setDurability, int maxBeaconPenalty){
+    private int setDurability(int newDurability, boolean setDurability, int maxBeaconPenalty){
         int returnVal = 0;
         if(maxBeaconPenalty>0){//can be zero if player is friendly
             returnVal = setBeaconDurability(checkDurability(newDurability), maxBeaconPenalty);
@@ -141,12 +133,12 @@ public class BlockDurability {
 
 
 
-    public boolean changeDurability(BeaconProtect plugin, Player player, int changeDurability, boolean setDurability){
+    boolean changeDurability(BeaconProtect plugin, Player player, int changeDurability, boolean setDurability){
         if(beaconDurability==-69){beaconDurability = plugin.CustomBeacons.getMaxDurability(block);}//initializer value
         if(changeDurability>0){//reinforcing so reset beacon durability
             beaconDurability = plugin.CustomBeacons.getMaxDurability(block);
         }
-        int value = setDurability(plugin, durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
+        int value = setDurability(durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             Group group = entry.getValue();
             if(group.checkForBlock(block)){//this might break with overlapping beacons

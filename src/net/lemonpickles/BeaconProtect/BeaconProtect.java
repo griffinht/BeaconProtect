@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,21 +17,18 @@ import java.util.logging.Logger;
 public class BeaconProtect extends JavaPlugin {
     public Map<Location, Block> beacons = new HashMap<>();
     public Map<Location, BlockDurability> durabilities = new HashMap<>();
-    public Map<Player, BossBar> durabilityBars = new HashMap<>();
+    Map<Player, BossBar> durabilityBars = new HashMap<>();
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
     public Map<UUID, Group> groups = new HashMap<>();
-    public Map<String, BlockPermissions> blockPermissions = new HashMap<>();//TODO
-    public ArrayList<Player> isReinforcing = new ArrayList<>();
-    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
+    ArrayList<Player> isReinforcing = new ArrayList<>();
+    DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
     public int[] defaultBeaconRange = new int[4];
-    public int[] defaultBeaconMultiplier = new int[4];
-    public GroupList groupList;
-    public DurabilityBar DurabilityBar;
-    public BeaconList beaconList;
-    public CustomBeacons CustomBeacons;
-    public BeaconEvent beaconEvent;
-    public DurabilityList durabilityList;
-    public BlockDurability BlockDurability;
+    int[] defaultBeaconMultiplier = new int[4];
+    private GroupList groupList;
+    DurabilityBar DurabilityBar;
+    BeaconList beaconList;
+    CustomBeacons CustomBeacons;
+    private DurabilityList durabilityList;
     public Logger logger = getLogger();
     @Override
     public void onEnable(){
@@ -94,10 +92,16 @@ public class BeaconProtect extends JavaPlugin {
         CustomBeacons.startBeacons();
         logger.info("Started updating all beacons");
         //block events
-        beaconEvent = new BeaconEvent(this);
+        new BeaconEvent(this);
         //commands
-        getCommand("beaconprotect").setExecutor(new BeaconprotectCmd(this));
-        getCommand("group").setExecutor(new GroupCmd(this));
+        PluginCommand pluginCommand1 = getCommand("beaconprotect");
+        if(pluginCommand1!=null){
+            pluginCommand1.setExecutor(new BeaconprotectCmd(this));
+        }
+        PluginCommand pluginCommand2 = getCommand("group");
+        if(pluginCommand2!=null){
+            pluginCommand2.setExecutor(new GroupCmd(this));
+        }
 
         //done
         logger.info("BeaconProtect has been enabled");

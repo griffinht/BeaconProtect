@@ -19,7 +19,7 @@ import static org.bukkit.Material.BEACON;
 
 public class BeaconprotectCmd implements CommandExecutor {
     private BeaconProtect plugin;
-    public BeaconprotectCmd(BeaconProtect plugin){
+    BeaconprotectCmd(BeaconProtect plugin){
         this.plugin = plugin;
     }
     private String blockToCoordinates(Block block){
@@ -37,8 +37,7 @@ public class BeaconprotectCmd implements CommandExecutor {
             return true;
         }else{return false;}
     }
-
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         World world = Bukkit.getServer().getWorld("world");
         if (args.length == 0) {
             sender.sendMessage("Not enough arguments");
@@ -61,7 +60,7 @@ public class BeaconprotectCmd implements CommandExecutor {
                         sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
                     }
                 }else{sender.sendMessage("You must be a player to run that command");}
-            } else if (args.length == 4) {
+            } else if (args.length == 4&&world!=null) {
                 try {
                     Block beacon = world.getBlockAt(parseInt(args[1]), parseInt(args[2]), parseInt(args[3]));
                     Location location = beacon.getLocation();
@@ -98,7 +97,7 @@ public class BeaconprotectCmd implements CommandExecutor {
                             }
                         }
                 }else{sender.sendMessage("You must be a player to use that command");}
-            } else if (args.length == 4) {
+            } else if (args.length == 4&&world!=null) {
                 Block beacon = world.getBlockAt(parseInt(args[1]), parseInt(args[2]), parseInt(args[3]));
                 Location location = beacon.getLocation();
                     if (remove(location)) {
@@ -138,7 +137,21 @@ public class BeaconprotectCmd implements CommandExecutor {
             plugin.durabilities.clear();
             sender.sendMessage("Cleared all set block durabilities.");
         }else if(args[0].equalsIgnoreCase("groups")){
-
+            sender.sendMessage("Groups:");
+            for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
+                Group g = entry.getValue();
+                OfflinePlayer a = g.getOwner();
+                String owner;
+                if(a==null){
+                    owner = "";
+                }else{owner = a.getName();}
+                sender.sendMessage(g.getName());
+                sender.sendMessage("Owner: "+owner);
+                sender.sendMessage("Description: "+g.getDescription());
+                sender.sendMessage("Beacons: "+g.getBeaconsAsString());
+                sender.sendMessage("Vaults: "+g.getVaultsAsString());
+                sender.sendMessage("Members: "+g.getMembersAsString());
+            }
         }else {
             sender.sendMessage("Incorrect argument");
             return false;
