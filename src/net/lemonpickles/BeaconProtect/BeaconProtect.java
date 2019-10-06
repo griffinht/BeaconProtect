@@ -1,33 +1,34 @@
 package net.lemonpickles.BeaconProtect;
 
+import net.lemonpickles.BeaconProtect.Lists.BeaconList;
+import net.lemonpickles.BeaconProtect.Lists.DurabilityList;
+import net.lemonpickles.BeaconProtect.Lists.GroupList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class BeaconProtect extends JavaPlugin {
     public Map<Location, Block> beacons = new HashMap<>();
     public Map<Location, BlockDurability> durabilities = new HashMap<>();
-    public Map<Player, BossBar> durabilityBars = new HashMap<>();
+    Map<Player, BossBar> durabilityBars = new HashMap<>();
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
-    public ArrayList<Player> isReinforcing = new ArrayList<>();
-    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read
+    public Map<UUID, Group> groups = new HashMap<>();
+    ArrayList<Player> isReinforcing = new ArrayList<>();
+    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
     public int[] defaultBeaconRange = new int[4];
-    public int[] defaultBeaconMultiplier = new int[4];
-    public DurabilityBar DurabilityBar;
-    public BeaconList beaconList;
-    public CustomBeacons CustomBeacons;
-    public BeaconEvent beaconEvent;
-    public DurabilityList durabilityList;
-    public BlockDurability BlockDurability;
+    int[] defaultBeaconMultiplier = new int[4];
+    private GroupList groupList;
+    DurabilityBar DurabilityBar;
+    private BeaconList beaconList;
+    CustomBeacons CustomBeacons;
+    private DurabilityList durabilityList;
     public Logger logger = getLogger();
     @Override
     public void onEnable(){
@@ -52,6 +53,7 @@ public class BeaconProtect extends JavaPlugin {
         logger.info("Loaded global default durability of "+defaultBlockDurability.getDefaultBlockDurability()+" and max durability of "+defaultBlockDurability.getMaxBlockDurability());
         //build defaultDurabilities
         //yaml with bukkit sucks
+        //probably because i don't know how to use it
         List<String> durs = getConfig().getStringList("block_durabilities");
         for(String line:durs){
             String[] split = line.split(":",2);
@@ -81,25 +83,49 @@ public class BeaconProtect extends JavaPlugin {
         durabilityList = new DurabilityList(this);
         durabilityList.load();
         logger.info("Loaded "+durabilities.size()+" blocks with a set durability");
+        //initialize groups from file
+        groupList = new GroupList(this);
+        groupList.load();
+        logger.info("Loaded "+groups.size()+" groups");
         //CustomBeacons event
         CustomBeacons = new CustomBeacons(this);
         CustomBeacons.startBeacons();
         logger.info("Started updating all beacons");
         //block events
-        beaconEvent = new BeaconEvent(this);
+        new BeaconEvent(this);
         //commands
-        getCommand("beacon").setExecutor(new BeaconCmd(this));
-
+        PluginCommand pluginCommand1 = getCommand("beaconprotect");
+        if(pluginCommand1!=null){
+            CmdBeaconprotect cmdBeaconprotect = new CmdBeaconprotect(this);
+            pluginCommand1.setExecutor(cmdBeaconprotect);
+            pluginCommand1.setTabCompleter(cmdBeaconprotect);
+        }
+        PluginCommand pluginCommand2 = getCommand("group");
+        if(pluginCommand2!=null){
+            CmdGroup cmdGroup = new CmdGroup(this);
+            pluginCommand2.setExecutor(cmdGroup);
+            pluginCommand2.setTabCompleter(cmdGroup);
+        }
+        PluginCommand pluginCommand3 = getCommand("groups");
+        if(pluginCommand3!=null){
+            CmdGroups cmdGroups = new CmdGroups(this);
+            pluginCommand3.setExecutor(cmdGroups);
+            pluginCommand3.setTabCompleter(cmdGroups);
+        }
         //done
         logger.info("BeaconProtect has been enabled");
     }
 
     @Override
-    public void onDisable(){
+    public void onDisable(){//TODO should i set a lot of variables to null here?
+        for(Map.Entry<Player, BossBar> entry:durabilityBars.entrySet()){//remove all active boss bars for durability
+            entry.getValue().removeAll();
+        }
         CustomBeacons.stopBeacons();
         beaconList.save();
         durabilityList.save();
-        logger.info("Saved beacons and blocks with a set durability to file");
+        groupList.save();
+        logger.info("Saved beacons, blocks durabilities, and groups to file");
         getLogger().info("BeaconProtect has been disabled");
     }
 

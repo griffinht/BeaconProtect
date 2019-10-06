@@ -4,19 +4,17 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class DurabilityBar {
+class DurabilityBar {
     private BeaconProtect plugin;
-    public DurabilityBar(BeaconProtect plugin){
+    DurabilityBar(BeaconProtect plugin){
         this.plugin = plugin;
     }
-    public void addTimedBar(BossBar bar, Player player, int ticks){
+    void addTimedBar(BossBar bar, Player player, int ticks){
         new bossBarRemove(plugin, bar, player, ticks);
     }
     public class bossBarRemove extends BukkitRunnable {
-        private final BeaconProtect plugin;
         private BossBar bar;
-        public bossBarRemove(BeaconProtect plugin, BossBar bar, Player player, int ticks){
-            this.plugin = plugin;
+        bossBarRemove(BeaconProtect plugin, BossBar bar, Player player, int ticks){
             this.bar = bar;
             if(plugin.durabilityBars.containsKey(player)){//TODO:unnecessary check?
                 plugin.durabilityBars.get(player).removeAll();

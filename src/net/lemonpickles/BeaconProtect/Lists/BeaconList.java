@@ -1,5 +1,6 @@
-package net.lemonpickles.BeaconProtect;
+package net.lemonpickles.BeaconProtect.Lists;
 
+import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

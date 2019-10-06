@@ -22,7 +22,7 @@ public class FileMgmt {
                 this.plugin.logger.info("Created "+fileName);
             }catch(IOException e){
                 plugin.logger.warning("Could not create "+fileName);
-                System.out.println(e);
+                e.printStackTrace();
             }
 
         }
@@ -33,18 +33,18 @@ public class FileMgmt {
             this.config.save(file);
         }catch(IOException e){
             this.plugin.logger.warning("Could not save file to disk");
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
     public void load(){
         this.config = YamlConfiguration.loadConfiguration(file);
     }
 
-    public FileConfiguration getConfig(){
+    protected FileConfiguration getConfig(){
         return config;
     }
 
-    public File getFile(){
+    protected File getFile(){
         return file;
     }
 }

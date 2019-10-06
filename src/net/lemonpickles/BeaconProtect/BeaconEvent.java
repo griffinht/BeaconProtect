@@ -13,9 +13,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
-    public BeaconEvent(BeaconProtect plugin){
+    BeaconEvent(BeaconProtect plugin){
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -26,12 +29,20 @@ public class BeaconEvent implements Listener{
     public void blockPlace(BlockPlaceEvent event){
         Block block = event.getBlock();
         Player player = event.getPlayer();
-        if(plugin.CustomBeacons.checkForBlocks(block).size()==0){
+        if(plugin.CustomBeacons.checkFriendly(player, block)){
             if(block.getType()==Material.BEACON){
                 Location location = block.getLocation();
                 if(!plugin.beacons.containsKey(location)){
                     plugin.beacons.put(location, block);
                     String msg = "The beacon at " +block.getX()+", "+block.getY()+", "+block.getZ() + " has been registered";
+                    String msg2 = "";
+                    for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){//add beacon if player is in a group
+                        if(entry.getValue().checkMember(player)){
+                            entry.getValue().addBeacon(location);
+                            msg2 = " to group "+entry.getValue().getName();
+                        }
+                    }
+                    msg = msg+msg2;
                     player.sendMessage(msg);
                     plugin.logger.info(msg);
                 }
@@ -54,20 +65,23 @@ public class BeaconEvent implements Listener{
         }else if(event.getHand()== EquipmentSlot.HAND&&event.getAction()==Action.RIGHT_CLICK_BLOCK){
             if(block!=null) {
                 if (block.getType() == Material.CHEST) {
-                    if (plugin.CustomBeacons.checkForBlocks(block).size()!=0) {
+                    if (!plugin.CustomBeacons.checkFriendly(player, block)) {
                         event.setCancelled(true);
                         player.sendMessage("You cannot interact here! This area is protected by a beacon");
-                    }else if(plugin.durabilities.containsKey(block.getLocation())){
-                        int dur = plugin.durabilities.get(block.getLocation()).getDurability();
-                        if(dur==1){
-                            event.setCancelled(true);
-                        }else{player.sendMessage("You cannot interact here! This chest has "+dur+" remaining!");}
+                        if (plugin.durabilities.containsKey(block.getLocation())) {//this is broken
+                            int dur = plugin.durabilities.get(block.getLocation()).getDurability();
+                            if (dur == 1) {
+                                event.setCancelled(true);
+                            } else {
+                                player.sendMessage("You cannot interact here! This chest has " + dur + " remaining!");
+                            }
+                        }
                     }
                 }
             }
         }else if(event.getAction()==Action.LEFT_CLICK_BLOCK){
             if(reinforce){
-                if(plugin.isReinforcing.contains(player)){//in reinforce mode
+                if(plugin.isReinforcing.contains(player)&&block!=null){//in reinforce mode
                     if(stack.getType()==block.getType()){
                         BlockDurability blockDur;
                         if(!plugin.durabilities.containsKey(block.getLocation())){
@@ -90,7 +104,6 @@ public class BeaconEvent implements Listener{
                 plugin.isReinforcing.remove(player);
                 player.sendMessage("Left block reinforce mode.");
                 event.setCancelled(true);
-                return;
             }else if(block!=null) {//info click
                 if(!plugin.durabilities.containsKey(block.getLocation())){
                     new BlockDurability(plugin, block, player,0);
@@ -120,6 +133,11 @@ public class BeaconEvent implements Listener{
         if (block.getType() == Material.BEACON) {
             Location location = block.getLocation();
             if (plugin.beacons.containsKey(location)) {
+                for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){//remove from group ownership too
+                    if(entry.getValue().checkBeacon(location)){
+                        entry.getValue().removeBeacon(location);
+                    }
+                }
                 plugin.beacons.remove(location);
                 String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
                 player.sendMessage(msg);
