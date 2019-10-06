@@ -96,7 +96,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         } else if (args[0].equalsIgnoreCase("unclaimbeacon")) {
                             if(sender.hasPermission("beaconprotect.group.unclaimbeacon")) {
                                 Block beacon = player.getTargetBlock(null, 5);
@@ -111,7 +111,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         } else if (args[0].equalsIgnoreCase("addvault")) {
                             if(sender.hasPermission("beaconprotect.group.addvault")) {
                                 Block block = player.getTargetBlock(null, 5);
@@ -134,7 +134,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not a chest (found " + block.getType() + ", maybe move closer?");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         } else if (args[0].equalsIgnoreCase("removevault")) {
                             if(sender.hasPermission("beaconprotect.group.removevault")) {
                                 Block block = player.getTargetBlock(null, 5);
@@ -145,7 +145,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " has not been registered to group " + group.getName() + " yet");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         } else if (args[0].equalsIgnoreCase("leave")) {
                             if(sender.hasPermission("beaconprotect.group.leave")) {
                                 if (!group.getOwner().getUniqueId().equals(player.getUniqueId())) {
@@ -155,7 +155,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("You cannot leave your group as the owner. Use /group delete to delete your group instead, or make another player the owner");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         }else if(args[0].equalsIgnoreCase("delete")){
                             if(sender.hasPermission("beaconprotect.group.leave")) {
                                 if (group.getOwner().getUniqueId().equals(player.getUniqueId())) {
@@ -171,7 +171,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("You must be the owner of your group to delete it");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         } else {
                             if(sender.hasPermission("beaconprotect.group.others")) {
                                 for (Group g : plugin.groups.values()) {
@@ -181,7 +181,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                         return true;
                                     }
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                             sender.sendMessage("Incorrect argument");
                             usage(sender, "group");
                             return true;
@@ -202,11 +202,11 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("You have not been invited to any groups");
                                 }
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         }else if(args[0].equalsIgnoreCase("create")){
                             if(sender.hasPermission("beaconprotect.group.create")) {
                                 sender.sendMessage("Usage: /group create <name>");
-                            }else{sender.sendMessage("");}
+                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                         }else{sender.sendMessage("You must be in a group to run that command");}
                     }
                 } else {sender.sendMessage("Error: Could not get player (this should not happen)");}
@@ -219,7 +219,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                             return true;
                         }
                     }
-                }else{sender.sendMessage("");}
+                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                 sender.sendMessage("You must be a player to run that command!");
                 return true;
             }
@@ -231,7 +231,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                         return true;
                     }
                 }
-            }else{sender.sendMessage("");}
+            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
             return true;
         }else if(args.length==2){
             if(sender instanceof Player) {
@@ -261,7 +261,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                         } else {
                             sender.sendMessage("You must be in a group to use that command");
                         }
-                    }else{sender.sendMessage("");}
+                    }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                 } else if (args[0].equalsIgnoreCase("kick")) {
                     if(sender.hasPermission("beaconprotect.group.kick")) {
                         //deja vu i have seen this code before
@@ -281,7 +281,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                             sender.sendMessage("You must be in a group to use that command");
                         }
                         return true;
-                    }else{sender.sendMessage("");}
+                    }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                 }else if(args[0].equalsIgnoreCase("join")) {
                     if(sender.hasPermission("beaconprotect.group.join")) {
                         for (Group group : plugin.groups.values()) {
@@ -301,7 +301,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                         }
                         sender.sendMessage("Could not find a group named " + args[1] + ". Check /groups list");
                         return true;
-                    }else{sender.sendMessage("");}
+                    }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                 }else if(args[0].equalsIgnoreCase("create")){
                     if(sender.hasPermission("beaconprotect.group.create")) {
                         if (findGroup(player) == null) {
@@ -311,7 +311,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                             sender.sendMessage("You must leave your current group before you can create a new one");
                         }
                         return true;
-                    }else{sender.sendMessage("");}
+                    }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                 }else{
                     sender.sendMessage("Unknown argument");
                     usage(sender, "group");
@@ -335,13 +335,13 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                     } catch (Exception e) {
                                         sender.sendMessage("Could not find player by the name of " + args[2]);
                                     }
-                                }else{sender.sendMessage("");}
+                                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                             }else if(args[1].equalsIgnoreCase("name")){
                                 if(sender.hasPermission("beaconprotect.group.set.name")) {
                                     String oldName = plugin.groups.get(key).getName();
                                     plugin.groups.get(key).setName(args[2]);
                                     sender.sendMessage("Changed name of group from " + oldName + " to " + args[2]);
-                                }else{sender.sendMessage("");}
+                                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                             }else if(args[1].equalsIgnoreCase("description")) {
                                 if(sender.hasPermission("beaconprotect.group.set.description")) {
                                     StringBuilder builder = new StringBuilder();
@@ -352,7 +352,7 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
                                     }
                                     plugin.groups.get(key).setDescription(builder.toString());
                                     sender.sendMessage("Set description of " + name);
-                                }else{sender.sendMessage("");}
+                                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command!");}
                             }else{
                                 sender.sendMessage("Incorrect argument");
                                 usage(sender, "set");
