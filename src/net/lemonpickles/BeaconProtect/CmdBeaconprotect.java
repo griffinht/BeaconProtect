@@ -7,7 +7,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import sun.util.resources.ca.LocaleNames_ca;
 
 import java.util.*;
 
@@ -163,21 +165,22 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     for (BlockDurability blockDurability : plugin.durabilities.values()) {
                         Block block = blockDurability.getBlock();
                         Location location = block.getLocation();
-                        sender.sendMessage("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "] - " + block.getType() + ": " + blockDurability.getDurability() + "/" + blockDurability.getMaxDurability());
+                        sender.sendMessage("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "] - " + block.getType() + ": " + blockDurability.getDurability() + "/" + blockDurability.getMaxDurability()+", "+blockDurability.getBeaconDurability()+"/"+blockDurability.getMaxBeaconDurability());
                     }
                 } else if (args[1].equalsIgnoreCase("size")) {
                     sender.sendMessage("There are " + plugin.durabilities.size() + " blocks with a set durability");
                 } else if (args[1].equalsIgnoreCase("clean")) {
                     int start = plugin.durabilities.size();
-                    sender.sendMessage("Starting check " + start + " for unnecessary entries");
-                    for (Map.Entry<Location, BlockDurability> entry : plugin.durabilities.entrySet()) {//TODO:this doesn't work - it doesnt remove anything
-                        BlockDurability blockDurability = entry.getValue();
+                    sender.sendMessage("Starting check durabilities " + start + " for unnecessary entries");
+                    long startTime = System.currentTimeMillis();
+                    for(Iterator<Map.Entry<Location, BlockDurability>> iterator = plugin.durabilities.entrySet().iterator(); iterator.hasNext();){
+                        BlockDurability blockDurability = iterator.next().getValue();
                         DefaultBlockDurability defaultBlockDurability = plugin.defaultBlockDurabilities.getOrDefault(blockDurability.getBlock().getType(), plugin.defaultBlockDurability);
-                        if (!(defaultBlockDurability.getDefaultBlockDurability() != blockDurability.getDurability() || blockDurability.getBeaconDurability() != defaultBlockDurability.getMaxBlockDurability())) {
-                            plugin.durabilities.remove(entry.getKey());
+                        if (defaultBlockDurability.getDefaultBlockDurability() == blockDurability.getDurability() && (blockDurability.getBeaconDurability() == blockDurability.getMaxBeaconDurability()||blockDurability.getBeaconDurability()==0)) {
+                            iterator.remove();
                         }
                     }
-                    sender.sendMessage("Removed " + (start - plugin.durabilities.size()) + " of " + start + " entries");
+                    sender.sendMessage("Removed " + (start - plugin.durabilities.size()) + " of " + start + " entries ("+(System.currentTimeMillis()-startTime)+"ms)");
                 } else {
                     usage(sender, "durability");
                 }
@@ -226,9 +229,9 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                 return completions;
             }else if(args.length==2){
                 if(args[0].equalsIgnoreCase("durability")){
-                    if(checkCompletions("list", args[0])) {completions.add("list");}
-                    if(checkCompletions("size", args[0])) {completions.add("size");}
-                    if(checkCompletions("clean", args[0])) {completions.add("clean");}
+                    if(checkCompletions("list", args[1])) {completions.add("list");}
+                    if(checkCompletions("size", args[1])) {completions.add("size");}
+                    if(checkCompletions("clean", args[1])) {completions.add("clean");}
                     return completions;
                 }else if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
                     completions.add("x y z");

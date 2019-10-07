@@ -21,7 +21,7 @@ public class BeaconProtect extends JavaPlugin {
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
     public Map<UUID, Group> groups = new HashMap<>();
     ArrayList<Player> isReinforcing = new ArrayList<>();
-    public DefaultBlockDurability defaultBlockDurability;//= new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
+    public DefaultBlockDurability defaultBlockDurability = new DefaultBlockDurability(1,1);//set to 1 in case the config can't be read TODO <---- why don't I do that ?
     public int[] defaultBeaconRange = new int[4];
     int[] defaultBeaconMultiplier = new int[4];
     private GroupList groupList;

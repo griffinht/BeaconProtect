@@ -30,10 +30,8 @@ public class DurabilityList extends FileMgmt {
             Location location = entry.getKey();
             BlockDurability blockDurability = entry.getValue();
             DefaultBlockDurability defaultBlockDurability = plugin.defaultBlockDurabilities.getOrDefault(blockDurability.getBlock().getType(), plugin.defaultBlockDurability);
-            if(defaultBlockDurability!=null) {
-                if (defaultBlockDurability.getDefaultBlockDurability()!=blockDurability.getDurability()||blockDurability.getBeaconDurability()!=defaultBlockDurability.getMaxBlockDurability()) {
-                    durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability());
-                }
+            if (!(defaultBlockDurability.getDefaultBlockDurability() == blockDurability.getDurability() && (blockDurability.getBeaconDurability() == blockDurability.getMaxBeaconDurability()||blockDurability.getBeaconDurability()==0))) {
+                durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability()+","+blockDurability.getMaxBeaconDurability());
             }
         }
         super.getConfig().set("durabilities",durs);
@@ -62,12 +60,13 @@ public class DurabilityList extends FileMgmt {
 
             //find ints
             String[] split = rawData.split(",");
-            if(split.length==4){
+            if(split.length==5){
                 int durability = Integer.parseInt(split[0]);
                 int setDurability = Integer.parseInt(split[1]);
                 int maxDurability = Integer.parseInt(split[2]);
                 int beaconDurability = Integer.parseInt(split[3]);
-                BlockDurability blockDurability = new BlockDurability(block, durability, setDurability, maxDurability, beaconDurability);
+                int maxBeaconDurability = Integer.parseInt(split[4]);
+                BlockDurability blockDurability = new BlockDurability(block, durability, setDurability, maxDurability, beaconDurability, maxBeaconDurability);
                 plugin.durabilities.put(blockDurability.getBlock().getLocation(),blockDurability);
             }else{
                 plugin.logger.warning("Could not the following line as a set block durability from disk: "+original);
