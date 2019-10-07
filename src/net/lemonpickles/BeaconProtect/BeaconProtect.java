@@ -33,10 +33,12 @@ public class BeaconProtect extends JavaPlugin {
     List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     @Override
     public void onEnable(){
+        long start = System.currentTimeMillis();
         //config
         this.saveDefaultConfig();
         if(!getDataFolder().exists()){
-            getDataFolder().mkdirs();
+            boolean shutUpIntelliJ = getDataFolder().mkdirs();
+            if(shutUpIntelliJ){logger.warning("Couldn't make directory for config");}
         }
         getConfig().options().copyDefaults(true);
         saveConfig();
@@ -114,19 +116,21 @@ public class BeaconProtect extends JavaPlugin {
             pluginCommand3.setTabCompleter(cmdGroups);
         }
         //done
-        logger.info("BeaconProtect has been enabled");
+        logger.info("BeaconProtect has been enabled ("+(System.currentTimeMillis()-start)+"ms)");
     }
 
     @Override
-    public void onDisable(){//TODO should i set a lot of variables to null here?
+    public void onDisable(){//TODO should i set a lot of variables to null here in case of reload?
         for(Map.Entry<Player, BossBar> entry:durabilityBars.entrySet()){//remove all active boss bars for durability
             entry.getValue().removeAll();
         }
         CustomBeacons.stopBeacons();
+        logger.info("Saving beacons, block durabilities, and groups to disk");
+        long start = System.currentTimeMillis();
         beaconList.save();
         durabilityList.save();
         groupList.save();
-        logger.info("Saved beacons, blocks durabilities, and groups to file");
+        logger.info("Saved beacons, blocks durabilities, and groups to disk ("+(System.currentTimeMillis()-start)+"ms)");
         getLogger().info("BeaconProtect has been disabled");
     }
 
