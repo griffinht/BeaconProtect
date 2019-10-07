@@ -1,38 +1,50 @@
 package net.lemonpickles.BeaconProtect;
 
+import com.sun.istack.internal.NotNull;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.List;
 
 public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
-
-    //add() and remove() and blockToCoordinates() were copied from beaconCmd
-    //I could probably combine them
-    //I really should make a command class
-    //i hate this whole class its so long and hard to read
     CmdGroups(BeaconProtect plugin){
         super(plugin);
         List<String> list = new ArrayList<>();
         list.add("/groups - list all groups");
-        list.add("/groups top - list all groups sorted by members");
+        list.add("/groups top <method> - list all groups sorted by a certain method");
+        list.add("Valid sort methods are by members");
         usages.put("groups", list);
     }
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull  String[] args) {
         if(sender.hasPermission("beaconprotect.groups")) {
             if (args.length == 0) {
                 sender.sendMessage("Groups:");
                 for (Group group : plugin.groups.values()) {
-                    sender.sendMessage(group.getName() + ": " + group.getMembers().size());
+                    sender.sendMessage(group.getName() + ": " + group.getMembersSize());
                 }
                 return true;
+            }else if(args.length==1){
+                if (args[0].equalsIgnoreCase("top")) {
+                    sender.sendMessage("Please specify how to sort groups");
+                    return true;
+                }
+            }else if(args.length==2){
+                if(args[0].equalsIgnoreCase("top")) {
+                    if(args[1].equalsIgnoreCase("members")) {
+                        sender.sendMessage("Groups by Members:");
+                        List<Group> groups = new ArrayList<>(plugin.groups.values());
+                        groups.sort(Comparator.comparing(Group::getMembersSize));
+                        Collections.reverse(groups);
+                        for (Group group : groups) {
+                            sender.sendMessage(group.getName() + ": " + group.getMembersSize());
+                        }
+                    }else{sender.sendMessage("Can't sort groups by "+args[1]+". Valid methods are by members");}
+                    return true;
+                }
             }
             usage(sender, "groups");
             return true;
@@ -41,9 +53,16 @@ public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args){
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args){
         if(sender.hasPermission("beaconprotect.groups")) {
             List<String> completions = new ArrayList<>();
+            if(args.length==1){
+                if(checkCompletions("top",args[0])){completions.add("top");}
+            }else if(args.length==2){
+                if(args[0].equalsIgnoreCase("top")){
+                    if(checkCompletions("members",args[1])){completions.add("members");}
+                }
+            }
             return completions;
         }
         return null;

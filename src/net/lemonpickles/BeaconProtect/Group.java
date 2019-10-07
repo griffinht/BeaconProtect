@@ -44,6 +44,7 @@ public class Group {
         this.vaults = new ArrayList<>();
         this.beacons = new ArrayList<>();
     }
+    int getMembersSize(){return members.size();}
     public OfflinePlayer getOwner(){
         return owner;
     }
@@ -74,7 +75,6 @@ public class Group {
         members.remove(player);
     }
     void addMember(Player player){members.put(player, new Member(player));}
-    List<Player> getInvites(){return invites;}
     boolean checkMember(Player player){
         return members.containsKey(player);
     }
@@ -194,13 +194,13 @@ public class Group {
         }
         return vaults.toString();
     }
-    public void addInvite(Player player){
+    void addInvite(Player player){
         invites.add(player);
     }
-    public void removeInvite(Player player){
+    void removeInvite(Player player){
         invites.remove(player);
     }
-    public boolean checkInvite(Player player){
+    boolean checkInvite(Player player){
         return invites.contains(player);
     }
 }

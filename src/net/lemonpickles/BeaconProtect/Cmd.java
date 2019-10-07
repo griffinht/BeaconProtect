@@ -15,27 +15,27 @@ public class Cmd {
     Cmd(BeaconProtect plugin){
         this.plugin = plugin;
     }
-    protected Map<String, List<String>> usages = new HashMap<>();
-    protected String blockToCoordinates(Block block){
+    Map<String, List<String>> usages = new HashMap<>();
+    String blockToCoordinates(Block block){
         return "("+block.getX()+", "+block.getY()+", "+block.getZ()+")";
     }
-    protected void usage(CommandSender sender, String usage){
+    void usage(CommandSender sender, String usage){
         sender.sendMessage("Usage for "+usage);
         for(String string:usages.get(usage)){
             sender.sendMessage(string);
         }
     }
-    protected Group findGroup(Player player){
+    Group findGroup(Player player){
         for(Group group:plugin.groups.values()){
             if(group.checkMember(player)){return group;}
         }
         return null;
     }
-    protected boolean checkCompletions(String a, String arg){
+    boolean checkCompletions(String a, String arg){
         if(a.length()<arg.length()){return false;}
         return a.substring(0,arg.length()).equals(arg);
     }
-    protected List<String> getGroupMembers(CommandSender sender, String arg){
+    List<String> getGroupMembers(CommandSender sender, String arg){
         List<String> completions = new ArrayList<>();
         for(Group group:plugin.groups.values()){
             if(group.checkMember(((Player) sender))) {

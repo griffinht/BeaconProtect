@@ -1,5 +1,6 @@
 package net.lemonpickles.BeaconProtect;
 
+import com.sun.istack.internal.NotNull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -8,20 +9,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 import static org.bukkit.Bukkit.getServer;
-import static org.bukkit.Bukkit.loadServerIcon;
 import static org.bukkit.Material.BEACON;
 
 public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
-
-    //add() and remove() and blockToCoordinates() were copied from beaconCmd
-    //I could probably combine them
-    //I really should make a command class
-    //i hate this whole class its so long and hard to read
     CmdGroup(BeaconProtect plugin){
         super(plugin);
         List<String> list = new ArrayList<>();
@@ -37,14 +31,14 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
         list.add("/group leave - leave your current group");
         list.add("/group create <name> - create your own group");
         usages.put("group", list);
-        list.clear();
+        list = new ArrayList<>();
         list.add("/group set - set properties related to your group");
         list.add("/group set name <name> - sets a new name");
         list.add("/group set description <description> - sets a new description");
         list.add("/group set owner - sets a new owner, removing the old owner");
         usages.put("set", list);
     }
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if(args.length==0) {
             if (sender instanceof Player) {
                 if(sender.hasPermission("beaconprotect.group.")) {
@@ -355,7 +349,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args){
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args){
         List<String> completions = new ArrayList<>();
         if(args.length==1){
             if(sender.hasPermission("beaconprotect.group.claimbeacon")&&checkCompletions("claimbeacon", args[0])) {completions.add("claimbeacon");}

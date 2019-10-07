@@ -212,7 +212,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args){
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args){
         if(sender.hasPermission("beaconprotect.bp")){
             List<String> completions = new ArrayList<>();
             if(args.length==1){
