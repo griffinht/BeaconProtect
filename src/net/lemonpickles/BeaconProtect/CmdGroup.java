@@ -16,16 +16,14 @@ import static org.bukkit.Bukkit.getServer;
 import static org.bukkit.Bukkit.loadServerIcon;
 import static org.bukkit.Material.BEACON;
 
-public class CmdGroup implements CommandExecutor, TabCompleter {
-    private BeaconProtect plugin;
+public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
 
     //add() and remove() and blockToCoordinates() were copied from beaconCmd
     //I could probably combine them
     //I really should make a command class
     //i hate this whole class its so long and hard to read
-    private Map<String, List<String>> usages = new HashMap<>();
     CmdGroup(BeaconProtect plugin){
-        this.plugin = plugin;
+        super(plugin);
         List<String> list = new ArrayList<>();
         list.add("/group - commands related to managing your group");
         list.add("/group claimbeacon - claim a new protection beacon");
@@ -45,21 +43,6 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
         list.add("/group set description <description> - sets a new description");
         list.add("/group set owner - sets a new owner, removing the old owner");
         usages.put("set", list);
-    }
-    private String blockToCoordinates(Block block){
-        return "("+block.getX()+", "+block.getY()+", "+block.getZ()+")";
-    }
-    private void usage(CommandSender sender, String usage){
-        sender.sendMessage("Usage for "+usage);
-        for(String string:usages.get(usage)){
-            sender.sendMessage(string);
-        }
-    }
-    private Group findGroup(Player player){
-        for(Group group:plugin.groups.values()){
-            if(group.checkMember(player)){return group;}
-        }
-        return null;
     }
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if(args.length==0) {
@@ -429,23 +412,5 @@ public class CmdGroup implements CommandExecutor, TabCompleter {
             }
         }
         return null;
-    }
-    private boolean checkCompletions(String a, String arg){
-        if(a.length()<arg.length()){return false;}
-        return a.substring(0,arg.length()).equals(arg);
-    }
-    private List<String> getGroupMembers(CommandSender sender, String arg){
-        List<String> completions = new ArrayList<>();
-        for(Group group:plugin.groups.values()){
-            if(group.checkMember(((Player) sender))) {
-                for(OfflinePlayer offlinePlayer:group.getMembers().keySet()){
-                    String name = offlinePlayer.getName();
-                    if(name!=null) {
-                        if (checkCompletions(name, arg)) {completions.add(name);}
-                    }
-                }
-            }
-        }
-        return completions;
     }
 }

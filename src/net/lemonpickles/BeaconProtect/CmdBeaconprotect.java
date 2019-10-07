@@ -14,10 +14,9 @@ import java.util.*;
 import static java.lang.Integer.parseInt;
 import static org.bukkit.Material.BEACON;
 
-public class CmdBeaconprotect implements CommandExecutor, TabCompleter {
-    private BeaconProtect plugin;
-    private Map<String, List<String>> usages = new HashMap<>();
+public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabCompleter {
     CmdBeaconprotect(BeaconProtect plugin){
+        super(plugin);
         this.plugin = plugin;
         List<String> list = new ArrayList<>();
         list.add("/bp - commands related to managing BeaconProtect");
@@ -36,9 +35,6 @@ public class CmdBeaconprotect implements CommandExecutor, TabCompleter {
         list.add("/bp durability clean - removes block durabilities that are default");
         usages.put("durability", list);
     }
-    private String blockToCoordinates(Block block){
-        return "("+block.getX()+", "+block.getY()+", "+block.getZ()+")";
-    }
     private boolean add(Location location){
         if(!plugin.beacons.containsKey(location)){
             plugin.beacons.put(location, location.getBlock());
@@ -50,12 +46,6 @@ public class CmdBeaconprotect implements CommandExecutor, TabCompleter {
             plugin.beacons.remove(location);
             return true;
         }else{return false;}
-    }
-    private void usage(CommandSender sender, String usage){
-        sender.sendMessage("Usage for "+usage);
-        for(String string:usages.get(usage)){
-            sender.sendMessage(string);
-        }
     }
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if(sender.hasPermission("beaconprotect.bp")) {
@@ -257,9 +247,5 @@ public class CmdBeaconprotect implements CommandExecutor, TabCompleter {
             }
         }
         return null;
-    }
-    private boolean checkCompletions(String a, String arg){
-        if(a.length()<arg.length()){return false;}
-        return a.substring(0,arg.length()).equals(arg);
     }
 }
