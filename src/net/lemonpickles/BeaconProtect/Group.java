@@ -122,15 +122,24 @@ public class Group {
     }
     int getMaterialInVaults(Material material){
         int materialAmt = 0;
+        List<Location> badVault = new ArrayList<>();//vaults that no longer exist as chests go here to be removed outside the loop
         for(Location location:vaults){
-            Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
-            for (ItemStack is : inventory) {
-                if(is!=null) {
-                    if (is.getType() == material) {
-                        materialAmt = materialAmt + is.getAmount();
+            Block block = location.getBlock();
+            if(block.getType()==Material.CHEST){
+                Inventory inventory = ((Chest) block.getState()).getInventory();
+                for (ItemStack is : inventory) {
+                    if(is!=null) {
+                        if (is.getType() == material) {
+                            materialAmt = materialAmt + is.getAmount();
+                        }
                     }
                 }
+            }else{
+                badVault.add(location);
             }
+        }
+        for(Location location:badVault){//was getting concurrentModificationException so I had to remove vaults outside of the loop
+            removeVault(location);
         }
         return materialAmt;
     }

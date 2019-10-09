@@ -44,7 +44,9 @@ public class BeaconEvent implements Listener{
                             }
                         }
                         msg = msg + msg2;
-                        player.sendMessage(msg);
+                        if(player.hasPermission("beaconprotect.admin")){
+                            player.sendMessage(msg);
+                        }
                         plugin.logger.info(msg);
                     }
                 }
@@ -149,8 +151,22 @@ public class BeaconEvent implements Listener{
                 }
                 plugin.beacons.remove(location);
                 String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
-                player.sendMessage(msg);
+                if(player.hasPermission("beaconprotect.admin")){
+                    player.sendMessage(msg);
+                }
                 plugin.logger.info(msg);
+            }
+        }else if(block.getType()==Material.CHEST){
+            Location location = block.getLocation();
+            for(Group group:plugin.groups.values()){
+                if(group.checkVault(location)){
+                    String msg = "The vault registered to "+group.getName()+" at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
+                    if(player.hasPermission("beaconprotect.admin")){
+                        player.sendMessage(msg);
+                    }
+                    plugin.logger.info(msg);
+                    group.removeVault(location);
+                }
             }
         }
     }
