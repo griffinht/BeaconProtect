@@ -2,7 +2,7 @@ package net.lemonpickles.BeaconProtect.Lists;
 
 import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.BeaconProtect.Group;
-import net.lemonpickles.BeaconProtect.Member;
+import net.lemonpickles.BeaconProtect.PlayerRole;
 import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,8 +43,8 @@ public class GroupList extends FileMgmt {
             config.set(path+".description", value.getDescription());
             //config.createSection(path+".members");
             if(value.getMembers()!=null) {
-                for (Map.Entry<OfflinePlayer, Member> membersEntry : value.getMembers().entrySet()) {
-                    config.set(path + ".members." + membersEntry.getKey().getUniqueId().toString(), membersEntry.getValue().role);
+                for (Map.Entry<OfflinePlayer, PlayerRole> membersEntry : value.getMembers().entrySet()) {
+                    config.set(path + ".members." + membersEntry.getKey().getUniqueId().toString(), membersEntry.getValue().toString());
                 }
             }
             if(value.getBeacons()!=null) {
@@ -93,7 +93,7 @@ public class GroupList extends FileMgmt {
                         }
                         String description = memorySection2.getString("description");
 
-                        Map<OfflinePlayer, Member> members = new HashMap<>();
+                        Map<OfflinePlayer, PlayerRole> members = new HashMap<>();
                         ConfigurationSection a = memorySection2.getConfigurationSection("members");
                         if (a != null) {
                             for(Map.Entry<String, Object> entry3:a.getValues(false).entrySet()){
@@ -104,7 +104,14 @@ public class GroupList extends FileMgmt {
                                     //also whatever
                                 }
                                 if(player!=null){
-                                    members.put(player, new Member(player, entry3.getValue().toString()));
+                                    String playerR = entry3.getValue().toString();
+                                    PlayerRole role = PlayerRole.DEFAULT;
+                                    if(playerR.equalsIgnoreCase("MEMBER")){role=PlayerRole.MEMBER;}
+                                    else if(playerR.equalsIgnoreCase("TRUSTED")){role=PlayerRole.TRUSTED;}
+                                    else if(playerR.equalsIgnoreCase("ASSISTANT")){role=PlayerRole.ASSISTANT;}
+                                    else if(playerR.equalsIgnoreCase("OWNER")){role=PlayerRole.OWNER;}
+                                    else{plugin.logger.warning("Could not convert "+playerR+" to an enumerated role, will use member");}
+                                    members.put(player, role);
                                 }else{
                                     plugin.logger.warning("Could not find member of "+name+" from UUID: "+entry3.getKey());
                                 }

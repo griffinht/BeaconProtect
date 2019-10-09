@@ -272,7 +272,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                             if (group.getName().equalsIgnoreCase(args[1])) {
                                 if (group.checkMember(player)) {
                                     if (group.checkInvite(player)) {
-                                        group.addMember(player, new Member(player, "poopoo"));
+                                        group.addMember(player);
                                         group.removeInvite(player);
                                         sender.sendMessage("You have joined the group " + group.getName());//TODO info for noobs like the spawn????
                                     } else {

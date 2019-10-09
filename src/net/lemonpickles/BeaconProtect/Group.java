@@ -24,9 +24,9 @@ public class Group {
     private List<Location> beacons;
     private List<Location> vaults;
     private int[] tiers;
-    private Map<OfflinePlayer, Member> members = new HashMap<>();
+    private Map<OfflinePlayer,PlayerRole> members = new HashMap<>();
     private List<Player> invites = new ArrayList<>();
-    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer, Member> members, List<Location> beacons, List<Location> vaults, int[] tiers){
+    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults, int[] tiers){
         this.name = name;
         this.description = description;
         this.owner = owner;
@@ -40,7 +40,7 @@ public class Group {
         this.owner = owner;
         this.tiers = tiers;
         this.description = "";
-        this.members.put(owner, new Member(owner));
+        this.members.put(owner, PlayerRole.OWNER);
         this.vaults = new ArrayList<>();
         this.beacons = new ArrayList<>();
     }
@@ -51,7 +51,7 @@ public class Group {
     void setOwner(OfflinePlayer owner){
         this.owner = owner;
     }
-    public Map<OfflinePlayer, Member> getMembers(){
+    public Map<OfflinePlayer,PlayerRole> getMembers(){
         return members;
     }
     public String getName(){
@@ -68,19 +68,15 @@ public class Group {
     }
 
     //member stuff
-    void addMember(Player player, Member member){
-        members.put(player, member);
+    void addMember(OfflinePlayer player, PlayerRole role){
+        members.put(player, role);
     }
-    void removeMember(Player player){
-        members.remove(player);
-    }
-    void addMember(Player player){members.put(player, new Member(player));}
-    boolean checkMember(Player player){
-        return members.containsKey(player);
-    }
+    void addMember(OfflinePlayer player){members.put(player, PlayerRole.DEFAULT);}
+    void removeMember(Player player){members.remove(player);}
+    boolean checkMember(Player player){return members.containsKey(player);}
     String getMembersAsString(){
         StringBuilder members = new StringBuilder();
-        for(Map.Entry<OfflinePlayer, Member> entry:this.members.entrySet()){
+        for(Map.Entry<OfflinePlayer,PlayerRole> entry:this.members.entrySet()){
             members.append(entry.getKey().getName()).append(", ");
         }
         if(members.length()>2){
@@ -212,4 +208,5 @@ public class Group {
     boolean checkInvite(Player player){
         return invites.contains(player);
     }
+    public PlayerRole getRole(Player player){return members.get(player);}
 }
