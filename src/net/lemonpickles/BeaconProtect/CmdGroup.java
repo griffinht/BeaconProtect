@@ -8,9 +8,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.Bukkit.getServer;
 import static org.bukkit.Material.BEACON;
@@ -64,11 +67,18 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 Block beacon = player.getTargetBlock(null, 5);
                                 Location location = beacon.getLocation();
                                 if (beacon.getType() == BEACON) {
-                                    if (!group.checkBeacon(location)) {
+                                    Group claimedGroup = null;
+                                    for(Group groups:plugin.groups.values()){
+                                        if(groups.checkBeacon(location)){
+                                            claimedGroup = groups;
+                                            break;
+                                        }
+                                    }
+                                    if (claimedGroup==null) {
                                         group.addBeacon(location);
                                         sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has been claimed to group " + group.getName());
                                     } else {
-                                        sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has already been claimed to group " + group.getName());
+                                        sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has already been claimed to group " + claimedGroup.getName());
                                     }
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
@@ -96,8 +106,11 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 Block block = player.getTargetBlock(null, 5);
                                 Location location = block.getLocation();
                                 boolean inRange = false;
-                                if (plugin.CustomBeacons.checkForBlocks(block).size() > 0) {//this better be a beacon or something will break just kidding
-                                    inRange = true;
+                                for (Location loc:plugin.CustomBeacons.checkForBlocks(block)) {
+                                    if(location.toVector().isInAABB(new Vector(loc.getX()-3,0,loc.getZ()-3),new Vector(loc.getX()+3,256,loc.getZ()+3))) {
+                                        inRange = true;
+                                        break;
+                                    }
                                 }
                                 if (block.getType() == Material.CHEST) {
                                     if (inRange) {
