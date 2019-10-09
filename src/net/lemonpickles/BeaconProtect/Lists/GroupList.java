@@ -28,6 +28,7 @@ public class GroupList extends FileMgmt {
         super.save();
     }
     public void save(){
+        config.set("groups",null);//clear old config values
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             String path = "groups."+entry.getKey();
             Group value = entry.getValue();
