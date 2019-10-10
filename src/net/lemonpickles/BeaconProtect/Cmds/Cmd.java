@@ -1,5 +1,7 @@
-package net.lemonpickles.BeaconProtect;
+package net.lemonpickles.BeaconProtect.Cmds;
 
+import net.lemonpickles.BeaconProtect.BeaconProtect;
+import net.lemonpickles.BeaconProtect.Group;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;

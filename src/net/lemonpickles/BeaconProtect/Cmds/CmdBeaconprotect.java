@@ -1,6 +1,10 @@
-package net.lemonpickles.BeaconProtect;
+package net.lemonpickles.BeaconProtect.Cmds;
 
 import com.sun.istack.internal.NotNull;
+import net.lemonpickles.BeaconProtect.BeaconProtect;
+import net.lemonpickles.BeaconProtect.BlockDurability;
+import net.lemonpickles.BeaconProtect.DefaultBlockDurability;
+import net.lemonpickles.BeaconProtect.Group;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -16,7 +20,7 @@ import static org.bukkit.Material.BEACON;
 
 public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabCompleter {
     //todo this should be more like CmdGroup with the onCommand stuff
-    CmdBeaconprotect(BeaconProtect plugin){
+    public CmdBeaconprotect(BeaconProtect plugin){
         super(plugin);
         this.plugin = plugin;
         List<String> list = new ArrayList<>();

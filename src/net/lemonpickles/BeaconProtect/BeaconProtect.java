@@ -1,5 +1,8 @@
 package net.lemonpickles.BeaconProtect;
 
+import net.lemonpickles.BeaconProtect.Cmds.CmdBeaconprotect;
+import net.lemonpickles.BeaconProtect.Cmds.CmdGroup;
+import net.lemonpickles.BeaconProtect.Cmds.CmdGroups;
 import net.lemonpickles.BeaconProtect.Lists.BeaconList;
 import net.lemonpickles.BeaconProtect.Lists.DurabilityList;
 import net.lemonpickles.BeaconProtect.Lists.GroupList;
@@ -27,10 +30,10 @@ public class BeaconProtect extends JavaPlugin {
     private GroupList groupList;
     DurabilityBar DurabilityBar;
     private BeaconList beaconList;
-    CustomBeacons CustomBeacons;
+    public CustomBeacons CustomBeacons;
     private DurabilityList durabilityList;
     public Logger logger = getLogger();
-    List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
+    public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();

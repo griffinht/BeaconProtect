@@ -44,11 +44,11 @@ public class Group {
         this.vaults = new ArrayList<>();
         this.beacons = new ArrayList<>();
     }
-    int getMembersSize(){return members.size();}
+    public int getMembersSize(){return members.size();}
     public OfflinePlayer getOwner(){
         return owner;
     }
-    void setOwner(OfflinePlayer owner){
+    public void setOwner(OfflinePlayer owner){
         this.owner = owner;
     }
     public Map<OfflinePlayer,PlayerRole> getMembers(){
@@ -57,13 +57,13 @@ public class Group {
     public String getName(){
         return name;
     }
-    void setName(String name){
+    public void setName(String name){
         this.name = name;
     }
     public String getDescription(){
         return description;
     }
-    void setDescription(String description){
+    public void setDescription(String description){
         this.description = description;
     }
 
@@ -71,10 +71,10 @@ public class Group {
     void addMember(OfflinePlayer player, PlayerRole role){
         members.put(player, role);
     }
-    void addMember(OfflinePlayer player){members.put(player, PlayerRole.DEFAULT);}
-    void removeMember(Player player){members.remove(player);}
-    boolean checkMember(Player player){return members.containsKey(player);}
-    String getMembersAsString(){
+    public void addMember(OfflinePlayer player){members.put(player, PlayerRole.DEFAULT);}
+    public void removeMember(Player player){members.remove(player);}
+    public boolean checkMember(Player player){return members.containsKey(player);}
+    public String getMembersAsString(){
         String thingy = "";
         String a = getMembersByRoleAsString(PlayerRole.DEFAULT);
         if(!a.equals("")){thingy+="Default: "+a;
@@ -95,7 +95,7 @@ public class Group {
     public List<Location> getBeacons(){
         return beacons;
     }
-    String getBeaconsAsString(){
+    public String getBeaconsAsString(){
         StringBuilder beacons = new StringBuilder();
         for(Location location:getBeacons()){
             beacons.append("[").append(location.getBlockX()).append(",").append(location.getBlockY()).append(",").append(location.getBlockZ()).append("], ");
@@ -105,21 +105,21 @@ public class Group {
         }
         return beacons.toString();
     }
-     void addBeacon(Location location){
+     public void addBeacon(Location location){
         if(!beacons.contains(location)){
             beacons.add(location);
         }
     }
-    void removeBeacon(Location location){
+    public void removeBeacon(Location location){
         beacons.remove(location);
     }
-    boolean checkBeacon(Location location){
+    public boolean checkBeacon(Location location){
         return beacons.contains(location);
     }
     public List<Location> getVaults(){
         return vaults;
     }
-    void addVault(Location location){
+    public void addVault(Location location){
         if(getVaults().contains(location)){
             beacons.add(location);
         }
@@ -192,13 +192,13 @@ public class Group {
         }
         return false;
     }
-    void removeVault(Location location){
+    public void removeVault(Location location){
         vaults.remove(location);
     }
-    boolean checkVault(Location location){
+    public boolean checkVault(Location location){
         return vaults.contains(location);
     }
-    String getVaultsAsString(){
+    public String getVaultsAsString(){
         StringBuilder vaults = new StringBuilder();
         for(Location location:this.vaults){
             vaults.append("[").append(location.getBlockX()).append(",").append(location.getBlockY()).append(",").append(location.getBlockZ()).append("], ");
@@ -207,17 +207,17 @@ public class Group {
         }
         return vaults.toString();
     }
-    void addInvite(Player player){
+    public void addInvite(Player player){
         invites.add(player);
     }
-    void removeInvite(Player player){
+    public void removeInvite(Player player){
         invites.remove(player);
     }
-    boolean checkInvite(Player player){
+    public boolean checkInvite(Player player){
         return invites.contains(player);
     }
-    PlayerRole getRole(Player player){return members.get(player);}
-    boolean checkPlayerPermission(Player player, PlayerRole role){
+    public PlayerRole getRole(Player player){return members.get(player);}
+    public boolean checkPlayerPermission(Player player, PlayerRole role){
         PlayerRole actualRole = members.get(player);
         if(role==PlayerRole.DEFAULT){
             return actualRole==PlayerRole.DEFAULT||actualRole==PlayerRole.MEMBER||actualRole==PlayerRole.TRUSTED||actualRole==PlayerRole.ASSISTANT||actualRole==PlayerRole.OWNER;
@@ -233,7 +233,7 @@ public class Group {
 
         return false;
     }
-    void setRole(Player player, PlayerRole newRole){members.put(player, newRole);}
+    public void setRole(Player player, PlayerRole newRole){members.put(player, newRole);}
     private String getMembersByRoleAsString(PlayerRole role){
         StringBuilder string = new StringBuilder();
         for(Map.Entry<OfflinePlayer, PlayerRole> playerRole:members.entrySet()){

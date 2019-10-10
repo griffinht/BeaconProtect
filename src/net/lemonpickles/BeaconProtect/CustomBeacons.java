@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-class CustomBeacons {
+public class CustomBeacons {
     private BeaconProtect plugin;
     private BukkitTask task;
     CustomBeacons(BeaconProtect plugin){
@@ -22,13 +22,13 @@ class CustomBeacons {
         //refreshBeacons();
     }
     //clear customBeacons and add again
-    void stopBeacons(){
+    public void stopBeacons(){
         if(task!=null){
             task.cancel();
             task = null;
         }
     }
-    void startBeacons(){
+    public void startBeacons(){
         if(task==null) {
             task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 0, 80);
         }
@@ -137,7 +137,7 @@ class CustomBeacons {
         }
         return false;
     }
-    List<Location> checkForBlocks(Block blk){//returns beacons that touch the block
+    public List<Location> checkForBlocks(Block blk){//returns beacons that touch the block
         List<Location> blocks = new ArrayList<>();
         for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
             Block block = entry.getValue();

@@ -1,6 +1,9 @@
-package net.lemonpickles.BeaconProtect;
+package net.lemonpickles.BeaconProtect.Cmds;
 
 import com.sun.istack.internal.NotNull;
+import net.lemonpickles.BeaconProtect.BeaconProtect;
+import net.lemonpickles.BeaconProtect.Group;
+import net.lemonpickles.BeaconProtect.PlayerRole;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -10,7 +13,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +22,7 @@ import static org.bukkit.Bukkit.getServer;
 import static org.bukkit.Material.BEACON;
 
 public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
-    CmdGroup(BeaconProtect plugin){
+    public CmdGroup(BeaconProtect plugin){
         super(plugin);
         List<String> list = new ArrayList<>();
         list.add("/group - commands related to managing your group");
