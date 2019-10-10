@@ -6,7 +6,6 @@ import net.lemonpickles.BeaconProtect.DefaultBlockDurability;
 import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -14,13 +13,10 @@ import java.util.Map;
 import static org.bukkit.Bukkit.getServer;
 
 public class DurabilityList extends FileMgmt {
-    private BeaconProtect plugin;
     public DurabilityList(BeaconProtect plugin){
         super(plugin, "durabilities.yml");
-        this.plugin = plugin;
-        FileConfiguration beacons = super.getConfig();
-        if(super.getConfig().getList("durabilities")==null){
-            beacons.createSection("durabilities");
+        if(config.getList("durabilities")==null){
+            config.createSection("durabilities");
         }
         super.save();
     }
@@ -34,14 +30,14 @@ public class DurabilityList extends FileMgmt {
                 durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability()+","+blockDurability.getMaxBeaconDurability());
             }
         }
-        super.getConfig().set("durabilities",durs);
+        config.set("durabilities",durs);
         super.save();
     }
     public void load(){
         super.load();
         plugin.durabilities.clear();
         //deserialize
-        for(String rawData:super.getConfig().getStringList("durabilities")){
+        for(String rawData:config.getStringList("durabilities")){
             String original = rawData;
             rawData = rawData.replaceAll("\\s","");//remove spaces
             int open = rawData.indexOf("[");

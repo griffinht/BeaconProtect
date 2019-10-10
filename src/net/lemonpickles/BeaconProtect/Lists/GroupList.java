@@ -9,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
-import org.bukkit.configuration.file.FileConfiguration;
 
 
 import java.util.*;
@@ -17,31 +16,24 @@ import java.util.*;
 import static org.bukkit.Bukkit.getServer;
 
 public class GroupList extends FileMgmt {
-    private BeaconProtect plugin;
     public GroupList(BeaconProtect plugin) {
         super(plugin, "groups.yml");
-        this.plugin = plugin;
-        FileConfiguration beacons = super.getConfig();
-        if(super.getConfig().get("groups")==null){
-            beacons.createSection("groups");
+        if(config.get("groups")==null){
+            config.createSection("groups");
         }
         super.save();
     }
     public void save(){
-        config.set("groups",null);//clear old config values
+        config.set("groups",null);//clear old config values TODO backup system
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             String path = "groups."+entry.getKey();
             Group value = entry.getValue();
             config.createSection(path);
-            //config.createSection(path+".name");
             config.set(path+".name", value.getName());
-            //config.createSection(path+".owner");
             if(value.getOwner()!=null) {
                 config.set(path + ".owner", value.getOwner().getUniqueId().toString());
             }
-            //config.createSection(path+".description");
             config.set(path+".description", value.getDescription());
-            //config.createSection(path+".members");
             if(value.getMembers()!=null) {
                 for (Map.Entry<OfflinePlayer, PlayerRole> membersEntry : value.getMembers().entrySet()) {
                     config.set(path + ".members." + membersEntry.getKey().getUniqueId().toString(), membersEntry.getValue().toString());

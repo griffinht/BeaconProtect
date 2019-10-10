@@ -9,8 +9,8 @@ import java.io.IOException;
 
 
 public class FileMgmt {
-    private BeaconProtect plugin;//protected?
-    private File file;
+    protected BeaconProtect plugin;
+    protected File file;
     protected FileConfiguration config;
 
     public FileMgmt(BeaconProtect plugin, String fileName) {
@@ -18,8 +18,7 @@ public class FileMgmt {
         file = new File(plugin.getDataFolder(), fileName);
         if(!file.exists()){
             try{
-                file.createNewFile();
-                this.plugin.logger.info("Created "+fileName);
+                if(file.createNewFile()){plugin.logger.info("Created "+fileName);}else{plugin.logger.info("Could not create "+fileName);}
             }catch(IOException e){
                 plugin.logger.warning("Could not create "+fileName);
                 e.printStackTrace();
@@ -38,13 +37,5 @@ public class FileMgmt {
     }
     public void load(){
         this.config = YamlConfiguration.loadConfiguration(file);
-    }
-
-    protected FileConfiguration getConfig(){
-        return config;
-    }
-
-    protected File getFile(){
-        return file;
     }
 }
