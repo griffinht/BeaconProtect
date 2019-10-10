@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Cmd {
+class Cmd {
     protected BeaconProtect plugin;
     Cmd(BeaconProtect plugin){
         this.plugin = plugin;
