@@ -75,14 +75,22 @@ public class Group {
     void removeMember(Player player){members.remove(player);}
     boolean checkMember(Player player){return members.containsKey(player);}
     String getMembersAsString(){
-        StringBuilder members = new StringBuilder();
-        for(Map.Entry<OfflinePlayer,PlayerRole> entry:this.members.entrySet()){
-            members.append(entry.getKey().getName()).append(", ");
+        String thingy = "";
+        String a = getMembersByRoleAsString(PlayerRole.DEFAULT);
+        if(!a.equals("")){thingy+="Default: "+a;
         }
-        if(members.length()>2){
-            return members.substring(0,members.length()-2);
-        }
-        return members.toString();
+        a = getMembersByRoleAsString(PlayerRole.MEMBER);
+        if(!a.equals("")){if(!thingy.equals("")){thingy+=", ";}thingy+="Member: "+a;}
+
+        a = getMembersByRoleAsString(PlayerRole.TRUSTED);
+        if(!a.equals("")){if(!thingy.equals("")){thingy+=", ";}thingy+="Trusted: "+a;}
+
+        a = getMembersByRoleAsString(PlayerRole.ASSISTANT);
+        if(!a.equals("")){if(!thingy.equals("")){thingy+=", ";}thingy+="Assistant: "+a;}
+
+        a = getMembersByRoleAsString(PlayerRole.OWNER);
+        if(!a.equals("")){if(!thingy.equals("")){thingy+=", ";}thingy+="Owner: "+a;}
+        return thingy;
     }
     public List<Location> getBeacons(){
         return beacons;
@@ -208,5 +216,34 @@ public class Group {
     boolean checkInvite(Player player){
         return invites.contains(player);
     }
-    public PlayerRole getRole(Player player){return members.get(player);}
+    PlayerRole getRole(Player player){return members.get(player);}
+    boolean checkPlayerPermission(Player player, PlayerRole role){
+        PlayerRole actualRole = members.get(player);
+        if(role==PlayerRole.DEFAULT){
+            return actualRole==PlayerRole.DEFAULT||actualRole==PlayerRole.MEMBER||actualRole==PlayerRole.TRUSTED||actualRole==PlayerRole.ASSISTANT||actualRole==PlayerRole.OWNER;
+        }else if(role==PlayerRole.MEMBER){
+            return actualRole==PlayerRole.MEMBER||actualRole==PlayerRole.TRUSTED||actualRole==PlayerRole.ASSISTANT||actualRole==PlayerRole.OWNER;
+        }else if(role==PlayerRole.TRUSTED){
+            return actualRole==PlayerRole.TRUSTED||actualRole==PlayerRole.ASSISTANT||actualRole==PlayerRole.OWNER;
+        }else if(role==PlayerRole.ASSISTANT){
+            return actualRole==PlayerRole.ASSISTANT||actualRole==PlayerRole.OWNER;
+        }else if(role==PlayerRole.OWNER){
+            return actualRole==PlayerRole.OWNER;
+        }
+
+        return false;
+    }
+    void setRole(Player player, PlayerRole newRole){members.put(player, newRole);}
+    private String getMembersByRoleAsString(PlayerRole role){
+        StringBuilder string = new StringBuilder();
+        for(Map.Entry<OfflinePlayer, PlayerRole> playerRole:members.entrySet()){
+            if(playerRole.getValue()==role){
+                string.append(playerRole.getKey().getName());
+                string.append(", ");
+            }
+        }
+        String aString = string.toString();
+        if(aString.length()>=2){aString = aString.substring(0,aString.length()-2);}
+        return aString;
+    }
 }

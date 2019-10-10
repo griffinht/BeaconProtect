@@ -48,7 +48,7 @@ public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
             }
             usage(sender, "groups");
             return true;
-        }else{sender.sendMessage(ChatColor.RED+"You do not have permission to do that command!");}
+        }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
         return true;
     }
 

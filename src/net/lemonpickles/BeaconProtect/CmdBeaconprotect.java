@@ -161,8 +161,8 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                             plugin.bypass.add(player);
                             sender.sendMessage("Toggled admin bypass mode on");
                         }
-                    }else{sender.sendMessage("You must be a player to run this command!");}
-                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use this command!");}
+                    }else{sender.sendMessage("You must be a player to run this command");}
+                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use this command");}
             } else if (args[0].equalsIgnoreCase("durability") && args.length >= 2) {
                 if (args[1].equalsIgnoreCase("list")) {
                     sender.sendMessage("Listing all set block durabilities (" + plugin.durabilities.size() + ")");
@@ -230,7 +230,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                 usage(sender, "beaconprotect");
             }
         }else{
-            sender.sendMessage(ChatColor.RED+"You do not have permission to use this command!");
+            sender.sendMessage(ChatColor.RED+"You do not have permission to use this command");
         }
         return true;
     }

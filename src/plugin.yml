@@ -57,6 +57,8 @@ permissions:
       beaconprotect.group.join: true
       beaconprotect.group.leave: true
       beaconprotect.group.create: true
+      beaconprotect.group.promote: true
+      beaconprotect.group.demote: true
 
   beaconprotect.group:
     description: Allows a player to view info about their group
@@ -80,6 +82,10 @@ permissions:
     description: Allows player to leave their groups
   beaconprotect.group.create:
     description: Allows player to create their own group
+  beaconprotect.group.promote:
+    description: Allows a player to promote others in their group
+  beaconprotect.group.demote:
+    description: Allows a player to demote others in their group
 
   beaconprotect.group.set.*:
     description: Allows trusted players to manage their group

@@ -33,7 +33,7 @@ public class Cmd {
     }
     boolean checkCompletions(String a, String arg){
         if(a.length()<arg.length()){return false;}
-        return a.substring(0,arg.length()).equals(arg);
+        return a.substring(0,arg.length()).equalsIgnoreCase(arg);
     }
     List<String> getGroupMembers(CommandSender sender, String arg){
         List<String> completions = new ArrayList<>();

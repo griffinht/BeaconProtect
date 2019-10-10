@@ -105,12 +105,14 @@ public class GroupList extends FileMgmt {
                                 }
                                 if(player!=null){
                                     String playerR = entry3.getValue().toString();
-                                    PlayerRole role = PlayerRole.DEFAULT;
-                                    if(playerR.equalsIgnoreCase("MEMBER")){role=PlayerRole.MEMBER;}
+                                    PlayerRole role = null;
+                                    if(playerR.equalsIgnoreCase("DEFAULT")){role=PlayerRole.DEFAULT;}
+                                    else if(playerR.equalsIgnoreCase("MEMBER")){role=PlayerRole.MEMBER;}
                                     else if(playerR.equalsIgnoreCase("TRUSTED")){role=PlayerRole.TRUSTED;}
                                     else if(playerR.equalsIgnoreCase("ASSISTANT")){role=PlayerRole.ASSISTANT;}
                                     else if(playerR.equalsIgnoreCase("OWNER")){role=PlayerRole.OWNER;}
-                                    else{plugin.logger.warning("Could not convert "+playerR+" to an enumerated role, will use member");}
+                                    else{plugin.logger.warning("Could not convert "+playerR+" to an enumerated role, will use Default");}
+                                    if(role==null){role = PlayerRole.DEFAULT;}
                                     members.put(player, role);
                                 }else{
                                     plugin.logger.warning("Could not find member of "+name+" from UUID: "+entry3.getKey());
