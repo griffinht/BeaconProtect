@@ -33,49 +33,6 @@ public class CustomBeacons {
             task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 0, 80);
         }
     }
-    //i might need the following later
-    /*public void refreshBeacons(){
-        World world = Bukkit.getServer().getWorld("world");
-        this.plugin.beacons.clear();
-        for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
-            Location location = entry.getKey();
-            Block block = world.getBlockAt(location);
-            if(block.getType()==BEACON) {
-                plugin.beacons.put(location,block);
-            }
-        }
-    }
-    //check individual beacon
-    public void refreshBeacon(Location location){
-        World world = Bukkit.getServer().getWorld("world");
-        if(world!=null) {
-            Block block = world.getBlockAt(location);
-            //check for changed blocks
-            checkBeacon(block, world);
-            //check if new block is beacon
-            if (block.getType() == BEACON && !plugin.beacons.containsKey(block.getLocation())) {
-                plugin.beacons.put(block.getLocation(), block);
-            } else if (block.getType() != BEACON && plugin.beacons.containsKey(block.getLocation())) {
-                this.plugin.beacons.remove(block.getLocation());
-            }
-        }
-    }
-    //check if block is still a beacon
-    private void checkBeacon(Block block, World world){
-        if(world.getBlockAt(block.getLocation()).getType()!=BEACON){
-            this.plugin.beacons.remove(block.getLocation());
-        }
-    }
-    public boolean checkOwner(Player player, Block block){//true if player is also beacon's owner
-        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
-            if(entry.getValue().getOwner()==player){
-                if(entry.getValue().checkBeacon(block.getLocation())){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }*/
     boolean checkFriendly(Player player, Block block){//true if player is friendly with beacon
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             Group group = entry.getValue();
@@ -176,7 +133,7 @@ public class CustomBeacons {
         }
     }
 
-    public class CustomBeaconsUpdate extends BukkitRunnable {
+    public static class CustomBeaconsUpdate extends BukkitRunnable {
         private final BeaconProtect plugin;
         CustomBeaconsUpdate(BeaconProtect plugin){
             this.plugin = plugin;

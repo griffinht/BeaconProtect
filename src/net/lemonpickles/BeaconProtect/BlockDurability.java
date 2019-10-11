@@ -81,41 +81,33 @@ public class BlockDurability {
         plugin.durabilities.put(blockDurability.block.getLocation(), blockDurability);
     }
     private int checkDurability(int newDurability){
-        if(newDurability>maxDurability){return maxDurability;}else{return newDurability;}
+        return Math.min(newDurability, maxDurability);
     }
 
-    private int setBeaconDurability(int newDurability, int maxBeaconPenalty){//beacon hit is a maximum, beacondurability is mostly just durability
-        //System.out.println(" ");
-        //System.out.println("old durability: "+durability+", max durability: "+maxDurability+", new durability: "+newDurability+", max beacon penalty "+maxBeaconPenalty+", old beacon durability "+beaconDurability);
+    private int setBeaconDurability(int newDurability){//beacon hit is a maximum, beacondurability is mostly just durability
         int changeDurability = newDurability-durability;
         int maxBeaconDurability = beaconDurability;
         beaconDurability = beaconDurability+changeDurability;
         if(beaconDurability>maxBeaconDurability){
-            //System.out.println("beacondur is over maxbeacondur");
             int change = maxBeaconDurability-beaconDurability;
             beaconDurability = beaconDurability+change;//xtra is lost
         }
         int importantChange = 0;
         if(beaconDurability<0){
-            //System.out.println("beacondur is under 0");
             importantChange = importantChange-beaconDurability;
             beaconDurability = beaconDurability+importantChange;
             durability = durability-importantChange;
         }
         if(changeDurability>0) {//for reinforcing
-            //System.out.println("changedur is over 0");
             durability = checkDurability(durability+changeDurability);
         }
-        //TODO test beacon durabilities and block breakage
-        //System.out.println("new durability: "+durability+", beacon durability "+beaconDurability);
-        //System.out.println(" ");
         return maxBeaconDurability-beaconDurability;//return the change in blocks that need to be removed
     }
 
     private int setDurability(int newDurability, boolean setDurability, int maxBeaconPenalty){
         int returnVal = 0;
         if(maxBeaconPenalty>0){//can be zero if player is friendly
-            returnVal = setBeaconDurability(checkDurability(newDurability), maxBeaconPenalty);
+            returnVal = setBeaconDurability(checkDurability(newDurability));
         }else{durability = checkDurability(newDurability);}
         if(setDurability&&durability>this.setDurability){
             this.setDurability = durability;

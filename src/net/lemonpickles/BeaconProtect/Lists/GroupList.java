@@ -59,11 +59,7 @@ public class GroupList extends FileMgmt {
     public void load(){
         super.load();
         plugin.groups.clear();
-        //i hate this
-        //lol it works
-        //is it overcomplicated?
-        //TODO also i should probably check for nulls and clean up variable names
-        //and maybe actually do some stuff with bukkit's serialization
+        //maybe actually do some stuff with bukkit's serialization
         for(Map.Entry<String, Object> entry1:config.getValues(false).entrySet()){
             if(entry1.getValue() instanceof MemorySection){
                 MemorySection memorySection1 = (MemorySection) entry1.getValue();
