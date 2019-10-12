@@ -127,7 +127,7 @@ public class BlockDurability {
         int value = setDurability(durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             Group group = entry.getValue();
-            if(group.checkForBlock(block)){//this might break with overlapping beacons
+            if(CustomBeacons.checkForBlocks(block, plugin.beacons).size()>0){//this might break with overlapping beacons
                 group.removeMaterialInVaults(block.getType(), value);
             }
         }

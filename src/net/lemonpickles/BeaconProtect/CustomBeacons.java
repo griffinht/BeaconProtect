@@ -46,11 +46,7 @@ public class CustomBeacons {
     }
     static boolean checkFriendly(Player player, Block block, Group group){
         if(!group.checkMember(player)) {
-            Map<Location, Block> a = new HashMap<>();
-            for(Location location:group.getBeacons()){
-                a.put(location, location.getBlock());
-            }
-            List<Location> beacons = checkForBlocks(block, a);
+            List<Location> beacons = checkForBlocks(block, blockLocationsToMap(group.getBeacons()));
             for (Location location : group.getBeacons()) {
                 if (beacons.contains(location)) {
                     return false;
@@ -64,6 +60,13 @@ public class CustomBeacons {
             if(!checkFriendly(player, block, entry.getValue())){return false;}
         }
         return true;
+    }
+    static Map<Location, Block> blockLocationsToMap(List<Location> locations){
+        Map<Location, Block> returnVal = new HashMap<>();
+        for(Location location:locations){
+            returnVal.put(location, location.getBlock());
+        }
+        return returnVal;
     }
     static int getMaxDurability(Block block, Map<Location, Block> beacons){
         int maxTier = 0;
@@ -85,7 +88,7 @@ public class CustomBeacons {
             for (Location location : entry.getValue().getBeacons()) {
                 BlockState a = location.getBlock().getState();
                 if(a instanceof Beacon) {//safe cast of beacon to ensure no errors if the block is not a beacon
-                    if (entry.getValue().checkInRange(block.getLocation(), location, ((Beacon)a).getTier())) {
+                    if (checkInRange(block.getLocation(), location, ((Beacon)a).getTier())) {
                         group = entry.getValue();
                     }
                 }

@@ -130,7 +130,7 @@ public class Group {
         for(Location location:vaults){
             Block block = location.getBlock();
             boolean inRange = false;
-            for (Location loc:checkForBlocks(block)) {
+            for (Location loc:CustomBeacons.checkForBlocks(block, CustomBeacons.blockLocationsToMap(beacons))) {
                 int tier = ((Beacon)loc.getBlock().getState()).getTier();
                 if(location.toVector().isInAABB(new Vector(loc.getX()-tier,loc.getY()-tier,loc.getZ()-tier),new Vector(loc.getX()+tier,loc.getY(),loc.getZ()+tier))) {
                     inRange = true;
@@ -156,36 +156,9 @@ public class Group {
         }
         return materialAmt;
     }
-    public List<Location> checkForBlocks(Block blk){//returns beacons that touch the block
-        List<Location> blocks = new ArrayList<>();
-        for(Location location:beacons) {
-            if (checkInRange(blk.getLocation(), location, ((Beacon) location.getBlock().getState()).getTier())) {
-                blocks.add(location);
-            }
-        }
-        return blocks;
-    }
-    boolean checkForBlock(Block blk) {//returns if block is in beacon's range
-        Location finalLoc = null;
-        for (Location location : beacons) {
-            if (checkInRange(blk.getLocation(), location, ((Beacon) location.getBlock().getState()).getTier())) {
-                finalLoc = location;
-            }
-        }
-        return finalLoc!=null;
-    }
     void removeMaterialInVaults(Material material, int amount){
         for(Location location:vaults){
-            boolean inRange = false;
-            for(Location beacon:beacons){//vault might not be in active beacon radius if the beacon was moved
-                int tier = ((Beacon)beacon.getBlock().getState()).getTier();
-                System.out.println("Checking for "+tier);
-                if(location.toVector().isInAABB(new Vector(beacon.getX()-tier,beacon.getY()-tier,beacon.getZ()-tier),new Vector(beacon.getX()+tier,beacon.getY(),beacon.getZ()+tier))) {
-                    inRange = true;
-                    break;
-                }else{System.out.println("nope");}
-            }
-            if(inRange) {
+            if(CustomBeacons.checkForBlocks(location.getBlock(),CustomBeacons.blockLocationsToMap(beacons)).size()>0) {
                 Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
                 for (ItemStack is : inventory) {
                     if (is != null) {
@@ -201,14 +174,6 @@ public class Group {
                 }
             }
         }
-    }
-    Boolean checkInRange(Location block, Location beacon, int tier){
-        if(tier!=0){
-            tier = tiers[tier-1];
-            Vector blk = new Vector(block.getX(), block.getY(), block.getZ());
-            return blk.isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier));
-        }
-        return false;
     }
     public void removeVault(Location location){
         vaults.remove(location);
