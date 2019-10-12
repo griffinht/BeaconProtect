@@ -87,10 +87,7 @@ public class CustomBeacons {
     private Boolean checkInRange(Location block, Location beacon, int tier){
         if(tier!=0){
             tier = plugin.defaultBeaconRange[tier-1];
-            Vector blk = new Vector(block.getX(), block.getY(), block.getZ());
-            Vector min = new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier);
-            Vector max = new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier);
-            return(blk.isInAABB(min, max));
+            return(block.toVector().isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier)));
         }
         return false;
     }

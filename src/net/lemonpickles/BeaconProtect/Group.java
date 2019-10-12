@@ -129,6 +129,15 @@ public class Group {
         List<Location> badVault = new ArrayList<>();//vaults that no longer exist as chests go here to be removed outside the loop
         for(Location location:vaults){
             Block block = location.getBlock();
+            boolean inRange = false;
+            for (Location loc:checkForBlocks(block)) {
+                int tier = ((Beacon)loc.getBlock().getState()).getTier();
+                if(location.toVector().isInAABB(new Vector(loc.getX()-tier,loc.getY()-tier,loc.getZ()-tier),new Vector(loc.getX()+tier,loc.getY(),loc.getZ()+tier))) {
+                    inRange = true;
+                    break;
+                }
+            }
+            if(!inRange){vaults.remove(location);return 0;}
             if(block.getType()==Material.CHEST){
                 Inventory inventory = ((Chest) block.getState()).getInventory();
                 for (ItemStack is : inventory) {
@@ -156,7 +165,7 @@ public class Group {
         }
         return blocks;
     }
-    boolean checkForBlock(Block blk) {//returns if block is in beacon's range
+    boolean checkForBlock(Block blk) {//returns if block is in beacon's range todo use custom beacon ranges
         Location finalLoc = null;
         for (Location location : beacons) {
             if (checkInRange(blk.getLocation(), location, ((Beacon) location.getBlock().getState()).getTier())) {
