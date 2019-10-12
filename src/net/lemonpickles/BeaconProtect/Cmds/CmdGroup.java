@@ -123,9 +123,9 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 Block block = player.getTargetBlock(null, 5);
                                 Location location = block.getLocation();
                                 boolean inRange = false;
-                                for (Location loc:plugin.CustomBeacons.checkForBlocks(block)) {
-                                    int tier = ((Beacon)loc.getBlock().getState()).getTier();
-                                    if(location.toVector().isInAABB(new Vector(loc.getX()-tier,loc.getY()-tier,loc.getZ()-tier),new Vector(loc.getX()+tier,loc.getY(),loc.getZ()+tier))) {
+                                for (Location beacon:plugin.CustomBeacons.checkForBlocks(block)) {
+                                    int tier = ((Beacon)beacon.getBlock().getState()).getTier();
+                                    if(location.toVector().isInAABB(new Vector(beacon.getX()-tier,beacon.getY()-tier,beacon.getZ()-tier),new Vector(beacon.getX()+tier,beacon.getY(),beacon.getZ()+tier))) {
                                         inRange = true;
                                         break;
                                     }

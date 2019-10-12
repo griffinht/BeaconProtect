@@ -65,8 +65,11 @@ public class CustomBeacons {
         Group group = null;
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()) {
             for (Location location : entry.getValue().getBeacons()) {
-                if (entry.getValue().checkInRange(block.getLocation(), location, ((Beacon) location.getBlock().getState()).getTier())) {
-                    group = entry.getValue();
+                BlockState a = location.getBlock().getState();
+                if(a instanceof Beacon) {//safe cast of beacon to ensure no errors if the block is not a beacon
+                    if (entry.getValue().checkInRange(block.getLocation(), location, ((Beacon)a).getTier())) {
+                        group = entry.getValue();
+                    }
                 }
             }
         }

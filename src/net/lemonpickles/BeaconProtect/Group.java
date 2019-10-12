@@ -120,8 +120,8 @@ public class Group {
         return vaults;
     }
     public void addVault(Location location){
-        if(getVaults().contains(location)){
-            beacons.add(location);
+        if(!getVaults().contains(location)){
+            vaults.add(location);
         }
     }
     int getMaterialInVaults(Material material){
@@ -137,7 +137,7 @@ public class Group {
                     break;
                 }
             }
-            if(!inRange){vaults.remove(location);return 0;}
+            if(!inRange){return 0;}//dont remove, just return 0
             if(block.getType()==Material.CHEST){
                 Inventory inventory = ((Chest) block.getState()).getInventory();
                 for (ItemStack is : inventory) {
@@ -165,7 +165,7 @@ public class Group {
         }
         return blocks;
     }
-    boolean checkForBlock(Block blk) {//returns if block is in beacon's range todo use custom beacon ranges
+    boolean checkForBlock(Block blk) {//returns if block is in beacon's range
         Location finalLoc = null;
         for (Location location : beacons) {
             if (checkInRange(blk.getLocation(), location, ((Beacon) location.getBlock().getState()).getTier())) {
@@ -175,17 +175,29 @@ public class Group {
         return finalLoc!=null;
     }
     void removeMaterialInVaults(Material material, int amount){
+        System.out.println("Checking all the "+vaults+" in group "+getName());
         for(Location location:vaults){
-            Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
-            for (ItemStack is : inventory) {
-                if(is!=null) {
-                    if (is.getType() == material) {
-                        int oldAmt = amount;
-                        if(is.getAmount()-amount<0){
-                            amount = is.getAmount();
+            boolean inRange = false;
+            for(Location beacon:beacons){//vault might not be in active beacon radius if the beacon was moved
+                int tier = ((Beacon)beacon.getBlock().getState()).getTier();
+                System.out.println("Checking for "+tier);
+                if(location.toVector().isInAABB(new Vector(beacon.getX()-tier,beacon.getY()-tier,beacon.getZ()-tier),new Vector(beacon.getX()+tier,beacon.getY(),beacon.getZ()+tier))) {
+                    inRange = true;
+                    break;
+                }else{System.out.println("nope");}
+            }
+            if(inRange) {
+                Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
+                for (ItemStack is : inventory) {
+                    if (is != null) {
+                        if (is.getType() == material) {
+                            int oldAmt = amount;
+                            if (is.getAmount() - amount < 0) {
+                                amount = is.getAmount();
+                            }
+                            is.setAmount(is.getAmount() - amount);
+                            amount = oldAmt - amount;
                         }
-                        is.setAmount(is.getAmount()-amount);
-                        amount = oldAmt-amount;
                     }
                 }
             }
@@ -195,9 +207,7 @@ public class Group {
         if(tier!=0){
             tier = tiers[tier-1];
             Vector blk = new Vector(block.getX(), block.getY(), block.getZ());
-            Vector min = new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier);
-            Vector max = new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier);
-            return blk.isInAABB(min, max);
+            return blk.isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier));
         }
         return false;
     }
