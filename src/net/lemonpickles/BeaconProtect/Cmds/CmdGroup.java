@@ -2,6 +2,7 @@ package net.lemonpickles.BeaconProtect.Cmds;
 
 import com.sun.istack.internal.NotNull;
 import net.lemonpickles.BeaconProtect.BeaconProtect;
+import net.lemonpickles.BeaconProtect.CustomBeacons;
 import net.lemonpickles.BeaconProtect.Group;
 import net.lemonpickles.BeaconProtect.PlayerRole;
 import org.bukkit.*;
@@ -123,7 +124,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 Block block = player.getTargetBlock(null, 5);
                                 Location location = block.getLocation();
                                 boolean inRange = false;
-                                for (Location beacon:plugin.CustomBeacons.checkForBlocks(block)) {
+                                for (Location beacon:CustomBeacons.checkForBlocks(block, plugin.beacons)) {
                                     int tier = ((Beacon)beacon.getBlock().getState()).getTier();
                                     if(location.toVector().isInAABB(new Vector(beacon.getX()-tier,beacon.getY()-tier,beacon.getZ()-tier),new Vector(beacon.getX()+tier,beacon.getY(),beacon.getZ()+tier))) {
                                         inRange = true;

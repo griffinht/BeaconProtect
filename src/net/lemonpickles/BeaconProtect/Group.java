@@ -175,7 +175,6 @@ public class Group {
         return finalLoc!=null;
     }
     void removeMaterialInVaults(Material material, int amount){
-        System.out.println("Checking all the "+vaults+" in group "+getName());
         for(Location location:vaults){
             boolean inRange = false;
             for(Location beacon:beacons){//vault might not be in active beacon radius if the beacon was moved

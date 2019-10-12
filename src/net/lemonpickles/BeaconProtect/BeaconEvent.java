@@ -30,7 +30,7 @@ public class BeaconEvent implements Listener{
         if(!plugin.bypass.contains(event.getPlayer())) {
             Block block = event.getBlock();
             Player player = event.getPlayer();
-            if (plugin.CustomBeacons.checkFriendly(player, block)) {
+            if (CustomBeacons.checkFriendly(player, block, plugin.groups)) {//todo change method in custombeacons to findgroup
                 if (block.getType() == Material.BEACON) {
                     Location location = block.getLocation();
                     if (!plugin.beacons.containsKey(location)) {
@@ -70,7 +70,7 @@ public class BeaconEvent implements Listener{
             } else if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 if (block != null) {
                     if (block.getType() == Material.CHEST) {
-                        if (!plugin.CustomBeacons.checkFriendly(player, block)) {
+                        if (!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
                             event.setCancelled(true);
                             player.sendMessage("You cannot interact here! This area is protected by a beacon");
                             if (plugin.durabilities.containsKey(block.getLocation())) {//this is broken

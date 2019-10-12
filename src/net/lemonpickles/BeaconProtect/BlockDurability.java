@@ -47,9 +47,9 @@ public class BlockDurability {
         //this if statement runs if the block is at default durability and set durability
         //a.getMaxBlockDurability()==maxDurability&& is extra
         boolean isTheBeaconActiveForThePlayer = plugin.CustomBeacons.getMaxPenalty(player, block)>0;
-        if((!(a.getDefaultBlockDurability()==durability&&a.getDefaultBlockDurability()==setDurability))||isTheBeaconActiveForThePlayer||!plugin.CustomBeacons.checkFriendly(player, block)){
+        if((!(a.getDefaultBlockDurability()==durability&&a.getDefaultBlockDurability()==setDurability))||isTheBeaconActiveForThePlayer||!CustomBeacons.checkFriendly(player, block, plugin.groups)){
             BarColor color;
-            if(plugin.CustomBeacons.checkFriendly(player, block)){
+            if(CustomBeacons.checkFriendly(player, block, plugin.groups)){
                 color = BarColor.WHITE;
             }else{
                 if(isTheBeaconActiveForThePlayer&&beaconDurability>0){
@@ -120,9 +120,9 @@ public class BlockDurability {
 
 
     boolean changeDurability(BeaconProtect plugin, Player player, int changeDurability, boolean setDurability){
-        if(beaconDurability==-69){beaconDurability = plugin.CustomBeacons.getMaxDurability(block);maxBeaconDurability=beaconDurability;}//initializer value
+        if(beaconDurability==-69){beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons);maxBeaconDurability=beaconDurability;}//initializer value
         if(changeDurability>0){//reinforcing so reset beacon durability
-            beaconDurability = plugin.CustomBeacons.getMaxDurability(block);
+            beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons);
         }
         int value = setDurability(durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
