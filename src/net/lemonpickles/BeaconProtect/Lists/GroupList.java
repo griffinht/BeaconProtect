@@ -132,7 +132,7 @@ public class GroupList extends FileMgmt {
                             vaults.add(new Location(getServer().getWorld("world"), loc[0], loc[1], loc[2]));
                         }
 
-                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults, plugin.defaultBeaconRange));
+                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults));
                     }
                 }
             }

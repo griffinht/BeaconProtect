@@ -20,25 +20,21 @@ public class Group {
     private String name;
     private String description;
     private OfflinePlayer owner;
-    //TODO private roles for roles and stuff
     private List<Location> beacons;
     private List<Location> vaults;
-    private int[] tiers;
     private Map<OfflinePlayer,PlayerRole> members = new HashMap<>();
     private List<Player> invites = new ArrayList<>();
-    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults, int[] tiers){
+    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults){
         this.name = name;
         this.description = description;
         this.owner = owner;
         this.members = members;
         this.beacons = beacons;
         this.vaults = vaults;
-        this.tiers = tiers;
     }
     public Group(String name, Player owner, int[] tiers){
         this.name = name;
         this.owner = owner;
-        this.tiers = tiers;
         this.description = "";
         this.members.put(owner, PlayerRole.OWNER);
         this.vaults = new ArrayList<>();
