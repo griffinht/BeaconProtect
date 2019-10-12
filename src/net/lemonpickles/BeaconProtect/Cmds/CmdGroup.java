@@ -319,7 +319,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                 }else if(args[0].equalsIgnoreCase("create")) {
                     if (sender.hasPermission("beaconprotect.group.create")) {
                         if (findGroup(player) == null) {
-                            plugin.groups.put(UUID.randomUUID(), new Group(args[1], player, plugin.defaultBeaconRange));
+                            plugin.groups.put(UUID.randomUUID(), new Group(args[1], player));
                             sender.sendMessage("Created a new group named " + args[1]);
                         } else {
                             sender.sendMessage("You must leave your current group before you can create a new one");

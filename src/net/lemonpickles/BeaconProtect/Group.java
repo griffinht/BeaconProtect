@@ -32,7 +32,7 @@ public class Group {
         this.beacons = beacons;
         this.vaults = vaults;
     }
-    public Group(String name, Player owner, int[] tiers){
+    public Group(String name, Player owner){
         this.name = name;
         this.owner = owner;
         this.description = "";

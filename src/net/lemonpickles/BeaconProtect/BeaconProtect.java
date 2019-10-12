@@ -25,8 +25,6 @@ public class BeaconProtect extends JavaPlugin {
     public Map<UUID, Group> groups = new HashMap<>();
     ArrayList<Player> isReinforcing = new ArrayList<>();
     public DefaultBlockDurability defaultBlockDurability = new DefaultBlockDurability(1,1);//set to 1 (like vanilla minecraft) in case the config can't be read
-    public int[] defaultBeaconRange = new int[4];
-    int[] defaultBeaconMultiplier = new int[4];
     private GroupList groupList;
     DurabilityBar DurabilityBar;
     private BeaconList beaconList;
@@ -47,14 +45,6 @@ public class BeaconProtect extends JavaPlugin {
         saveConfig();
         //defaults
         defaultBlockDurability = new DefaultBlockDurability(getConfig().getInt("default_durability"), getConfig().getInt("default_max_durability"));
-        defaultBeaconRange[0] = getConfig().getInt("beacon_tiers.tier1.range");
-        defaultBeaconRange[1] = getConfig().getInt("beacon_tiers.tier2.range");
-        defaultBeaconRange[2] = getConfig().getInt("beacon_tiers.tier3.range");
-        defaultBeaconRange[3] = getConfig().getInt("beacon_tiers.tier4.range");
-        defaultBeaconMultiplier[0] = getConfig().getInt("beacon_tiers.tier1.reinforce");
-        defaultBeaconMultiplier[1] = getConfig().getInt("beacon_tiers.tier2.reinforce");
-        defaultBeaconMultiplier[2] = getConfig().getInt("beacon_tiers.tier3.reinforce");
-        defaultBeaconMultiplier[3] = getConfig().getInt("beacon_tiers.tier4.reinforce");
         //defaultBlockDurability.setMaxBlockDurability(defaultDur);
         logger.info("Loaded global default durability of "+defaultBlockDurability.getDefaultBlockDurability()+" and max durability of "+defaultBlockDurability.getMaxBlockDurability());
         //build defaultDurabilities
