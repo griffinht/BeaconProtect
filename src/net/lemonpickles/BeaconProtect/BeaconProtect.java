@@ -123,7 +123,7 @@ public class BeaconProtect extends JavaPlugin {
         beaconList.save();
         durabilityList.save();
         groupList.save();
-        logger.info("Saved beacons, blocks durabilities, and groups to disk ("+(System.currentTimeMillis()-start)+"ms)");
+        logger.info("Saved to disk in "+(System.currentTimeMillis()-start)+"ms");
         getLogger().info("BeaconProtect has been disabled");
     }
 

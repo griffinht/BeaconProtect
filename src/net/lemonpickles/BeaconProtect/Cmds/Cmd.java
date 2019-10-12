@@ -7,10 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class Cmd {
     protected BeaconProtect plugin;
@@ -27,9 +24,9 @@ class Cmd {
             sender.sendMessage(string);
         }
     }
-    Group findGroup(Player player){
-        for(Group group:plugin.groups.values()){
-            if(group.checkMember(player)){return group;}
+    Map.Entry<UUID, Group> findGroup(Player player){
+        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
+            if(entry.getValue().checkMember(player)){return entry;}
         }
         return null;
     }

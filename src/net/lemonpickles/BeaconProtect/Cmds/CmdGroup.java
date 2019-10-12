@@ -59,7 +59,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
         if(args.length==0) {
             if (sender instanceof Player) {
                 if(sender.hasPermission("beaconprotect.group")) {
-                    Group group = findGroup((Player) sender);
+                    Group group = findGroup((Player) sender).getValue();
                     if (group != null) {
                         sender.sendMessage(group.getName());
                         sender.sendMessage("Description: " + group.getDescription());
@@ -77,7 +77,8 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
         }else if(args.length==1) {
             if (sender instanceof Player) {
                 Player player = ((Player) sender).getPlayer();
-                Group group = findGroup(player);
+                Map.Entry<UUID, Group> groupEntry = findGroup(player);
+                Group group = groupEntry.getValue();
                 if (player != null) {
                     if(group!=null) {
                         if (args[0].equalsIgnoreCase("claimbeacon")) {
@@ -174,7 +175,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 if (group.getOwner().getUniqueId().equals(player.getUniqueId())) {
                                     String name = group.getName();
                                     for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {
-                                        if (entry.getValue() == group) {
+                                        if (entry.getKey().equals(groupEntry.getKey())) {
                                             plugin.groups.remove(entry.getKey());
                                             sender.sendMessage("Deleted your group " + name);
                                             return true;
@@ -248,7 +249,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
             if(sender instanceof Player) {
                 Player player = ((Player) sender);
                 if (args[0].equalsIgnoreCase("invite")) {
-                    Group group = findGroup(player);
+                    Group group = findGroup(player).getValue();
                     if (group != null) {
                         if(sender.hasPermission("beaconprotect.group.invite")&&group.checkPlayerPermission((Player)sender, PlayerRole.TRUSTED)) {
                                 try {
@@ -274,7 +275,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     }
                     return true;
                 } else if (args[0].equalsIgnoreCase("kick")) {
-                    Group group = findGroup(player);
+                    Group group = findGroup(player).getValue();
                     if (group != null) {
                         if(sender.hasPermission("beaconprotect.group.kick")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
                             //deja vu i have seen this code before
@@ -329,7 +330,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     }
                     return true;
                 }else if(args[0].equalsIgnoreCase("promote")) {
-                    Group group = findGroup(player);
+                    Group group = findGroup(player).getValue();
                     if (group != null) {
                         if (sender.hasPermission("beaconprotect.group.promote") && group.checkPlayerPermission(player, PlayerRole.ASSISTANT)) {
                             Player p = Bukkit.getPlayer(args[1]);
@@ -365,7 +366,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     }
                     return true;
                 }else if(args[0].equalsIgnoreCase("demote")){
-                    Group group = findGroup(player);
+                    Group group = findGroup(player).getValue();
                     if(group!=null) {
                         if (sender.hasPermission("beaconprotect.group.demote") && group.checkPlayerPermission(player, PlayerRole.ASSISTANT)) {
                             Player p = Bukkit.getPlayer(args[1]);

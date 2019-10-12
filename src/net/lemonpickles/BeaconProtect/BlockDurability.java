@@ -7,6 +7,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -129,6 +130,7 @@ public class BlockDurability {
             Group group = entry.getValue();
             if(CustomBeacons.checkForBlocks(block, plugin.beacons).size()>0){//this might break with overlapping beacons
                 group.removeMaterialInVaults(block.getType(), value);
+                break;
             }
         }
         if(changeDurability>0) {

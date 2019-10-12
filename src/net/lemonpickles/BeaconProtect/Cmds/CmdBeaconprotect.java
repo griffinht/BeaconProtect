@@ -62,7 +62,6 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             if (args.length == 0) {
                 usage(sender, "beaconprotect");
                 return false;
-                //add
             } else if (args[0].equalsIgnoreCase("add")) {
                 if (args.length == 1) {
                     if (sender instanceof Player) {
