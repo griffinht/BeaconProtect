@@ -12,11 +12,11 @@ class DurabilityBar {
     void addTimedBar(BossBar bar, Player player, int ticks){
         new bossBarRemove(plugin, bar, player, ticks);
     }
-    public class bossBarRemove extends BukkitRunnable {
+    public static class bossBarRemove extends BukkitRunnable {
         private BossBar bar;
         bossBarRemove(BeaconProtect plugin, BossBar bar, Player player, int ticks){
             this.bar = bar;
-            if(plugin.durabilityBars.containsKey(player)){//TODO:unnecessary check?
+            if(plugin.durabilityBars.containsKey(player)){
                 plugin.durabilityBars.get(player).removeAll();
             }
             plugin.durabilityBars.put(player, bar);

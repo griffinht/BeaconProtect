@@ -19,7 +19,6 @@ import static java.lang.Integer.parseInt;
 import static org.bukkit.Material.BEACON;
 
 public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabCompleter {
-    //todo this should be more like CmdGroup with the onCommand stuff
     public CmdBeaconprotect(BeaconProtect plugin){
         super(plugin);
         this.plugin = plugin;
