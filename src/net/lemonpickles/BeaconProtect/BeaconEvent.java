@@ -132,12 +132,14 @@ public class BeaconEvent implements Listener{
             } else {//block has a durability, take away from it
                 plugin.durabilities.get(block.getLocation()).changeDurability(plugin, player, -1, false);
             }
-            if (plugin.durabilities.get(block.getLocation()).getDurability() > 0) {
-                event.setCancelled(true);
-                return;
-            } else {
-                plugin.durabilityBars.get(player).removeAll();
-                plugin.durabilities.remove(block.getLocation());
+            if (plugin.durabilities.containsKey(block.getLocation())) {//the block could have been broken up there
+                if (plugin.durabilities.get(block.getLocation()).getDurability() > 0) {
+                    event.setCancelled(true);
+                    return;
+                } else {
+                    plugin.durabilityBars.get(player).removeAll();
+                    plugin.durabilities.remove(block.getLocation());
+                }
             }
         }
         //normal block breakage

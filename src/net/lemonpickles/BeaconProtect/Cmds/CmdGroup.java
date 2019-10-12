@@ -5,6 +5,7 @@ import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.BeaconProtect.Group;
 import net.lemonpickles.BeaconProtect.PlayerRole;
 import org.bukkit.*;
+import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -123,7 +124,8 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 Location location = block.getLocation();
                                 boolean inRange = false;
                                 for (Location loc:plugin.CustomBeacons.checkForBlocks(block)) {
-                                    if(location.toVector().isInAABB(new Vector(loc.getX()-3,0,loc.getZ()-3),new Vector(loc.getX()+3,256,loc.getZ()+3))) {
+                                    int tier = ((Beacon)loc.getBlock().getState()).getTier();
+                                    if(location.toVector().isInAABB(new Vector(loc.getX()-tier,loc.getY()-tier,loc.getZ()-tier),new Vector(loc.getX()+tier,loc.getY(),loc.getZ()+tier))) {
                                         inRange = true;
                                         break;
                                     }
@@ -137,7 +139,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                             sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " has already been registered to group " + group.getName());
                                         }
                                     } else {
-                                        sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not in the range of a beacon");
+                                        sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " too far from a beacon");
                                     }
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not a chest (found " + block.getType() + ", maybe move closer?");
