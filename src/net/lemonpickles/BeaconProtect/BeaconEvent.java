@@ -30,7 +30,7 @@ public class BeaconEvent implements Listener{
         if(!plugin.bypass.contains(event.getPlayer())) {
             Block block = event.getBlock();
             Player player = event.getPlayer();
-            if (CustomBeacons.checkFriendly(player, block, plugin.groups)) {//todo change method in custombeacons to findgroup
+            if (CustomBeacons.checkFriendly(player, block, plugin.groups)) {
                 if (block.getType() == Material.BEACON) {
                     Location location = block.getLocation();
                     if (!plugin.beacons.containsKey(location)) {
