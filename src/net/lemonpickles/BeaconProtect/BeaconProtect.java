@@ -29,7 +29,7 @@ public class BeaconProtect extends JavaPlugin {
     DurabilityBar DurabilityBar;
     private BeaconList beaconList;
     public CustomBeacons CustomBeacons;
-    private DurabilityList durabilityList;
+    public DurabilityList durabilityList;
     public Logger logger = getLogger();
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     @Override
@@ -71,18 +71,25 @@ public class BeaconProtect extends JavaPlugin {
         logger.info("Loaded "+defaultBlockDurabilities.size()+" materials with a default durability");
         //initialize
         DurabilityBar = new DurabilityBar(this);
-        //initialize beacons from file
+        //initialize object
         beaconList = new BeaconList(this);
-        beaconList.load();
-        logger.info("Loaded "+beacons.size()+" protection beacons");
-        //initialize durabilities from file
         durabilityList = new DurabilityList(this);
-        durabilityList.load();
-        logger.info("Loaded "+durabilities.size()+" blocks with a set durability");
-        //initialize groups from file
         groupList = new GroupList(this);
+        //load from file
+        logger.info("Loading beacons, block durabilities, and groups from disk");
+        long a = System.nanoTime();
+
+        beaconList.load();
+        long b = System.nanoTime();
+        logger.info("Loaded "+beacons.size()+" beacons in "+((b-a)/1000000)+"ms");
+
+        durabilityList.load();
+        long c = System.nanoTime();
+        logger.info("Loaded "+durabilities.size()+" block durabilities in "+((c-b)/1000000)+"ms");
+
         groupList.load();
-        logger.info("Loaded "+groups.size()+" groups");
+        logger.info("Loaded "+groups.size()+" groups in "+((System.nanoTime()-c)/1000000)+"ms");
+
         //CustomBeacons event
         CustomBeacons = new CustomBeacons(this);
         CustomBeacons.startBeacons();
@@ -119,11 +126,19 @@ public class BeaconProtect extends JavaPlugin {
         }
         CustomBeacons.stopBeacons();
         logger.info("Saving beacons, block durabilities, and groups to disk");
-        long start = System.currentTimeMillis();
+        long a = System.nanoTime();
+
         beaconList.save();
+        long b = System.nanoTime();
+        logger.info("Saved "+beacons.size()+" beacons in "+((b-a)/1000000)+"ms");
+
         durabilityList.save();
+        long c = System.nanoTime();
+        logger.info("Cleaned and saved "+durabilities.size()+" block durabilities in "+((c-b)/1000000)+"ms");
+
         groupList.save();
-        logger.info("Saved to disk in "+(System.currentTimeMillis()-start)+"ms");
+        logger.info("Saved "+groups.size()+" groups in "+((System.nanoTime()-c)/1000000)+"ms");
+
         getLogger().info("BeaconProtect has been disabled");
     }
 

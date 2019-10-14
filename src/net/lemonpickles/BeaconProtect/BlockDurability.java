@@ -1,6 +1,7 @@
 package net.lemonpickles.BeaconProtect;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -18,6 +19,9 @@ public class BlockDurability {
     private int setDurability;
     private int beaconDurability = -69;//this is bad
     private int maxBeaconDurability;//may not be accurate, its only set by the last time CustomBeacons was checked
+
+    private Material material;
+
     public BlockDurability(Block block, int durability, int setDurability, int maxDurability, int beaconDurability, int maxBeaconDurability){//for loading BlockDurability from disk
         this.block = block;
         this.durability = durability;
@@ -33,6 +37,7 @@ public class BlockDurability {
         int defaultDurability = defaultDur.getDefaultBlockDurability();
         this.durability = defaultDurability;
         this.setDurability = defaultDurability;
+        material = block.getType();
         changeDurability(plugin, player, changeDur, false);
         if((durability<1||(plugin.CustomBeacons.getMaxPenalty(player, block)>0&&beaconDurability>0))&&plugin.durabilityBars.containsKey(player)) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
             plugin.durabilityBars.get(player).removeAll();
@@ -140,7 +145,7 @@ public class BlockDurability {
         }
         return changeDurability==durability;
     }
-
+    public void setMaterial(){material = block.getType();}
     public int getMaxBeaconDurability(){return maxBeaconDurability;}
     public int getDurability(){
         return durability;
@@ -149,4 +154,5 @@ public class BlockDurability {
     public int getMaxDurability(){return maxDurability;}
     public int getSetDurability(){return setDurability;}
     public Block getBlock(){return block;}
+    public Material getMaterial(){return material;}
 }

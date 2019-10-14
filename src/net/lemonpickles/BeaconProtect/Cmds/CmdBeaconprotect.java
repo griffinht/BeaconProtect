@@ -62,6 +62,11 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             if (args.length == 0) {
                 usage(sender, "beaconprotect");
                 return false;
+            }else if(args[0].equalsIgnoreCase("test")){
+                Player playaser = Bukkit.getPlayer("Lem0nPickles");
+                for(int i=0;i<1000;i++){
+                    plugin.groups.put(UUID.randomUUID(),new Group(String.valueOf(Math.random()),playaser));
+                }
             } else if (args[0].equalsIgnoreCase("add")) {
                 if (args.length == 1) {
                     if (sender instanceof Player) {
@@ -179,13 +184,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     int start = plugin.durabilities.size();
                     sender.sendMessage("Starting check durabilities " + start + " for unnecessary entries");
                     long startTime = System.currentTimeMillis();
-                    for (Iterator<Map.Entry<Location, BlockDurability>> iterator = plugin.durabilities.entrySet().iterator(); iterator.hasNext(); ) {
-                        BlockDurability blockDurability = iterator.next().getValue();
-                        DefaultBlockDurability defaultBlockDurability = plugin.defaultBlockDurabilities.getOrDefault(blockDurability.getBlock().getType(), plugin.defaultBlockDurability);
-                        if (defaultBlockDurability.getDefaultBlockDurability() == blockDurability.getDurability() && (blockDurability.getBeaconDurability() == blockDurability.getMaxBeaconDurability() || blockDurability.getBeaconDurability() == 0)) {
-                            iterator.remove();
-                        }
-                    }
+                    plugin.durabilityList.clean();
                     sender.sendMessage("Removed " + (start - plugin.durabilities.size()) + " of " + start + " entries (" + (System.currentTimeMillis() - startTime) + "ms)");
                 } else {
                     usage(sender, "durability");

@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.bukkit.Bukkit.getServer;
@@ -20,15 +21,22 @@ public class DurabilityList extends FileMgmt {
         }
         super.save();
     }
+    public void clean(){
+        for (Iterator<Map.Entry<Location, BlockDurability>> iterator = plugin.durabilities.entrySet().iterator(); iterator.hasNext(); ) {
+            BlockDurability blockDurability = iterator.next().getValue();
+            DefaultBlockDurability defaultBlockDurability = plugin.defaultBlockDurabilities.getOrDefault(blockDurability.getMaterial(), plugin.defaultBlockDurability);
+            if (defaultBlockDurability.getDefaultBlockDurability() == blockDurability.getDurability() && (blockDurability.getBeaconDurability() == blockDurability.getMaxBeaconDurability() || blockDurability.getBeaconDurability() == 0)) {
+                iterator.remove();
+            }
+        }
+    }
     public void save(){
         ArrayList<String> durs = new ArrayList<>();
+        clean();
         for(Map.Entry<Location, BlockDurability> entry:plugin.durabilities.entrySet()){
             Location location = entry.getKey();
             BlockDurability blockDurability = entry.getValue();
-            DefaultBlockDurability defaultBlockDurability = plugin.defaultBlockDurabilities.getOrDefault(blockDurability.getBlock().getType(), plugin.defaultBlockDurability);
-            if (!(defaultBlockDurability.getDefaultBlockDurability() == blockDurability.getDurability() && (blockDurability.getBeaconDurability() == blockDurability.getMaxBeaconDurability()||blockDurability.getBeaconDurability()==0))) {
-                durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability()+","+blockDurability.getMaxBeaconDurability());
-            }
+            durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability()+","+blockDurability.getMaxBeaconDurability());
         }
         config.set("durabilities",durs);
         super.save();
@@ -68,5 +76,12 @@ public class DurabilityList extends FileMgmt {
                 plugin.logger.warning("Could not the following line as a set block durability from disk: "+original);
             }
         }
+        new Thread(() -> {
+            long start = System.currentTimeMillis();
+            for(BlockDurability blockDurability:plugin.durabilities.values()){
+                blockDurability.setMaterial();//this is a very slow (~1-10ms each) operation for some reason so it shouldn't slow everything down
+            }
+            plugin.logger.info("Finished initializing block durabilities in "+(System.currentTimeMillis()-start)+"ms");
+        }).start();
     }
 }
