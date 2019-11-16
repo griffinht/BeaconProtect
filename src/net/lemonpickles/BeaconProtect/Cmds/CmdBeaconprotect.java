@@ -173,11 +173,15 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             } else if (args[0].equalsIgnoreCase("durability") && args.length >= 2) {
                 if (args[1].equalsIgnoreCase("list")) {
                     sender.sendMessage("Listing all set block durabilities (" + plugin.durabilities.size() + ")");
+                    String[] msg = new String[plugin.durabilities.size()];
+                    int i = 0;
                     for (BlockDurability blockDurability : plugin.durabilities.values()) {
                         Block block = blockDurability.getBlock();
                         Location location = block.getLocation();
-                        sender.sendMessage("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "] - " + block.getType() + ": " + blockDurability.getDurability() + "/" + blockDurability.getMaxDurability() + ", " + blockDurability.getBeaconDurability() + "/" + blockDurability.getMaxBeaconDurability());
+                        msg[i] = ("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "] - " + block.getType() + ": " + blockDurability.getDurability() + "/" + blockDurability.getMaxDurability() + ", " + blockDurability.getBeaconDurability() + "/" + blockDurability.getMaxBeaconDurability());
+                        i++;
                     }
+                    sender.sendMessage(msg);
                 } else if (args[1].equalsIgnoreCase("size")) {
                     sender.sendMessage("There are " + plugin.durabilities.size() + " blocks with a set durability");
                 } else if (args[1].equalsIgnoreCase("clean")) {
