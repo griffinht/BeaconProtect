@@ -460,18 +460,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args){
         List<String> completions = new ArrayList<>();
         if(args.length==1){
-            if(sender.hasPermission("beaconprotect.group.claimbeacon")&&checkCompletions("claimbeacon", args[0])) {completions.add("claimbeacon");}
-            if(sender.hasPermission("beaconprotect.group.unclaimbeacon")&&checkCompletions("unclaimbeacon", args[0])) {completions.add("unclaimbeacon");}
-            if(sender.hasPermission("beaconprotect.group.addvault")&&checkCompletions("addvault", args[0])) {completions.add("addvault");}
-            if(sender.hasPermission("beaconprotect.group.removevault")&&checkCompletions("removevault", args[0])) {completions.add("removevault");}
-            if(sender.hasPermission("beaconprotect.group.invite")&&checkCompletions("invite", args[0])) {completions.add("invite");}
-            if(sender.hasPermission("beaconprotect.group.set")&&checkCompletions("set", args[0])) {completions.add("set");}
-            if(sender.hasPermission("beaconprotect.group.join")&&checkCompletions("join", args[0])){completions.add("join");}
-            if(sender.hasPermission("beaconprotect.group.leave")&&checkCompletions("leave",args[0])){completions.add("leave");}
-            if(sender.hasPermission("beaconprotect.group.create")&&checkCompletions("create",args[0])){completions.add("create");}
-            if(sender.hasPermission("beaconprotect.group.delete")&&checkCompletions("delete",args[0])){completions.add("delete");}
-            if(sender.hasPermission("beaconprotect.group.promote")&&checkCompletions("promote",args[0])){completions.add("promote");}
-            if(sender.hasPermission("beaconprotect.group.demote")&&checkCompletions("demote",args[0])){completions.add("demote");}
+            for(String string:new String[]{"claimbeacon","unclaimbeacon","addvault","invite","set","join","leave","create","delete","promote","demote"})if(sender.hasPermission("beaconprotect.group."+string)&&checkCompletions(string,args[0]))completions.add(string);
             if(completions.size()==0){
                 if(sender.hasPermission("beaconprotect.group.other")) {
                     for (Group group : plugin.groups.values()) {
@@ -490,9 +479,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
             return completions;
         }else if(args.length==2){
             if(args[0].equalsIgnoreCase("set")){
-                if(sender.hasPermission("beaconprotect.group.set.name")&&checkCompletions("name", args[1])) {completions.add("name");}
-                if(sender.hasPermission("beaconprotect.group.set.description")&&checkCompletions("description", args[1])) {completions.add("description");}
-                if(sender.hasPermission("beaconprotect.group.set.owner")&&checkCompletions("owner", args[1])) {completions.add("owner");}
+                for(String string:new String[]{"name","description","owner"})if(sender.hasPermission("beaconprotect.group.set."+string)&&checkCompletions("name", args[1]))completions.add(string);
                 return completions;
             }else if(sender.hasPermission("beaconprotect.group.invite")&&args[0].equalsIgnoreCase("invite")){
                 return null;//online players

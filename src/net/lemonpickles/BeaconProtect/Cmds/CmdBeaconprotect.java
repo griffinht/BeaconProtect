@@ -245,37 +245,27 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
         if(sender.hasPermission("beaconprotect.bp")){
             List<String> completions = new ArrayList<>();
             if(args.length==1){
-                if(checkCompletions("add", args[0])) {completions.add("add");}
-                if(checkCompletions("remove", args[0])) {completions.add("remove");}
-                if(checkCompletions("list", args[0])) {completions.add("list");}
-                if(checkCompletions("stop", args[0])) {completions.add("stop");}
-                if(checkCompletions("start", args[0])) {completions.add("start");}
-                if(checkCompletions("durability", args[0])) {completions.add("durability");}
-                if(checkCompletions("bypass", args[0])){completions.add("bypass");}
-                if(checkCompletions("group", args[0])){completions.add("group");}
+                for(String string:new String[]{"add","remove","list","stop","start","durability","bypass","group"})if(checkCompletions(string,args[0]))completions.add(string);
                 return completions;
             }else if(args.length==2){
                 if(args[0].equalsIgnoreCase("durability")){
-                    if(checkCompletions("list", args[1])) {completions.add("list");}
-                    if(checkCompletions("size", args[1])) {completions.add("size");}
-                    if(checkCompletions("clean", args[1])) {completions.add("clean");}
+                    for(String string:new String[]{"list","size","clean"})if(checkCompletions(string,args[1]))completions.add(string);
                     return completions;
                 }else if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
-                    completions.add("x y z");
+                    completions.add("0 0 0");
                     return completions;
                 }else if(args[0].equalsIgnoreCase("group")){
-                    if(checkCompletions("clean",args[1])){completions.add("clean");}
-                    if(checkCompletions("size",args[1])){completions.add("size");}
+                    for(String string:new String[]{"clean","size"})if(checkCompletions(string,args[1]))completions.add(string);
                     return completions;
                 }
             }else if(args.length==3){
                 if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
-                    completions.add("y z");
+                    completions.add("0 0");
                     return completions;
                 }
             }else if(args.length==4){
                 if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
-                    completions.add("z");
+                    completions.add("0");
                     return completions;
                 }
             }
