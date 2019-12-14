@@ -479,7 +479,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
             return completions;
         }else if(args.length==2){
             if(args[0].equalsIgnoreCase("set")){
-                for(String string:new String[]{"name","description","owner"})if(sender.hasPermission("beaconprotect.group.set."+string)&&checkCompletions("name", args[1]))completions.add(string);
+                for(String string:new String[]{"name","description","owner"})if(sender.hasPermission("beaconprotect.group.set."+string)&&checkCompletions(string, args[1]))completions.add(string);
                 return completions;
             }else if(sender.hasPermission("beaconprotect.group.invite")&&args[0].equalsIgnoreCase("invite")){
                 return null;//online players
