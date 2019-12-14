@@ -131,24 +131,28 @@ public class CustomBeacons {
             Location playerLocation = player.getLocation();
             for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
                 Block block = entry.getValue();
-                Beacon beacon = ((Beacon) block.getState());
-                int beaconTier = beacon.getTier();
-                if(beaconTier!=0){
-                    if(!beacon.getEntitiesInRange().contains(player)){
-                        if(checkInRange(playerLocation, block.getLocation(), beaconTier)){
-                            PotionEffect effectPrimary = beacon.getPrimaryEffect();
-                            PotionEffect effectSecondary = beacon.getSecondaryEffect();
+                try {
+                    Beacon beacon = ((Beacon) block.getState());
+                    int beaconTier = beacon.getTier();
+                    if(beaconTier!=0){
+                        if(!beacon.getEntitiesInRange().contains(player)){
+                            if(checkInRange(playerLocation, block.getLocation(), beaconTier)){
+                                PotionEffect effectPrimary = beacon.getPrimaryEffect();
+                                PotionEffect effectSecondary = beacon.getSecondaryEffect();
 
-                            if(effectPrimary!=null) {
-                                player.removePotionEffect(effectPrimary.getType());
-                                player.addPotionEffect(effectPrimary);
-                            }
-                            if(effectSecondary!=null){
-                                player.removePotionEffect(effectSecondary.getType());
-                                player.addPotionEffect(effectSecondary);
+                                if(effectPrimary!=null) {
+                                    player.removePotionEffect(effectPrimary.getType());
+                                    player.addPotionEffect(effectPrimary);
+                                }
+                                if(effectSecondary!=null){
+                                    player.removePotionEffect(effectSecondary.getType());
+                                    player.addPotionEffect(effectSecondary);
+                                }
                             }
                         }
                     }
+                }catch(ClassCastException e){
+                    plugin.logger.warning("Block at "+block.getX()+", "+block.getY()+", "+block.getZ()+" is not a beacon");
                 }
             }
         }
