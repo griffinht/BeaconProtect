@@ -24,6 +24,7 @@ public class Group {
     private List<Location> vaults;
     private Map<OfflinePlayer,PlayerRole> members = new HashMap<>();
     private List<Player> invites = new ArrayList<>();
+    int materialRemoveAmt = 0;
     public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults){
         this.name = name;
         this.description = description;
@@ -152,19 +153,25 @@ public class Group {
         }
         return materialAmt;
     }
-    void removeMaterialInVaults(Material material, int amount){
-        for(Location location:vaults){
-            if(CustomBeacons.checkForBlocks(location.getBlock(),CustomBeacons.blockLocationsToMap(beacons)).size()>0) {
-                Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
-                for (ItemStack is : inventory) {
-                    if (is != null) {
-                        if (is.getType() == material) {
-                            int oldAmt = amount;
-                            if (is.getAmount() - amount < 0) {
-                                amount = is.getAmount();
+    void removeMaterialInVaults(Material material, int amount, int defaultDurability){
+        int materialRemoveAmtA = (amount+materialRemoveAmt)%defaultDurability;
+        amount = (amount+materialRemoveAmt)/defaultDurability;
+        materialRemoveAmt = materialRemoveAmtA;
+        //System.out.println("using: "+defaultDurability+", leftover: "+materialRemoveAmt+", amt to remove "+amount);
+        if(amount!=0) {
+            for (Location location : vaults) {
+                if (CustomBeacons.checkForBlocks(location.getBlock(), CustomBeacons.blockLocationsToMap(beacons)).size() > 0) {
+                    Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
+                    for (ItemStack is : inventory) {
+                        if (is != null) {
+                            if (is.getType() == material) {
+                                int oldAmt = amount;
+                                if (is.getAmount() - amount < 0) {
+                                    amount = is.getAmount();
+                                }
+                                is.setAmount(is.getAmount() - amount);
+                                amount = oldAmt - amount;
                             }
-                            is.setAmount(is.getAmount() - amount);
-                            amount = oldAmt - amount;
                         }
                     }
                 }

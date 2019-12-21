@@ -59,8 +59,9 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
         if(args.length==0) {
             if (sender instanceof Player) {
                 if(sender.hasPermission("beaconprotect.group")) {
-                    Group group = findGroup((Player) sender).getValue();
-                    if (group != null) {
+                    Map.Entry<UUID, Group> groupEntry = findGroup((Player) sender);
+                    if (groupEntry != null) {
+                        Group group = groupEntry.getValue();
                         sender.sendMessage(group.getName());
                         sender.sendMessage("Description: " + group.getDescription());
                         sender.sendMessage("Owner: " + group.getOwner().getName());
@@ -68,8 +69,9 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                         sender.sendMessage("Members:");
                         sender.sendMessage(group.getMembersAsString());
                     } else {
-                        sender.sendMessage("You are not currently in a group.");
                         usage(sender, "group");
+                        sender.sendMessage("You must be in a group to run that command");
+                        return true;
                     }
                 }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
                 return true;
@@ -78,9 +80,9 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
             if (sender instanceof Player) {
                 Player player = ((Player) sender).getPlayer();
                 Map.Entry<UUID, Group> groupEntry = findGroup(player);
-                Group group = groupEntry.getValue();
                 if (player != null) {
-                    if(group!=null) {
+                    if(groupEntry!=null) {
+                        Group group = groupEntry.getValue();
                         if (args[0].equalsIgnoreCase("claimbeacon")) {
                             if(sender.hasPermission("beaconprotect.group.claimbeacon")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
                                 Block beacon = player.getTargetBlock(null, 5);
@@ -212,6 +214,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     }else{
                         if(args[0].equalsIgnoreCase("join")) {
                             if(sender.hasPermission("beaconprotect.group.join")) {
+                                Group group = null;
                                 for (Group a : plugin.groups.values()) {
                                     if (a.checkInvite(player)) {
                                         group = a;
@@ -231,7 +234,11 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 sender.sendMessage("Usage: /group create <name>");
                             }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
                             return true;
-                        }else{sender.sendMessage("You must be in a group to run that command");return true;}
+                        }else{
+                            usage(sender, "group");
+                            sender.sendMessage("You must be in a group to run that command");
+                            return true;
+                        }
                     }
                 } else {sender.sendMessage("Error: Could not get player (this should not happen)");return true;}
             }else{

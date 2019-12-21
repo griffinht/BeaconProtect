@@ -1,5 +1,6 @@
 package net.lemonpickles.BeaconProtect;
 
+import net.minecraft.server.v1_15_R1.DoubleBlockFinder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -93,6 +94,7 @@ public class BlockDurability {
     private int setBeaconDurability(int newDurability){//beacon hit is a maximum, beacondurability is mostly just durability
         int changeDurability = newDurability-durability;
         int maxBeaconDurability = beaconDurability;
+        //System.out.println("maxbeacon"+maxBeaconDurability+", set "+setDurability+", beacondur: "+beaconDurability);
         beaconDurability = beaconDurability+changeDurability;
         if(beaconDurability>maxBeaconDurability){
             int change = maxBeaconDurability-beaconDurability;
@@ -126,15 +128,16 @@ public class BlockDurability {
 
 
     boolean changeDurability(BeaconProtect plugin, Player player, int changeDurability, boolean setDurability){
-        if(beaconDurability==-69){beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons);maxBeaconDurability=beaconDurability;}//initializer value
+        if(beaconDurability==-69){beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons)*this.setDurability;maxBeaconDurability=beaconDurability;}//initializer value
         if(changeDurability>0){//reinforcing so reset beacon durability
             beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons);
         }
         int value = setDurability(durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             Group group = entry.getValue();
-            if(CustomBeacons.checkForBlocks(block, plugin.beacons).size()>0){//this might break with overlapping beacons
-                group.removeMaterialInVaults(block.getType(), value);
+            if(CustomBeacons.checkForBlocks(block, plugin.beacons).size()>0){//TODO this might break with overlapping beacons
+                Material material = block.getType();
+                group.removeMaterialInVaults(material, value, plugin.defaultBlockDurabilities.getOrDefault(material,plugin.defaultBlockDurability).getDefaultBlockDurability());
                 break;
             }
         }
