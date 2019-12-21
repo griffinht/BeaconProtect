@@ -64,7 +64,7 @@ public class BeaconProtect extends JavaPlugin {
                 if(split2.length==2){
                     defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, Integer.parseInt(split2[1].replaceAll("\\s",""))));//max durability
                 }else{
-                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur));
+                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, defaultBlockDurability.getMaxBlockDurability()));
                 }
             }
         }
