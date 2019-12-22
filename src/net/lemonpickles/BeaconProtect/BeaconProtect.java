@@ -11,9 +11,15 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -32,17 +38,28 @@ public class BeaconProtect extends JavaPlugin {
     public DurabilityList durabilityList;
     public Logger logger = getLogger();
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
+    FileConfiguration config;
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();
         //config
-        this.saveDefaultConfig();
-        if(!getDataFolder().exists()){
-            boolean shutUpIntelliJ = getDataFolder().mkdirs();
-            if(shutUpIntelliJ){logger.warning("Couldn't make directory for config");}
+        File file = new File(getDataFolder(), "config.yml");
+        if(!file.exists()){
+            try{
+                if(file.createNewFile()){logger.info("Created config.yml");}else{logger.info("Could not create config.yml");}
+                InputStream inputStream = getResource("config.yml");
+                if(inputStream==null){
+                    logger.warning("Could not load default config from plugin to config.yml");
+                }else{
+                    FileUtils.copyToFile(inputStream, new File(getDataFolder(),"config.yml"));
+                }
+            }catch(IOException e){
+                logger.warning("Could not create config.yml");
+                e.printStackTrace();
+            }
         }
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        this.config = YamlConfiguration.loadConfiguration(file);
+
         //defaults
         defaultBlockDurability = new DefaultBlockDurability(getConfig().getInt("default_durability"), getConfig().getInt("default_max_durability"));
         //defaultBlockDurability.setMaxBlockDurability(defaultDur);
@@ -141,5 +158,5 @@ public class BeaconProtect extends JavaPlugin {
 
         getLogger().info("BeaconProtect has been disabled");
     }
-
+    public FileConfiguration getConfig(){return config;}
 }

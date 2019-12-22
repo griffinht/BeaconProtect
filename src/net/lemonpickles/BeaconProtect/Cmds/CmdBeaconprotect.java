@@ -35,6 +35,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
         list = new ArrayList<>();
         list.add("/bp durability - commands related to custom block durability");
         list.add("/bp durability list - lists all blocks with set durability");
+        list.add("/bp durability defaultlist - lists all blocks with set default durability");
         list.add("/bp durability size - returns the amount of blocks with a set durability");
         list.add("/bp durability clean - removes block durabilities that are default");
         usages.put("durability", list);
@@ -43,11 +44,6 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
         list.add("/bp group clean - removes groups with no members or owner");
         list.add("/bp group size - returns amount of currently registered groups");
         usages.put("group", list);
-        list = new ArrayList<>();
-        list.add("/bp defaultdurability - commands related to default durabilities of blocks");
-        list.add("/bp defaultdurability list - list all default block durabilities");
-        list.add("/bp defaultdurability add - add a thing");//todo
-        usages.put("defaultdurability", list);
     }
     private boolean add(Location location){
         if(!plugin.beacons.containsKey(location)){
@@ -67,11 +63,11 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             if (args.length == 0) {
                 usage(sender, "beaconprotect");
                 return false;
-            }else if(args[0].equalsIgnoreCase("test")){//todo remove this
-                Player playaser = Bukkit.getPlayer("Lem0nPickles");
-                for(int i=0;i<1000;i++){
-                    plugin.groups.put(UUID.randomUUID(),new Group(String.valueOf(Math.random()),playaser));
-                }
+            //}else if(args[0].equalsIgnoreCase("test")){//todo remove this
+            //    Player playaser = Bukkit.getPlayer("Lem0nPickles");
+             //   for(int i=0;i<1000;i++){
+             //       plugin.groups.put(UUID.randomUUID(),new Group(String.valueOf(Math.random()),playaser));
+              //  }
             } else if (args[0].equalsIgnoreCase("add")) {//todo split into subcommand beacon?
                 if (args.length == 1) {
                     if (sender instanceof Player) {
@@ -175,21 +171,6 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                         }
                     }else{sender.sendMessage("You must be a player to run this command");}
                 }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use this command");}
-            } else if (args[0].equalsIgnoreCase("defaultdurability") && args.length >= 2) {
-                if(args[1].equalsIgnoreCase("list")){
-                    sender.sendMessage("Global default block durability: "+plugin.defaultBlockDurability.getDefaultBlockDurability()+", max: "+plugin.defaultBlockDurability.getMaxBlockDurability());
-                    sender.sendMessage("Listing all set default block durabilities ("+plugin.defaultBlockDurabilities.size()+")");
-                    String[] msg = new String[plugin.defaultBlockDurabilities.size()];
-                    int i = 0;
-                    for (Map.Entry<Material,DefaultBlockDurability> entry : plugin.defaultBlockDurabilities.entrySet()) {
-                        msg[i] = entry.getKey()+": "+entry.getValue().getDefaultBlockDurability()+","+entry.getValue().getMaxBlockDurability();
-                        i++;
-                    }
-                    sender.sendMessage(msg);
-                } else {
-                    usage(sender, "defaultdurability");
-                }
-                return true;
             } else if (args[0].equalsIgnoreCase("durability") && args.length >= 2) {
                 if (args[1].equalsIgnoreCase("list")) {
                     sender.sendMessage("Listing all set block durabilities (" + plugin.durabilities.size() + ")");
@@ -202,6 +183,16 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                         i++;
                     }
                     sender.sendMessage(msg);
+                } else if (args[1].equalsIgnoreCase("defaultlist")) {
+                    sender.sendMessage("Listing all set default block durabilities (" + plugin.defaultBlockDurabilities.size() + ")");
+                    sender.sendMessage("Global default block durability is "+plugin.defaultBlockDurability.getDefaultBlockDurability()+", "+plugin.defaultBlockDurability.getMaxBlockDurability());
+                    String[] msg = new String[plugin.defaultBlockDurabilities.size()];
+                    int i = 0;
+                    for (Map.Entry<Material, DefaultBlockDurability> defaultBlockDurability : plugin.defaultBlockDurabilities.entrySet()) {
+                        msg[i] = (defaultBlockDurability.getKey()+": "+defaultBlockDurability.getValue().getDefaultBlockDurability()+", "+defaultBlockDurability.getValue().getMaxBlockDurability());
+                        i++;
+                    }
+                    sender.sendMessage(msg);
                 } else if (args[1].equalsIgnoreCase("size")) {
                     sender.sendMessage("There are " + plugin.durabilities.size() + " blocks with a set durability");
                 } else if (args[1].equalsIgnoreCase("clean")) {
@@ -211,7 +202,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     plugin.durabilityList.clean();
                     sender.sendMessage("Removed " + (start - plugin.durabilities.size()) + " of " + start + " entries (" + (System.currentTimeMillis() - startTime) + "ms)");
                 } else {
-                    usage(sender, "durability");
+                    sender.sendMessage("Unknown argument. Use /bp durability for help");
                 }
                 return true;
             }else if(args[0].equalsIgnoreCase("group")&&args.length>=2){
@@ -228,6 +219,8 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     sender.sendMessage("Removed " + (start - plugin.groups.size()) + " of " + start + " entries (" + (System.currentTimeMillis() - startTime) + "ms)");
                 }else if(args[1].equalsIgnoreCase("size")){
                     sender.sendMessage("There are " + plugin.groups.size() + " registered groups");
+                }else{
+                    sender.sendMessage("Unknown argument. Use /bp group for help");
                 }
             } else if (args[0].equalsIgnoreCase("groups")) {
                 sender.sendMessage("Groups:");
@@ -249,11 +242,10 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                 }
             } else if (args[0].equalsIgnoreCase("durability")) {
                 usage(sender, "durability");
-            } else if (args[0].equalsIgnoreCase("defaultdurability")) {
-                usage(sender,"defaultdurability");
-            }else if(args[0].equalsIgnoreCase("group")){
+            }else if(args[0].equalsIgnoreCase("group")) {
                 usage(sender, "group");
             } else {
+                sender.sendMessage("Unknown argument. Use /bp for help");
                 usage(sender, "beaconprotect");
             }
         }else{
@@ -267,14 +259,11 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
         if(sender.hasPermission("beaconprotect.bp")){
             List<String> completions = new ArrayList<>();
             if(args.length==1){
-                for(String string:new String[]{"add","remove","list","stop","start","durability","bypass","group","defaultdurability"})if(checkCompletions(string,args[0]))completions.add(string);
+                for(String string:new String[]{"add","remove","list","stop","start","durability","bypass","group"})if(checkCompletions(string,args[0]))completions.add(string);
                 return completions;
             }else if(args.length==2){
                 if(args[0].equalsIgnoreCase("durability")) {
-                    for (String string : new String[]{"list", "size", "clean"})if (checkCompletions(string, args[1])) completions.add(string);
-                    return completions;
-                }else if(args[0].equalsIgnoreCase("defaultdurability")){
-                    for(String string:new String[]{"list","add","remove"})if(checkCompletions(string,args[1]))completions.add(string);
+                    for (String string : new String[]{"list", "size", "clean","defaultlist"})if (checkCompletions(string, args[1])) completions.add(string);
                     return completions;
                 }else if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
                     completions.add("0 0 0");

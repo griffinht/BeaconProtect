@@ -8,7 +8,7 @@ live-sync: false
 # range in block of beacon
 # a 256 block radius would affect a 257x257 square area area with the beacon in the center block
 # reinforce is the multiplier of durability
-# reinforce adds durability to blocks in the range of a beacon if materials from chests place on the beacon pyramid are avaiable
+# reinforce adds durability to blocks in the range of a beacon if materials from chests place on the beacon pyramid are available
 # you are setting the maximum value for this
 beacon_tiers:
   tier1:
