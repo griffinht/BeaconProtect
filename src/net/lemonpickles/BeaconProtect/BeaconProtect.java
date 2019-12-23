@@ -39,6 +39,7 @@ public class BeaconProtect extends JavaPlugin {
     public Logger logger = getLogger();
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     FileConfiguration config;
+    public Map<Material,Boolean> interactProtection = new HashMap<>();
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();
@@ -74,7 +75,7 @@ public class BeaconProtect extends JavaPlugin {
             String mat = split[0].replaceAll("\\s","");//material
             int dur = Integer.parseInt(split2[0].replaceAll("\\s",""));//durability
 
-            Material material = Material.getMaterial(split[0].replaceAll("\\s",""));
+            Material material = Material.getMaterial(mat);
             if(material==null){
                 logger.warning("Could not convert "+mat+" to a Bukkit material");
             }else{
@@ -86,6 +87,21 @@ public class BeaconProtect extends JavaPlugin {
             }
         }
         logger.info("Loaded "+defaultBlockDurabilities.size()+" materials with a default durability");
+        //load interact protection from config
+        List<String> protections = config.getStringList("interact_protect");
+        for(String line:protections){
+            String[] split = line.split(":",2);
+            boolean one = false;
+            if(split.length==2){
+                one = Boolean.parseBoolean(split[1].replaceAll("\\s",""));
+            }
+            String mat = split[0].replaceAll("\\s","");
+            Material material = Material.getMaterial(split[0].replaceAll("\\s",""));
+            if(material==null) {
+                logger.warning("Could not convert " + mat + " to a Bukkit material");
+            }else{interactProtection.put(material,one);}
+        }
+        logger.info("Loaded "+interactProtection.size()+" blocks to protect from interaction");
         //initialize
         DurabilityBar = new DurabilityBar(this);
         //initialize object

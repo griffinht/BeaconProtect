@@ -26,7 +26,7 @@ beacon_tiers:
 
 # add/remove as needed
 # if there is no max durability the plugin will use the global default durability
-# 'BLOCK: <default durability>,<max reinforce durability>
+# 'BLOCK: <default durability>,<max reinforce durability>'
 # setting both to 1 would result in vanilla behavior
 default_durability: 1
 default_max_durability: 10
@@ -37,3 +37,13 @@ block_durabilities:
   - 'STONE_BRICKS: 3'
   - 'BEACON: 1, 1'
   - 'ANDESITE: 5, 20'
+
+# which blocks beacons should protect from interaction
+# also set true if the block can be used when durability is 1
+# helpful so you don't have to break a chest and put contents on the ground to steal from it
+# 'MATERIAL: true/false' also leave blank for false but to still protect from interaction
+interact_protect:
+  - 'CHEST: true'
+  - 'LEVER: true'
+  - 'STONE_BUTTON: true'
+  - 'HEAVY_WEIGHTED_PRESSURE_PLATE'

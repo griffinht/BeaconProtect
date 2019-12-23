@@ -52,7 +52,7 @@ public class BeaconEvent implements Listener{
                 }
             } else {
                 event.setCancelled(true);
-                player.sendMessage("You cannot place here! This area is protected by a beacon");
+                player.sendMessage("You cannot place here! This area is protected by a beacon.");
             }
         }
     }
@@ -68,19 +68,22 @@ public class BeaconEvent implements Listener{
                 player.sendMessage("Left block reinforce mode.");
                 event.setCancelled(true);
             } else if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                if (block != null) {
-                    if (block.getType() == Material.CHEST) {
-                        if (!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
-                            event.setCancelled(true);
-                            player.sendMessage("You cannot interact here! This area is protected by a beacon");
-                            if (plugin.durabilities.containsKey(block.getLocation())) {//this is broken
-                                int dur = plugin.durabilities.get(block.getLocation()).getDurability();
-                                if (dur == 1) {
-                                    event.setCancelled(true);
-                                } else {
-                                    player.sendMessage("You cannot interact here! This chest has " + dur + " remaining!");
-                                }
+                if (block != null&&plugin.interactProtection.containsKey(block.getType())) {
+                    if (!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
+                        if(plugin.interactProtection.get(block.getType())){
+                            if(!plugin.durabilities.containsKey(block.getLocation())){
+                                new BlockDurability(plugin, block, player, 0);
                             }
+                            BlockDurability a = plugin.durabilities.get(block.getLocation());
+                            int dur = a.getDurability()+Math.min(plugin.CustomBeacons.getMaxPenalty(player, block),a.getBeaconDurability());
+                            if(dur!=1){
+                                event.setCancelled(true);
+                                player.sendMessage("You cannot interact here! "+(dur-1)+" hits to unlock.");
+                            }//otherwise you are good
+                        }else{
+                            event.setCancelled(true);
+                            player.sendMessage("You cannot interact here! This block is protected by a beacon.");
+                            infoClick(block, player);
                         }
                     }
                 }
@@ -97,7 +100,7 @@ public class BeaconEvent implements Listener{
                             if (blockDur.changeDurability(plugin, player, 1, true)) {
                                 stack.setAmount(stack.getAmount() - 1);
                             } else {
-                                player.sendMessage("This block cannot be reinforced anymore!");
+                                player.sendMessage("This block cannot be reinforced anymore.");
                             }
                         } else {
                             player.sendMessage("You must use " + block.getType() + " to reinforce this block");
@@ -109,16 +112,18 @@ public class BeaconEvent implements Listener{
                     }
                 } else if (plugin.isReinforcing.contains(player)) {
                     plugin.isReinforcing.remove(player);
-                    player.sendMessage("Left block reinforce mode.");
-                    event.setCancelled(true);
+                    player.sendMessage("Left block reinforce mode.");//no need to cancel event here
                 } else if (block != null) {//info click
-                    if (!plugin.durabilities.containsKey(block.getLocation())) {
-                        new BlockDurability(plugin, block, player, 0);
-                    } else {
-                        plugin.durabilities.get(block.getLocation()).changeDurability(plugin, player, 0, false);
-                    }
+                    infoClick(block, player);
                 }
             }
+        }
+    }
+    public void infoClick(Block block, Player player){
+        if (!plugin.durabilities.containsKey(block.getLocation())) {
+            new BlockDurability(plugin, block, player, 0);
+        } else {
+            plugin.durabilities.get(block.getLocation()).changeDurability(plugin, player, 0, false);
         }
     }
 
