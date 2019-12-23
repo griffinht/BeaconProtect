@@ -25,17 +25,17 @@ public class FileMgmt {
             }
 
         }
-        this.config = YamlConfiguration.loadConfiguration(file);
+        config = YamlConfiguration.loadConfiguration(file);
     }
     public void save(){
         try {
-            this.config.save(file);
+            config.save(file);
         }catch(IOException e){
-            this.plugin.logger.warning("Could not save file to disk");
+            plugin.logger.warning("Could not save file to disk");
             e.printStackTrace();
         }
     }
     public void load(){
-        this.config = YamlConfiguration.loadConfiguration(file);
+        config = YamlConfiguration.loadConfiguration(file);
     }
 }
