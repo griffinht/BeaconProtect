@@ -24,9 +24,9 @@ beacon_tiers:
     range: 100
     reinforce: 5
 
-#add/remove as needed
+# add/remove as needed
 # if there is no max durability the plugin will use the global default durability
-# 'BLOCK: <default durability>,(max reinforcable durability)
+# 'BLOCK: <default durability>,<max reinforce durability>
 # setting both to 1 would result in vanilla behavior
 default_durability: 1
 default_max_durability: 10

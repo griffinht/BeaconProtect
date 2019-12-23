@@ -58,7 +58,7 @@ public class BeaconProtect extends JavaPlugin {
                 e.printStackTrace();
             }
         }
-        this.config = YamlConfiguration.loadConfiguration(file);
+        config = YamlConfiguration.loadConfiguration(file);
 
         //defaults
         defaultBlockDurability = new DefaultBlockDurability(getConfig().getInt("default_durability"), getConfig().getInt("default_max_durability"));
