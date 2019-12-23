@@ -40,7 +40,8 @@ public class BlockDurability {
         this.setDurability = defaultDurability;
         material = block.getType();
         changeDurability(plugin, player, changeDur, false);
-        if((durability<1||(plugin.CustomBeacons.getMaxPenalty(player, block)>0&&beaconDurability>0))&&plugin.durabilityBars.containsKey(player)) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
+        System.out.println((plugin.CustomBeacons.getMaxPenalty(player, block)>0)+","+(beaconDurability>0));
+        if(!(durability>1||plugin.CustomBeacons.getMaxPenalty(player, block)>0)&&plugin.durabilityBars.containsKey(player)) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
             plugin.durabilityBars.get(player).removeAll();
         }
         if(durability!=0){addToHash(this, plugin);}
