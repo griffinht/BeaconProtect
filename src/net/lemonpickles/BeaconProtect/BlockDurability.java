@@ -128,6 +128,7 @@ public class BlockDurability {
 
 
     boolean changeDurability(BeaconProtect plugin, Player player, int changeDurability, boolean setDurability){
+        int oldDurability = durability;
         if(beaconDurability==-69){beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons)*this.setDurability;maxBeaconDurability=beaconDurability;}//initializer value
         if(changeDurability>0){//reinforcing so reset beacon durability
             beaconDurability = CustomBeacons.getMaxDurability(block, plugin.beacons);
@@ -146,7 +147,7 @@ public class BlockDurability {
         }else{
             playerBar(plugin, player, false);
         }
-        return changeDurability==durability;
+        return (changeDurability+oldDurability)==durability;
     }
     public void setMaterial(){material = block.getType();}
     public int getMaxBeaconDurability(){return maxBeaconDurability;}

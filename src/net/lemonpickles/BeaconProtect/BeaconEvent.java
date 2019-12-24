@@ -97,7 +97,7 @@ public class BeaconEvent implements Listener{
                             } else {
                                 blockDur = plugin.durabilities.get(block.getLocation());
                             }
-                            if (blockDur.changeDurability(plugin, player, 1, true)) {
+                            if (blockDur.changeDurability(plugin, player, 1, true)) {//changedur returns true if there was change, so if locks must be removed from invent
                                 stack.setAmount(stack.getAmount() - 1);
                             } else {
                                 player.sendMessage("This block cannot be reinforced anymore.");
