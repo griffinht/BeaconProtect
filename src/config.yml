@@ -53,4 +53,4 @@ interact_protect:
 # so OAK_PLANKS:2 will reinfroce twice and STICKS:-4 will use 4 sticks for 1 reinforce
 # 'MATERIAL: <MATERIAL>:<amt>, <MATERIAL>:<amt>'
 custom_reinforce:
-  - 'CHEST: CHEST:2, OAK_PLANKS:-4, STICKS:-8, OAK_LOG:2'
+  - 'CHEST: CHEST:2, OAK_PLANKS:-4, STICK:-8, OAK_LOG:2'

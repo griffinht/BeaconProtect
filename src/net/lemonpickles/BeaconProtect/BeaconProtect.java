@@ -14,6 +14,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -113,17 +114,15 @@ public class BeaconProtect extends JavaPlugin {
             String[] split2 = split[1].split(",");
             Map<Material, Integer> mats = new HashMap<>();
             for(String string:split2){
-
                 String[] split3 = string.split(":",2);
-                System.out.println(Arrays.toString(split3));
-                System.out.println(Material.getMaterial(split3[0])+"asdgff"+Integer.parseInt(split3[1]));
-                mats.put(Material.getMaterial(split3[0]),Integer.parseInt(split3[1]));//todo error checking while parse -  check for bad parses
+                Material material = Material.getMaterial(split3[0]);
+                if(material==null){
+                    logger.warning("Could not convert "+split3[0]+" to a Bukkit material");
+                }else{mats.put(material,Integer.parseInt(split3[1]));}//todo error checking while parse -  check for bad parses
             }
-            System.out.println(mats);
             customReinforce.put(Material.getMaterial(split[0]),mats);
         }
         logger.info("Loaded "+customReinforce.size()+" custom reinforce values");
-        System.out.println(customReinforce);
         //initialize
         DurabilityBar = new DurabilityBar(this);
         //initialize object

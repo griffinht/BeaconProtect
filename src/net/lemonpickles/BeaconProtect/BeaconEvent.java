@@ -62,7 +62,7 @@ public class BeaconEvent implements Listener{
             Player player = event.getPlayer();
             Block block = event.getClickedBlock();
             ItemStack stack = player.getInventory().getItemInMainHand();
-            boolean reinforce = player.isSneaking() && stack.getType().isBlock();
+            boolean reinforce = player.isSneaking() && !stack.getType().isAir();//everything but air works
             if (plugin.isReinforcing.contains(player) && !reinforce) {
                 plugin.isReinforcing.remove(player);
                 player.sendMessage("Left block reinforce mode.");
@@ -100,8 +100,6 @@ public class BeaconEvent implements Listener{
                         if(materials!=null&&materials.containsKey(stackType)){
                             int matAmt = materials.get(stackType);
                             if(matAmt<0){//negative so needs it
-
-                                System.out.println(playerStackAmt+" "+matAmt);
                                 if(Math.abs(matAmt)<playerStackAmt){
                                     yes = true;
                                     stackAmt = matAmt;
@@ -112,7 +110,7 @@ public class BeaconEvent implements Listener{
                                 reinforceAmt = Math.abs(matAmt);
                             }
                         }
-                        if(yes||stackType==blockType){//its not a duplicate intellij its necessary
+                        if(yes||stackType==blockType){//this is a warning in intellij but it is necessary
                             BlockDurability blockDur;
                             if (!plugin.durabilities.containsKey(block.getLocation())) {
                                 blockDur = new BlockDurability(plugin, block, player, 0);
@@ -129,7 +127,6 @@ public class BeaconEvent implements Listener{
                             if(materials!=null) {
                                 StringBuilder mats = new StringBuilder();
                                 for (Material material : materials.keySet()) {
-                                    System.out.println(material+""+materials);
                                     mats.append(material).append(", ");
                                 }
                                 msg = mats.toString().substring(mats.length() - 2, mats.length() - 1);
