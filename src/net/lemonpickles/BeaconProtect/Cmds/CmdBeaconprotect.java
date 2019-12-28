@@ -1,10 +1,7 @@
 package net.lemonpickles.BeaconProtect.Cmds;
 
 import com.sun.istack.internal.NotNull;
-import net.lemonpickles.BeaconProtect.BeaconProtect;
-import net.lemonpickles.BeaconProtect.BlockDurability;
-import net.lemonpickles.BeaconProtect.DefaultBlockDurability;
-import net.lemonpickles.BeaconProtect.Group;
+import net.lemonpickles.BeaconProtect.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -12,6 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -82,7 +80,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                                 sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has already been registered");
                             }
                         } else {
-                            sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
+                            sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found "+ DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
                         }
                     } else {
                         sender.sendMessage("You must be a player to run that command");
@@ -98,7 +96,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                                 sender.sendMessage("The beacon at " + blockToCoordinates(beacon) + " has been already been registered");
                             }
                         } else {
-                            sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ")");
+                            sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ")");
                         }
                     } catch (NumberFormatException e) {
                         sender.sendMessage("Error: please use integer coordinates");
@@ -120,7 +118,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                             if (beacon.getType() == BEACON) {
                                 sender.sendMessage("The beacon at " + blockToCoordinates(beacon) + " does not already exist");
                             } else {
-                                sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ")");
+                                sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " +DisplayName.materialToDisplayName(beacon.getType())+ ")");
                             }
                         }
                     } else {
@@ -135,7 +133,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                         if (beacon.getType() == BEACON) {
                             sender.sendMessage("The beacon at " + blockToCoordinates(beacon) + " does not already exist");
                         } else {
-                            sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ")");
+                            sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " +DisplayName.materialToDisplayName(beacon.getType()) + ")");
                         }
                     }
                 } else {
@@ -179,7 +177,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     for (BlockDurability blockDurability : plugin.durabilities.values()) {
                         Block block = blockDurability.getBlock();
                         Location location = block.getLocation();
-                        msg[i] = ("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "] - " + block.getType() + ": " + blockDurability.getDurability() + "/" + blockDurability.getMaxDurability() + ", " + blockDurability.getBeaconDurability() + "/" + blockDurability.getMaxBeaconDurability());
+                        msg[i] = ("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "] - " + DisplayName.materialToDisplayName(block.getType()) + ": " + blockDurability.getDurability() + "/" + blockDurability.getMaxDurability() + ", " + blockDurability.getBeaconDurability() + "/" + blockDurability.getMaxBeaconDurability());
                         i++;
                     }
                     sender.sendMessage(msg);

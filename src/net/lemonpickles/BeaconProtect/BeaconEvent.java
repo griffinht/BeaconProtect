@@ -94,6 +94,7 @@ public class BeaconEvent implements Listener{
                         Map<Material,Integer> materials = plugin.customReinforce.get(blockType);
                         Material stackType = stack.getType();
                         boolean yes = false;
+                        boolean alsoYes = false;
                         int reinforceAmt = 1;
                         int stackAmt = 1;
                         int playerStackAmt = stack.getAmount();
@@ -104,12 +105,12 @@ public class BeaconEvent implements Listener{
                                     yes = true;
                                     stackAmt = matAmt;
                                 }else{
-                                    player.sendMessage("You need "+(Math.abs(matAmt)-playerStackAmt)+" more "+stackType);
+                                    player.sendMessage("You need "+(Math.abs(matAmt)-playerStackAmt)+" more "+DisplayName.materialToDisplayName(stackType));
                                 }
                             }else{
                                 reinforceAmt = Math.abs(matAmt);
                             }
-                        }
+                        }else{alsoYes=true;}//could be a block not on materials list
                         if(yes||stackType==blockType){//this is a warning in intellij but it is necessary
                             BlockDurability blockDur;
                             if (!plugin.durabilities.containsKey(block.getLocation())) {
@@ -122,18 +123,22 @@ public class BeaconEvent implements Listener{
                             } else {
                                 player.sendMessage("This block cannot be reinforced anymore.");
                             }
-                        } else if(yes){//doesnt have the right block thing
+                        } else if(yes||alsoYes){//doesnt have the right block thing
                             String msg;
                             if(materials!=null) {
                                 StringBuilder mats = new StringBuilder();
+                                int lastIndex = 0;
                                 for (Material material : materials.keySet()) {
-                                    mats.append(material).append(", ");
+                                    lastIndex = mats.length()-1;
+                                    mats.append(DisplayName.materialToDisplayName(material)).append(", ");
                                 }
-                                msg = mats.toString().substring(mats.length() - 2, mats.length() - 1);
-                            }else{msg = ""+blockType;}
+                                msg = mats.toString().substring(0,mats.length() - 2);
+                                if(materials.keySet().size()>1) {
+                                    msg = msg.substring(0, lastIndex) + " or" + msg.substring(lastIndex);
+                                }
+                            }else{msg = DisplayName.materialToDisplayName(blockType);}
                             player.sendMessage("You must use " + msg + " to reinforce this block");
                         }
-
                     } else {//set to reinforce mode
                         plugin.isReinforcing.add(player);
                         player.sendMessage("Entered block reinforce mode. Shift+Punch a block to reinforce.");

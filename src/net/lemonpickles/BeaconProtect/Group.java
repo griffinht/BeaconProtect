@@ -24,7 +24,7 @@ public class Group {
     private List<Location> vaults;
     private Map<OfflinePlayer,PlayerRole> members = new HashMap<>();
     private List<Player> invites = new ArrayList<>();
-    int materialRemoveAmt = 0;
+    private int materialRemoveAmt = 0;
     public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults){
         this.name = name;
         this.description = description;

@@ -1,6 +1,5 @@
 package net.lemonpickles.BeaconProtect;
 
-import net.minecraft.server.v1_15_R1.DoubleBlockFinder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -9,7 +8,6 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 

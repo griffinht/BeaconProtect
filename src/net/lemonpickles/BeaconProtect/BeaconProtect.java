@@ -14,7 +14,6 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -39,9 +38,9 @@ public class BeaconProtect extends JavaPlugin {
     public DurabilityList durabilityList;
     public Logger logger = getLogger();
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
-    FileConfiguration config;
-    public Map<Material,Boolean> interactProtection = new HashMap<>();
-    public Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
+    private FileConfiguration config;
+    Map<Material,Boolean> interactProtection = new HashMap<>();
+    Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();

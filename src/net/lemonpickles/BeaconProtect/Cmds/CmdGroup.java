@@ -1,10 +1,7 @@
 package net.lemonpickles.BeaconProtect.Cmds;
 
 import com.sun.istack.internal.NotNull;
-import net.lemonpickles.BeaconProtect.BeaconProtect;
-import net.lemonpickles.BeaconProtect.CustomBeacons;
-import net.lemonpickles.BeaconProtect.Group;
-import net.lemonpickles.BeaconProtect.PlayerRole;
+import net.lemonpickles.BeaconProtect.*;
 import org.bukkit.*;
 import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
@@ -102,7 +99,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                         sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has already been claimed to group " + claimedGroup.getName());
                                     }
                                 } else {
-                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
+                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
                                 }
                             }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
                             return true;
@@ -118,7 +115,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                         sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " is not claimed by " + group.getName());
                                     }
                                 } else {
-                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + beacon.getType() + ", maybe move closer?");
+                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
                                 }
                             }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
                             return true;
@@ -146,7 +143,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                         sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " too far from a beacon");
                                     }
                                 } else {
-                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not a chest (found " + block.getType() + ", maybe move closer?");
+                                    sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not a chest (found " + DisplayName.materialToDisplayName(block.getType()) + ", maybe move closer?");
                                 }
                             }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
                             return true;

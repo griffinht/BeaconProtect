@@ -44,7 +44,7 @@ public class CustomBeacons {
             task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 0, 80);
         }
     }
-    static boolean checkFriendly(Player player, Block block, Group group){
+    private static boolean checkFriendly(Player player, Block block, Group group){
         if(!group.checkMember(player)) {
             List<Location> beacons = checkForBlocks(block, blockLocationsToMap(group.getBeacons()));
             for (Location location : group.getBeacons()) {
