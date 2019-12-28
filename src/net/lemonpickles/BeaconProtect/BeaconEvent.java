@@ -90,20 +90,51 @@ public class BeaconEvent implements Listener{
             } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 if (reinforce) {
                     if (plugin.isReinforcing.contains(player) && block != null) {//in reinforce mode
-                        if (stack.getType() == block.getType()) {
+                        Material blockType = block.getType();
+                        Map<Material,Integer> materials = plugin.customReinforce.get(blockType);
+                        Material stackType = stack.getType();
+                        boolean yes = false;
+                        int reinforceAmt = 1;
+                        int stackAmt = 1;
+                        int playerStackAmt = stack.getAmount();
+                        if(materials!=null&&materials.containsKey(stackType)){
+                            int matAmt = materials.get(stackType);
+                            if(matAmt<0){//negative so needs it
+
+                                System.out.println(playerStackAmt+" "+matAmt);
+                                if(Math.abs(matAmt)<playerStackAmt){
+                                    yes = true;
+                                    stackAmt = matAmt;
+                                }else{
+                                    player.sendMessage("You need "+(Math.abs(matAmt)-playerStackAmt)+" more "+stackType);
+                                }
+                            }else{
+                                reinforceAmt = Math.abs(matAmt);
+                            }
+                        }
+                        if(yes||stackType==blockType){//its not a duplicate intellij its necessary
                             BlockDurability blockDur;
                             if (!plugin.durabilities.containsKey(block.getLocation())) {
                                 blockDur = new BlockDurability(plugin, block, player, 0);
                             } else {
                                 blockDur = plugin.durabilities.get(block.getLocation());
                             }
-                            if (blockDur.changeDurability(plugin, player, 1, true)) {//changedur returns true if there was change, so if locks must be removed from invent
-                                stack.setAmount(stack.getAmount() - 1);
+                            if (blockDur.changeDurability(plugin, player, reinforceAmt, true)) {//changedur returns true if there was change, so if locks must be removed from invent
+                                stack.setAmount(stack.getAmount()-Math.abs(stackAmt));
                             } else {
                                 player.sendMessage("This block cannot be reinforced anymore.");
                             }
-                        } else {
-                            player.sendMessage("You must use " + block.getType() + " to reinforce this block");
+                        } else if(yes){//doesnt have the right block thing
+                            String msg;
+                            if(materials!=null) {
+                                StringBuilder mats = new StringBuilder();
+                                for (Material material : materials.keySet()) {
+                                    System.out.println(material+""+materials);
+                                    mats.append(material).append(", ");
+                                }
+                                msg = mats.toString().substring(mats.length() - 2, mats.length() - 1);
+                            }else{msg = ""+blockType;}
+                            player.sendMessage("You must use " + msg + " to reinforce this block");
                         }
 
                     } else {//set to reinforce mode
@@ -119,7 +150,7 @@ public class BeaconEvent implements Listener{
             }
         }
     }
-    public void infoClick(Block block, Player player){
+    private void infoClick(Block block, Player player){
         if (!plugin.durabilities.containsKey(block.getLocation())) {
             new BlockDurability(plugin, block, player, 0);
         } else {

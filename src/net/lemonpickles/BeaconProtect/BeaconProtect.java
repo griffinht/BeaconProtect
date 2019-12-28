@@ -40,6 +40,7 @@ public class BeaconProtect extends JavaPlugin {
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     FileConfiguration config;
     public Map<Material,Boolean> interactProtection = new HashMap<>();
+    public Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();
@@ -70,17 +71,18 @@ public class BeaconProtect extends JavaPlugin {
         //probably because i don't know how to use it
         List<String> durs = getConfig().getStringList("block_durabilities");
         for(String line:durs){
+            line = line.replaceAll("\\s","");
             String[] split = line.split(":",2);
             String[] split2 = split[1].split(",",2);//can have 2 args, default and max
-            String mat = split[0].replaceAll("\\s","");//material
-            int dur = Integer.parseInt(split2[0].replaceAll("\\s",""));//durability
+            String mat = split[0];//material
+            int dur = Integer.parseInt(split2[0]);//durability
 
             Material material = Material.getMaterial(mat);
             if(material==null){
                 logger.warning("Could not convert "+mat+" to a Bukkit material");
             }else{
                 if(split2.length==2){
-                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, Integer.parseInt(split2[1].replaceAll("\\s",""))));//max durability
+                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, Integer.parseInt(split2[1])));//max durability
                 }else{
                     defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, defaultBlockDurability.getMaxBlockDurability()));
                 }
@@ -90,18 +92,38 @@ public class BeaconProtect extends JavaPlugin {
         //load interact protection from config
         List<String> protections = config.getStringList("interact_protect");
         for(String line:protections){
+            line = line.replaceAll("\\s","");
             String[] split = line.split(":",2);
             boolean one = false;
             if(split.length==2){
-                one = Boolean.parseBoolean(split[1].replaceAll("\\s",""));
+                one = Boolean.parseBoolean(split[1]);
             }
             String mat = split[0].replaceAll("\\s","");
-            Material material = Material.getMaterial(split[0].replaceAll("\\s",""));
+            Material material = Material.getMaterial(split[0]);
             if(material==null) {
                 logger.warning("Could not convert " + mat + " to a Bukkit material");
             }else{interactProtection.put(material,one);}
         }
         logger.info("Loaded "+interactProtection.size()+" blocks to protect from interaction");
+        //load custom reinforce from config
+        List<String> reinforces = config.getStringList("custom_reinforce");
+        for(String line:reinforces){
+            line = line.replaceAll("\\s","");//remove spaces
+            String[] split = line.split(":",2);
+            String[] split2 = split[1].split(",");
+            Map<Material, Integer> mats = new HashMap<>();
+            for(String string:split2){
+
+                String[] split3 = string.split(":",2);
+                System.out.println(Arrays.toString(split3));
+                System.out.println(Material.getMaterial(split3[0])+"asdgff"+Integer.parseInt(split3[1]));
+                mats.put(Material.getMaterial(split3[0]),Integer.parseInt(split3[1]));//todo error checking while parse -  check for bad parses
+            }
+            System.out.println(mats);
+            customReinforce.put(Material.getMaterial(split[0]),mats);
+        }
+        logger.info("Loaded "+customReinforce.size()+" custom reinforce values");
+        System.out.println(customReinforce);
         //initialize
         DurabilityBar = new DurabilityBar(this);
         //initialize object
