@@ -115,9 +115,14 @@ public class BeaconProtect extends JavaPlugin {
             for(String string:split2){
                 String[] split3 = string.split(":",2);
                 Material material = Material.getMaterial(split3[0]);
-                if(material==null){
-                    logger.warning("Could not convert "+split3[0]+" to a Bukkit material");
-                }else{mats.put(material,Integer.parseInt(split3[1]));}//todo error checking while parse -  check for bad parses
+                try{
+                    int inty=Integer.parseInt(split3[1]);
+                    if(material==null){
+                        logger.warning("Could not convert "+split3[0]+" to a Bukkit material");
+                    }else{mats.put(material,inty);}
+                }catch(NumberFormatException e){
+                    logger.warning("Could not parse "+split3[1]+" as an integer");
+                }
             }
             customReinforce.put(Material.getMaterial(split[0]),mats);
         }
@@ -173,7 +178,7 @@ public class BeaconProtect extends JavaPlugin {
     }
 
     @Override
-    public void onDisable(){//TODO should i set a lot of variables to null here in case of reload?
+    public void onDisable(){
         for(Map.Entry<Player, BossBar> entry:durabilityBars.entrySet()){//remove all active boss bars for durability
             entry.getValue().removeAll();
         }

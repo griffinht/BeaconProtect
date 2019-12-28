@@ -61,12 +61,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             if (args.length == 0) {
                 usage(sender, "beaconprotect");
                 return false;
-            //}else if(args[0].equalsIgnoreCase("test")){//todo remove this
-            //    Player playaser = Bukkit.getPlayer("Lem0nPickles");
-             //   for(int i=0;i<1000;i++){
-             //       plugin.groups.put(UUID.randomUUID(),new Group(String.valueOf(Math.random()),playaser));
-              //  }
-            } else if (args[0].equalsIgnoreCase("add")) {//todo split into subcommand beacon?
+            } else if (args[0].equalsIgnoreCase("add")) {
                 if (args.length == 1) {
                     if (sender instanceof Player) {
                         Player player = (Player) sender;
