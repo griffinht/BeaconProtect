@@ -48,6 +48,9 @@ interact_protect:
   - 'STONE_BUTTON: true'
   - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
 
+# how long to keep players in reinforce mode (seconds) if they dont cancel it themselves
+reinforce_delay: 5
+
 # blocks can be reinforced with items other than themselves and in custom amounts
 # a positive number will reinforce by x amount, and a negative number needs x to reinforce
 # so OAK_PLANKS:2 will reinfroce twice and STICKS:-4 will use 4 sticks for 1 reinforce

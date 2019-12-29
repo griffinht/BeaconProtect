@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,6 @@ public class BeaconProtect extends JavaPlugin {
     Map<Player, BossBar> durabilityBars = new HashMap<>();
     public Map<Material, DefaultBlockDurability> defaultBlockDurabilities = new HashMap<>();
     public Map<UUID, Group> groups = new HashMap<>();
-    ArrayList<Player> isReinforcing = new ArrayList<>();
     public DefaultBlockDurability defaultBlockDurability = new DefaultBlockDurability(1,1);//set to 1 (like vanilla minecraft) in case the config can't be read
     private GroupList groupList;
     DurabilityBar DurabilityBar;

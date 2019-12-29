@@ -1,5 +1,6 @@
 package net.lemonpickles.BeaconProtect;
 
+import javafx.concurrent.Task;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,14 +14,19 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
+    private Map<Player, Long> isReinforcing = new HashMap<>();
+    private long reinforceDelay = 5;//default value
     BeaconEvent(BeaconProtect plugin){
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay")*1000;
     }
 
 
@@ -63,8 +69,8 @@ public class BeaconEvent implements Listener{
             Block block = event.getClickedBlock();
             ItemStack stack = player.getInventory().getItemInMainHand();
             boolean reinforce = player.isSneaking() && !stack.getType().isAir();//everything but air works
-            if (plugin.isReinforcing.contains(player) && !reinforce) {
-                plugin.isReinforcing.remove(player);
+            if (isReinforcing.containsKey(player) && !reinforce) {
+                isReinforcing.remove(player);
                 player.sendMessage("Left block reinforce mode.");
                 event.setCancelled(true);
             } else if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -89,7 +95,8 @@ public class BeaconEvent implements Listener{
                 }
             } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 if (reinforce) {
-                    if (plugin.isReinforcing.contains(player) && block != null) {//in reinforce mode
+                    if (isReinforcing.containsKey(player) && block != null) {//in reinforce mode
+                        reinforceAdd(player);
                         Material blockType = block.getType();
                         Map<Material,Integer> materials = plugin.customReinforce.get(blockType);
                         Material stackType = stack.getType();
@@ -140,11 +147,11 @@ public class BeaconEvent implements Listener{
                             player.sendMessage("You must use " + msg + " to reinforce this block");
                         }
                     } else {//set to reinforce mode
-                        plugin.isReinforcing.add(player);
+                        reinforceAdd(player);
                         player.sendMessage("Entered block reinforce mode. Shift+Punch a block to reinforce.");
                     }
-                } else if (plugin.isReinforcing.contains(player)) {
-                    plugin.isReinforcing.remove(player);
+                } else if (isReinforcing.containsKey(player)) {
+                    isReinforcing.remove(player);
                     player.sendMessage("Left block reinforce mode.");//no need to cancel event here
                 } else if (block != null) {//info click
                     infoClick(block, player);
@@ -209,5 +216,19 @@ public class BeaconEvent implements Listener{
                 }
             }
         }
+    }
+    private void reinforceAdd(Player player){
+        isReinforcing.put(player,System.currentTimeMillis());
+        new Thread(() -> {
+            try {
+                Thread.sleep(reinforceDelay);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (isReinforcing.containsKey(player)&&System.currentTimeMillis()-isReinforcing.get(player)>reinforceDelay) {
+                isReinforcing.remove(player);
+                player.sendMessage("Left block reinforce mode");
+            }
+        }).start();
     }
 }
