@@ -41,6 +41,7 @@ public class BeaconProtect extends JavaPlugin {
     private FileConfiguration config;
     Map<Material,Boolean> interactProtection = new HashMap<>();
     Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
+    private Map<String,List<Material>> customReinforceAlternates = new HashMap<>();
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();
@@ -98,13 +99,29 @@ public class BeaconProtect extends JavaPlugin {
             if(split.length==2){
                 one = Boolean.parseBoolean(split[1]);
             }
-            String mat = split[0].replaceAll("\\s","");
             Material material = Material.getMaterial(split[0]);
             if(material==null) {
-                logger.warning("Could not convert " + mat + " to a Bukkit material");
+                logger.warning("Could not convert " + split[0] + " to a Bukkit material");
             }else{interactProtection.put(material,one);}
         }
         logger.info("Loaded "+interactProtection.size()+" blocks to protect from interaction");
+        //load custom reinforce alternates from config
+        List<String> alts = config.getStringList("custom_reinforce_alternates");
+        for(String line:alts){
+            line = line.replaceAll("\\s","");
+            String[] split = line.split(":",2);
+            List<Material> materials = new ArrayList<>();
+            String[] split2 = split[1].split(",");
+            for(String string:split2){
+                Material mat = Material.getMaterial(string);
+                if(mat==null){
+                    logger.warning("Could not convert "+string+" to a Bukkit material");
+                }else{
+                    materials.add(mat);
+                }
+            }
+            customReinforceAlternates.put(split[0],materials);
+        }
         //load custom reinforce from config
         List<String> reinforces = config.getStringList("custom_reinforce");
         for(String line:reinforces){
@@ -118,7 +135,13 @@ public class BeaconProtect extends JavaPlugin {
                 try{
                     int inty=Integer.parseInt(split3[1]);
                     if(material==null){
-                        logger.warning("Could not convert "+split3[0]+" to a Bukkit material");
+                        if(customReinforceAlternates.containsKey(split3[0])){
+                            for(Material material1:customReinforceAlternates.get(split3[0])){
+                                mats.put(material1,inty);
+                            }
+                        }else{
+                            logger.warning("Could not convert " + split3[0] + " to a Bukkit material");
+                        }
                     }else{mats.put(material,inty);}
                 }catch(NumberFormatException e){
                     logger.warning("Could not parse "+split3[1]+" as an integer");
