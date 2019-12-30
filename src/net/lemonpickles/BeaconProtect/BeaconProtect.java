@@ -16,7 +16,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +41,7 @@ public class BeaconProtect extends JavaPlugin {
     Map<Material,Boolean> interactProtection = new HashMap<>();
     Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
     private Map<String,List<Material>> customReinforceAlternates = new HashMap<>();
+    public boolean ready = false;//used so no blocks are broken before ready in BeaconEvent
     @Override
     public void onEnable(){
         long start = System.currentTimeMillis();

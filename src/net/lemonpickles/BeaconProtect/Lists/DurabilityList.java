@@ -77,10 +77,12 @@ public class DurabilityList extends FileMgmt {
             }
         }
         new Thread(() -> {
+            plugin.logger.info("Starting to initialize "+plugin.durabilities.size()+" block durabilities");
             long start = System.currentTimeMillis();
             for(BlockDurability blockDurability:plugin.durabilities.values()){
                 blockDurability.setMaterial();//this is a very slow (~1-10ms each) operation for some reason so it shouldn't slow everything down
             }
+            plugin.ready = true;
             plugin.logger.info("Finished initializing block durabilities in "+(System.currentTimeMillis()-start)+"ms");
         }).start();
     }

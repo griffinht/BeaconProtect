@@ -1,6 +1,5 @@
 package net.lemonpickles.BeaconProtect;
 
-import javafx.concurrent.Task;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -14,7 +13,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,11 +26,13 @@ public class BeaconEvent implements Listener{
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
         reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay")*1000;
     }
-
-
-
     @EventHandler
     public void blockPlace(BlockPlaceEvent event){
+        if(!plugin.ready){
+            event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
+            event.setCancelled(true);
+            return;
+        }
         if(!plugin.bypass.contains(event.getPlayer())) {
             Block block = event.getBlock();
             Player player = event.getPlayer();
@@ -64,6 +64,11 @@ public class BeaconEvent implements Listener{
     }
     @EventHandler
     public void playerInteract(PlayerInteractEvent event){
+        if(!plugin.ready){
+            event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
+            event.setCancelled(true);
+            return;
+        }
         if(!plugin.bypass.contains(event.getPlayer())) {
             Player player = event.getPlayer();
             Block block = event.getClickedBlock();
@@ -169,9 +174,14 @@ public class BeaconEvent implements Listener{
 
     @EventHandler
     public void blockBreak(BlockBreakEvent event){
+        if(!plugin.ready){
+            event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
+            event.setCancelled(true);
+            return;
+        }
         Block block = event.getBlock();
         Player player = event.getPlayer();
-        if(!plugin.bypass.contains(event.getPlayer())) {
+        if (!plugin.bypass.contains(event.getPlayer())) {
             if (!plugin.durabilities.containsKey(block.getLocation())) {//block durability hasn't been set yet
                 new BlockDurability(plugin, block, player, -1);
             } else {//block has a durability, take away from it
@@ -191,24 +201,24 @@ public class BeaconEvent implements Listener{
         if (block.getType() == Material.BEACON) {
             Location location = block.getLocation();
             if (plugin.beacons.containsKey(location)) {
-                for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){//remove from group ownership too
-                    if(entry.getValue().checkBeacon(location)){
+                for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//remove from group ownership too
+                    if (entry.getValue().checkBeacon(location)) {
                         entry.getValue().removeBeacon(location);
                     }
                 }
                 plugin.beacons.remove(location);
                 String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
-                if(player.hasPermission("beaconprotect.admin")){
+                if (player.hasPermission("beaconprotect.admin")) {
                     player.sendMessage(msg);
                 }
                 plugin.logger.info(msg);
             }
-        }else if(block.getType()==Material.CHEST){
+        } else if (block.getType() == Material.CHEST) {
             Location location = block.getLocation();
-            for(Group group:plugin.groups.values()){
-                if(group.checkVault(location)){
-                    String msg = "The vault registered to "+group.getName()+" at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
-                    if(player.hasPermission("beaconprotect.admin")){
+            for (Group group : plugin.groups.values()) {
+                if (group.checkVault(location)) {
+                    String msg = "The vault registered to " + group.getName() + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been removed";
+                    if (player.hasPermission("beaconprotect.admin")) {
                         player.sendMessage(msg);
                     }
                     plugin.logger.info(msg);
