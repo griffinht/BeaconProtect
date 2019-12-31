@@ -170,7 +170,6 @@ public class Group {
         int materialRemoveAmtA = (amount+materialRemoveAmt)%defaultDurability;
         amount = (amount+materialRemoveAmt)/defaultDurability;
         materialRemoveAmt = materialRemoveAmtA;
-        //System.out.println("using: "+defaultDurability+", leftover: "+materialRemoveAmt+", amt to remove "+amount);
         if(amount!=0) {
             for (Location location : vaults) {
                 if (CustomBeacons.checkForBlocks(location.getBlock(), CustomBeacons.blockLocationsToMap(beacons)).size() > 0) {
@@ -195,7 +194,6 @@ public class Group {
                                         float c = is.getAmount()-(amount+leftoverAmt)/b;
                                         is.setAmount((int)Math.ceil(c));
                                         float g = c-(float)Math.floor(c);
-                                        System.out.println(g);
                                         if(g!=0){//if there is a remainder
                                             leftover.put(material,g*b);
                                         }
