@@ -189,7 +189,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     sender.sendMessage("There are " + plugin.durabilities.size() + " blocks with a set durability");
                 } else if (args[1].equalsIgnoreCase("clean")) {
                     int start = plugin.durabilities.size();
-                    sender.sendMessage("Starting check durabilities " + start + " for unnecessary entries");
+                    sender.sendMessage("Checking " + start + " durabilities for unnecessary entries");
                     long startTime = System.currentTimeMillis();
                     plugin.durabilityList.clean();
                     sender.sendMessage("Removed " + (start - plugin.durabilities.size()) + " of " + start + " entries (" + (System.currentTimeMillis() - startTime) + "ms)");
@@ -200,7 +200,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             }else if(args[0].equalsIgnoreCase("group")&&args.length>=2){
                 if(args[1].equalsIgnoreCase("clean")){
                     int start = plugin.groups.size();
-                    sender.sendMessage("Starting check groups " + start + " for unnecessary entries");
+                    sender.sendMessage("Checking " + start + " groups for unnecessary entries");
                     long startTime = System.currentTimeMillis();
                     for (Iterator<Map.Entry<UUID, Group>> iterator = plugin.groups.entrySet().iterator(); iterator.hasNext(); ) {
                         Group group = iterator.next().getValue();

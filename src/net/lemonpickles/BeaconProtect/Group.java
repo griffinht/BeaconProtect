@@ -25,21 +25,25 @@ public class Group {
     private Map<OfflinePlayer,PlayerRole> members = new HashMap<>();
     private List<Player> invites = new ArrayList<>();
     private int materialRemoveAmt = 0;
-    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults){
+    private Map<Material,Map<Material,Integer>> customReinforce;
+    private Map<Material,Float> leftover = new HashMap<>();
+    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults, Map<Material,Map<Material,Integer>> customReinforce){
         this.name = name;
         this.description = description;
         this.owner = owner;
         this.members = members;
         this.beacons = beacons;
         this.vaults = vaults;
+        this.customReinforce = customReinforce;
     }
-    public Group(String name, Player owner){
+    public Group(String name, Player owner, Map<Material,Map<Material,Integer>> customReinforce){
         this.name = name;
         this.owner = owner;
         this.description = "";
         this.members.put(owner, PlayerRole.OWNER);
         this.vaults = new ArrayList<>();
         this.beacons = new ArrayList<>();
+        this.customReinforce = customReinforce;
     }
     public int getMembersSize(){return members.size();}
     public OfflinePlayer getOwner(){
@@ -122,7 +126,7 @@ public class Group {
         }
     }
     int getMaterialInVaults(Material material){
-        int materialAmt = 0;
+        float materialAmt = 0;
         List<Location> badVault = new ArrayList<>();//vaults that no longer exist as chests go here to be removed outside the loop
         for(Location location:vaults){
             Block block = location.getBlock();
@@ -139,7 +143,15 @@ public class Group {
                 Inventory inventory = ((Chest) block.getState()).getInventory();
                 for (ItemStack is : inventory) {
                     if(is!=null) {
-                        if (is.getType() == material) {
+                        Material isType = is.getType();
+                        if(customReinforce.containsKey(material)&&customReinforce.get(material).containsKey(isType)){
+                            int a = customReinforce.get(material).get(isType);
+                            if(a>0){
+                                materialAmt = materialAmt+is.getAmount()*a;
+                            }else{
+                                materialAmt = materialAmt+(float)is.getAmount()/Math.abs(a);
+                            }
+                        }else if (material==is.getType()) {
                             materialAmt = materialAmt + is.getAmount();
                         }
                     }
@@ -151,7 +163,8 @@ public class Group {
         for(Location location:badVault){//was getting concurrentModificationException so I had to remove vaults outside of the loop
             removeVault(location);
         }
-        return materialAmt;
+        System.out.println("getMaterial: "+materialAmt);
+        return (int)materialAmt;//this also rounds down
     }
     void removeMaterialInVaults(Material material, int amount, int defaultDurability){
         int materialRemoveAmtA = (amount+materialRemoveAmt)%defaultDurability;
@@ -164,7 +177,40 @@ public class Group {
                     Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
                     for (ItemStack is : inventory) {
                         if (is != null) {
-                            if (is.getType() == material) {
+                            Material isMat = is.getType();
+                            if(customReinforce.containsKey(material)){
+                                Map<Material,Integer> a = customReinforce.get(material);
+                                if(a.containsKey(isMat)){
+                                    int b = a.get(isMat);
+                                    if(b>0){
+                                        float leftoverAmt = 0;
+                                        if(leftover.containsKey(material)){
+                                            leftoverAmt = leftover.get(material);
+                                            leftover.remove(material);
+                                        }
+                                        int oldAmt = amount;
+                                        if ((is.getAmount()+leftoverAmt)*b - amount < 0) {
+                                            amount = (int)(is.getAmount()+leftoverAmt)*b;
+                                        }
+                                        float c = is.getAmount()-(amount+leftoverAmt)/b;
+                                        is.setAmount((int)Math.ceil(c));
+                                        float g = c-(float)Math.floor(c);
+                                        System.out.println(g);
+                                        if(g!=0){//if there is a remainder
+                                            leftover.put(material,g*b);
+                                        }
+                                        amount = oldAmt - amount;
+                                    }else{
+                                        b = Math.abs(b);
+                                        int oldAmt = amount;
+                                        if ((is.getAmount()/b) - amount < 0) {
+                                            amount = is.getAmount()/b;
+                                        }
+                                        is.setAmount(is.getAmount() - amount*b);
+                                        amount = oldAmt - amount;
+                                    }
+                                }
+                            }else if (is.getType() == material) {
                                 int oldAmt = amount;
                                 if (is.getAmount() - amount < 0) {
                                     amount = is.getAmount();

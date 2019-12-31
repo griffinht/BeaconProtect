@@ -6,6 +6,7 @@ import net.lemonpickles.BeaconProtect.PlayerRole;
 import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
@@ -130,7 +131,7 @@ public class GroupList extends FileMgmt {
                             }
                             vaults.add(new Location(getServer().getWorld("world"), loc[0], loc[1], loc[2]));
                         }
-                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults));
+                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults,plugin.customReinforce));
                     }
                 }
             }

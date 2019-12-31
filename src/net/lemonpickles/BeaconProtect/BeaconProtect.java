@@ -39,7 +39,7 @@ public class BeaconProtect extends JavaPlugin {
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     private FileConfiguration config;
     Map<Material,Boolean> interactProtection = new HashMap<>();
-    Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
+    public Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
     private Map<String,List<Material>> customReinforceAlternates = new HashMap<>();
     public boolean ready = false;//used so no blocks are broken before ready in BeaconEvent
     @Override
