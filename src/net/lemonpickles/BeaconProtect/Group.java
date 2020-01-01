@@ -163,7 +163,6 @@ public class Group {
         for(Location location:badVault){//was getting concurrentModificationException so I had to remove vaults outside of the loop
             removeVault(location);
         }
-        System.out.println("getMaterial: "+materialAmt);
         return (int)materialAmt;//this also rounds down
     }
     void removeMaterialInVaults(Material material, int amount, int defaultDurability){

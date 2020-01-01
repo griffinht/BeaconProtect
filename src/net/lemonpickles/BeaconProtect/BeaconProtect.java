@@ -150,7 +150,6 @@ public class BeaconProtect extends JavaPlugin {
             for(String string:split[0].split(",")){
                 Material material = Material.getMaterial(string);
                 if(material!=null){
-                    System.out.println("put "+material+" with "+mats);
                     customReinforce.put(material,mats);
                 }else{
                     logger.warning("Could not convert "+string+" to a Bukkit material");

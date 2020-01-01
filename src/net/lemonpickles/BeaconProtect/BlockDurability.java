@@ -92,7 +92,6 @@ public class BlockDurability {
     private int setBeaconDurability(int newDurability){//beacon hit is a maximum, beacondurability is mostly just durability
         int changeDurability = newDurability-durability;
         int maxBeaconDurability = beaconDurability;
-        //System.out.println("maxbeacon"+maxBeaconDurability+", set "+setDurability+", beacondur: "+beaconDurability);
         beaconDurability = beaconDurability+changeDurability;
         if(beaconDurability>maxBeaconDurability){
             int change = maxBeaconDurability-beaconDurability;
