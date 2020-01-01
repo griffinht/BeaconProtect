@@ -147,7 +147,15 @@ public class BeaconProtect extends JavaPlugin {
                     logger.warning("Could not parse "+split3[1]+" as an integer");
                 }
             }
-            customReinforce.put(Material.getMaterial(split[0]),mats);
+            for(String string:split[0].split(",")){
+                Material material = Material.getMaterial(string);
+                if(material!=null){
+                    System.out.println("put "+material+" with "+mats);
+                    customReinforce.put(material,mats);
+                }else{
+                    logger.warning("Could not convert "+string+" to a Bukkit material");
+                }
+            }
         }
         logger.info("Loaded "+customReinforce.size()+" custom reinforce values");
         //initialize

@@ -121,6 +121,7 @@ public class BeaconEvent implements Listener{
                                 }
                             }else{
                                 reinforceAmt = Math.abs(matAmt);
+                                yes = true;
                             }
                         }else{alsoYes=true;}//could be a block not on materials list
                         if(yes||stackType==blockType){//this is a warning in intellij but it is necessary
