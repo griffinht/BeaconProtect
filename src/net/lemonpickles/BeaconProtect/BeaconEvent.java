@@ -1,8 +1,12 @@
 package net.lemonpickles.BeaconProtect;
 
+import net.minecraft.server.v1_15_R1.CommandSay;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.block.*;
+import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.type.Door;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,11 +15,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
@@ -36,6 +40,7 @@ public class BeaconEvent implements Listener{
         if(!plugin.bypass.contains(event.getPlayer())) {
             Block block = event.getBlock();
             Player player = event.getPlayer();
+            block = checkDoubleBlock(block);
             if (CustomBeacons.checkFriendly(player, block, plugin.groups)) {
                 if (block.getType() == Material.BEACON) {
                     Location location = block.getLocation();
@@ -71,7 +76,7 @@ public class BeaconEvent implements Listener{
         }
         if(!plugin.bypass.contains(event.getPlayer())) {
             Player player = event.getPlayer();
-            Block block = event.getClickedBlock();
+            Block block = checkDoubleBlock(event.getClickedBlock());
             ItemStack stack = player.getInventory().getItemInMainHand();
             boolean reinforce = player.isSneaking() && !stack.getType().isAir();//everything but air works
             if (isReinforcing.containsKey(player) && !reinforce) {
@@ -79,7 +84,7 @@ public class BeaconEvent implements Listener{
                 player.sendMessage("Left block reinforce mode.");
                 event.setCancelled(true);
             } else if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                if (block != null&&plugin.interactProtection.containsKey(block.getType())) {
+                if (block!=null&&plugin.interactProtection.containsKey(block.getType())) {
                     if (!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
                         if(plugin.interactProtection.get(block.getType())){
                             if(!plugin.durabilities.containsKey(block.getLocation())){
@@ -100,7 +105,7 @@ public class BeaconEvent implements Listener{
                 }
             } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 if (reinforce) {
-                    if (isReinforcing.containsKey(player) && block != null) {//in reinforce mode
+                    if (isReinforcing.containsKey(player)&&block!=null) {//in reinforce mode
                         reinforceAdd(player);
                         Material blockType = block.getType();
                         Map<Material,Integer> materials = plugin.customReinforce.get(blockType);
@@ -159,7 +164,7 @@ public class BeaconEvent implements Listener{
                 } else if (isReinforcing.containsKey(player)) {
                     isReinforcing.remove(player);
                     player.sendMessage("Left block reinforce mode.");//no need to cancel event here
-                } else if (block != null) {//info click
+                } else if(block!=null){//info click
                     infoClick(block, player);
                 }
             }
@@ -183,6 +188,7 @@ public class BeaconEvent implements Listener{
         Block block = event.getBlock();
         Player player = event.getPlayer();
         if (!plugin.bypass.contains(event.getPlayer())) {
+            block = checkDoubleBlock(block);
             if (!plugin.durabilities.containsKey(block.getLocation())) {//block durability hasn't been set yet
                 new BlockDurability(plugin, block, player, -1);
             } else {//block has a durability, take away from it
@@ -199,7 +205,8 @@ public class BeaconEvent implements Listener{
             }
         }
         //normal block breakage
-        if (block.getType() == Material.BEACON) {
+        Material material = block.getType();
+        if (material == Material.BEACON) {
             Location location = block.getLocation();
             if (plugin.beacons.containsKey(location)) {
                 for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//remove from group ownership too
@@ -214,7 +221,7 @@ public class BeaconEvent implements Listener{
                 }
                 plugin.logger.info(msg);
             }
-        } else if (block.getType() == Material.CHEST) {
+        } else if (material == Material.CHEST) {
             Location location = block.getLocation();
             for (Group group : plugin.groups.values()) {
                 if (group.checkVault(location)) {
@@ -241,5 +248,55 @@ public class BeaconEvent implements Listener{
                 player.sendMessage("Left block reinforce mode");
             }
         }).start();
+    }
+    private Block checkDoubleBlock(Block block){
+        //long start = System.nanoTime();
+        if(block!=null) {
+            BlockState state = block.getState();
+            List<Material> doors = new ArrayList<>(Arrays.asList(Material.ACACIA_DOOR, Material.BIRCH_DOOR, Material.DARK_OAK_DOOR, Material.JUNGLE_DOOR, Material.OAK_DOOR, Material.SPRUCE_DOOR));
+            if (state instanceof Chest){
+                InventoryHolder holder = ((Chest)state).getInventory().getHolder();
+                if(holder instanceof DoubleChest) {
+                    DoubleChest doubleChest = (DoubleChest) holder;
+                    InventoryHolder left = doubleChest.getLeftSide();
+                    InventoryHolder right = doubleChest.getRightSide();
+                    if(left==null||right==null){
+                        plugin.logger.warning("Couldn't use DoubleChest at (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ") as an InventoryHolder");
+                        return block;
+                    }
+                    Location leftChest = Objects.requireNonNull(left.getInventory().getLocation()).getBlock().getLocation();//this is unfortunately necessary because the location is .5 off as an entity not a block
+                    Location rightChest = Objects.requireNonNull(right.getInventory().getLocation()).getBlock().getLocation();
+                    if (plugin.durabilities.containsKey(leftChest)) {
+                        //System.out.println((System.nanoTime() - start) / 10000);
+                        return leftChest.getBlock();
+                    } else if (plugin.durabilities.containsKey(rightChest)) {
+                        //System.out.println((System.nanoTime() - start) / 10000);
+                        return rightChest.getBlock();
+                    }//otherwise the block durability will be whatever is in the plugin
+                }
+            } else if (doors.contains(block.getType())) {
+                Block topDoor;
+                Block bottomDoor;
+                if (doors.contains(block.getRelative(BlockFace.UP).getType())) {
+                    topDoor = block.getRelative(BlockFace.UP);
+                    bottomDoor = block;
+                } else if (doors.contains(block.getRelative(BlockFace.DOWN).getType())) {
+                    bottomDoor = block.getRelative(BlockFace.DOWN);
+                    topDoor = block;
+                } else {
+                    plugin.logger.warning("Found malformed door at (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ")");
+                    return block;
+                }
+                if (plugin.durabilities.containsKey(topDoor.getLocation())) {
+                    //System.out.println((System.nanoTime()-start)/10000);
+                    return topDoor;
+                } else if (plugin.durabilities.containsKey(bottomDoor.getLocation())) {
+                    //System.out.println((System.nanoTime()-start)/10000);
+                    return bottomDoor;
+                }
+            }
+        }
+        //System.out.println((System.nanoTime()-start)/10000);
+        return block;//its a regular block
     }
 }
