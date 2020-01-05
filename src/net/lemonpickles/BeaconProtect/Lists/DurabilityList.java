@@ -36,7 +36,7 @@ public class DurabilityList extends FileMgmt {
         for(Map.Entry<Location, BlockDurability> entry:plugin.durabilities.entrySet()){
             Location location = entry.getKey();
             BlockDurability blockDurability = entry.getValue();
-            durs.add("[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability()+","+blockDurability.getMaxBeaconDurability());
+            durs.add("[" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + "]," + blockDurability.getDurability() + "," + blockDurability.getSetDurability() + "," + blockDurability.getMaxDurability()+","+blockDurability.getBeaconDurability()+","+blockDurability.getMaxBeaconDurability());
         }
         config.set("durabilities",durs);
         super.save();
