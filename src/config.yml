@@ -37,6 +37,7 @@ block_durabilities:
   - 'STONE_BRICKS: 3'
   - 'BEACON: 1, 1'
   - 'ANDESITE: 5, 20'
+  - 'WOOD_LOG: 5'
 
 # which blocks beacons should protect from interaction
 # also set true if the block can be used when durability is 1
@@ -47,6 +48,7 @@ interact_protect:
   - 'LEVER: true'
   - 'STONE_BUTTON: true'
   - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
+  - 'WOOD_PLANKS: true'
 
 # how long to keep players in reinforce mode (seconds) if they dont cancel it themselves
 reinforce_delay: 5
@@ -59,6 +61,7 @@ custom_reinforce:
   - 'CHEST:CHEST:2,WOOD_PLANKS:-4,STICK:-8,WOOD_LOG:2'
   - 'ACACIA_DOOR,BIRCH_DOOR,DARK_OAK_DOOR,JUNGLE_DOOR,OAK_DOOR,SPRUCE_DOOR:WOOD_PLANKS:2'
 
-custom_reinforce_alternates:
+# create custom groups to use - WOOD_LOG for all the log types
+alternates:
   - 'WOOD_LOG:ACACIA_LOG,BIRCH_LOG,DARK_OAK_LOG,JUNGLE_LOG,OAK_LOG,SPRUCE_LOG'
   - 'WOOD_PLANKS:ACACIA_PLANKS,BIRCH_PLANKS,DARK_OAK_PLANKS,JUNGLE_PLANKS,OAK_PLANKS,SPRUCE_PLANKS'

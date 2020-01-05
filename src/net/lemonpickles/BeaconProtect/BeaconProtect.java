@@ -40,7 +40,7 @@ public class BeaconProtect extends JavaPlugin {
     private FileConfiguration config;
     Map<Material,Boolean> interactProtection = new HashMap<>();
     public Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
-    private Map<String,List<Material>> customReinforceAlternates = new HashMap<>();
+    private Map<String,List<Material>> alternates = new HashMap<>();
     public boolean ready = false;//used so no blocks are broken before ready in BeaconEvent
     @Override
     public void onEnable(){
@@ -67,46 +67,12 @@ public class BeaconProtect extends JavaPlugin {
         defaultBlockDurability = new DefaultBlockDurability(getConfig().getInt("default_durability"), getConfig().getInt("default_max_durability"));
         //defaultBlockDurability.setMaxBlockDurability(defaultDur);
         logger.info("Loaded global default durability of "+defaultBlockDurability.getDefaultBlockDurability()+" and max durability of "+defaultBlockDurability.getMaxBlockDurability());
-        //build defaultDurabilities
+
         //yaml with bukkit sucks
         //probably because i don't know how to use it
-        List<String> durs = getConfig().getStringList("block_durabilities");
-        for(String line:durs){
-            line = line.replaceAll("\\s","");
-            String[] split = line.split(":",2);
-            String[] split2 = split[1].split(",",2);//can have 2 args, default and max
-            String mat = split[0];//material
-            int dur = Integer.parseInt(split2[0]);//durability
 
-            Material material = Material.getMaterial(mat);
-            if(material==null){
-                logger.warning("Could not convert "+mat+" to a Bukkit material");
-            }else{
-                if(split2.length==2){
-                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, Integer.parseInt(split2[1])));//max durability
-                }else{
-                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, defaultBlockDurability.getMaxBlockDurability()));
-                }
-            }
-        }
-        logger.info("Loaded "+defaultBlockDurabilities.size()+" materials with a default durability");
-        //load interact protection from config
-        List<String> protections = config.getStringList("interact_protect");
-        for(String line:protections){
-            line = line.replaceAll("\\s","");
-            String[] split = line.split(":",2);
-            boolean one = false;
-            if(split.length==2){
-                one = Boolean.parseBoolean(split[1]);
-            }
-            Material material = Material.getMaterial(split[0]);
-            if(material==null) {
-                logger.warning("Could not convert " + split[0] + " to a Bukkit material");
-            }else{interactProtection.put(material,one);}
-        }
-        logger.info("Loaded "+interactProtection.size()+" blocks to protect from interaction");
         //load custom reinforce alternates from config
-        List<String> alts = config.getStringList("custom_reinforce_alternates");
+        List<String> alts = config.getStringList("alternates");
         for(String line:alts){
             line = line.replaceAll("\\s","");
             String[] split = line.split(":",2);
@@ -120,8 +86,63 @@ public class BeaconProtect extends JavaPlugin {
                     materials.add(mat);
                 }
             }
-            customReinforceAlternates.put(split[0],materials);
+            alternates.put(split[0],materials);
         }
+
+        //load default block durabilities
+        List<String> durs = getConfig().getStringList("block_durabilities");
+        for(String line:durs){
+            line = line.replaceAll("\\s","");
+            String[] split = line.split(":",2);
+            String[] split2 = split[1].split(",",2);//can have 2 args, default and max
+            String mat = split[0];//material
+            int dur = Integer.parseInt(split2[0]);//durability
+
+            Material material = Material.getMaterial(mat);
+            if(material==null){
+                if(alternates.containsKey(split[0])){
+                    for(Material material1:alternates.get(split[0])){
+                        if(split2.length==2){
+                            defaultBlockDurabilities.put(material1, new DefaultBlockDurability(dur, Integer.parseInt(split2[1])));//max durability
+                        }else{
+                            defaultBlockDurabilities.put(material1, new DefaultBlockDurability(dur, defaultBlockDurability.getMaxBlockDurability()));
+                        }
+                    }
+                }else {
+                    logger.warning("Could not convert " + split[0] + " to a Bukkit material");
+                }
+            }else{
+                if(split2.length==2){
+                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, Integer.parseInt(split2[1])));//max durability
+                }else{
+                    defaultBlockDurabilities.put(material, new DefaultBlockDurability(dur, defaultBlockDurability.getMaxBlockDurability()));
+                }
+            }
+        }
+        logger.info("Loaded "+defaultBlockDurabilities.size()+" materials with a default durability");
+
+        //load interact protection from config
+        List<String> protections = config.getStringList("interact_protect");
+        for(String line:protections){
+            line = line.replaceAll("\\s","");
+            String[] split = line.split(":",2);
+            boolean one = false;
+            if(split.length==2){
+                one = Boolean.parseBoolean(split[1]);
+            }
+            Material material = Material.getMaterial(split[0]);
+            if(material==null) {
+                if(alternates.containsKey(split[0])){
+                    for(Material material1:alternates.get(split[0])){
+                        interactProtection.put(material1,one);
+                    }
+                }else {
+                    logger.warning("Could not convert " + split[0] + " to a Bukkit material");
+                }
+            }else{interactProtection.put(material,one);}
+        }
+        logger.info("Loaded "+interactProtection.size()+" blocks to protect from interaction");
+
         //load custom reinforce from config
         List<String> reinforces = config.getStringList("custom_reinforce");
         for(String line:reinforces){
@@ -135,8 +156,8 @@ public class BeaconProtect extends JavaPlugin {
                 try{
                     int inty=Integer.parseInt(split3[1]);
                     if(material==null){
-                        if(customReinforceAlternates.containsKey(split3[0])){
-                            for(Material material1:customReinforceAlternates.get(split3[0])){
+                        if(alternates.containsKey(split3[0])){
+                            for(Material material1:alternates.get(split3[0])){
                                 mats.put(material1,inty);
                             }
                         }else{
