@@ -1,18 +1,19 @@
 package net.lemonpickles.BeaconProtect;
 
+import com.google.gson.internal.$Gson$Preconditions;
+import net.minecraft.server.v1_15_R1.Blocks;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -26,7 +27,7 @@ public class BeaconEvent implements Listener{
         reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay")*1000;
     }
     @EventHandler
-    public void blockPlace(BlockPlaceEvent event){
+    public void onBlockPlace(BlockPlaceEvent event){
         if(!plugin.ready){
             event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
             event.setCancelled(true);
@@ -63,7 +64,7 @@ public class BeaconEvent implements Listener{
         }
     }
     @EventHandler
-    public void playerInteract(PlayerInteractEvent event){
+    public void onPlayerInteract(PlayerInteractEvent event){
         if(!plugin.ready){
             event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
             event.setCancelled(true);
@@ -174,7 +175,7 @@ public class BeaconEvent implements Listener{
     }
 
     @EventHandler
-    public void blockBreak(BlockBreakEvent event){
+    public void onBlockBreak(BlockBreakEvent event){
         if(!plugin.ready){
             event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
             event.setCancelled(true);
@@ -229,6 +230,38 @@ public class BeaconEvent implements Listener{
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent event){
+        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
+    }
+    @EventHandler
+    public void onPistonRetract(BlockPistonRetractEvent event){
+        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
+    }
+    private boolean onPiston(List<Block> blocks,Block piston,BlockFace blockFace){
+        if(blocks.size()>0){
+            Vector vector = new Vector(blockFace.getModX(),blockFace.getModY(),blockFace.getModZ());
+            for(Location location:plugin.beacons.keySet()){
+                BlockState blockState = location.getBlock().getState();
+                if(blockState instanceof Beacon&&CustomBeacons.checkInRange(piston.getLocation(),location,((Beacon)blockState).getTier())){
+                    return false;//dont cancel if piston is already in beacon range therefore friendly beacon
+                }
+            }
+            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+                Block beacon = entry.getValue();
+                BlockState beaconState = beacon.getState();
+                if(beaconState instanceof Beacon){
+                    for(Block block:blocks){
+                        if(CustomBeacons.checkInRange(block.getLocation().add(vector),entry.getKey(),((Beacon)beaconState).getTier())){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
     private void reinforceAdd(Player player){
         isReinforcing.put(player,System.currentTimeMillis());

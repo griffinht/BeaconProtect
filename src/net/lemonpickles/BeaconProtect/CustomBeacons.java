@@ -108,7 +108,7 @@ public class CustomBeacons {
         return group.getMaterialInVaults(block.getType());
     }
 
-    private static Boolean checkInRange(Location block, Location beacon, int tier){
+    static Boolean checkInRange(Location block, Location beacon, int tier){
         if(tier!=0){
             tier = defaultBeaconRange[tier-1];
             return(block.toVector().isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier)));
