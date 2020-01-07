@@ -254,7 +254,7 @@ public class BeaconEvent implements Listener{
                 BlockState beaconState = beacon.getState();
                 if(beaconState instanceof Beacon){
                     for(Block block:blocks){
-                        if(CustomBeacons.checkInRange(block.getLocation().add(vector),entry.getKey(),((Beacon)beaconState).getTier())){
+                        if(CustomBeacons.checkInRange(block.getLocation().add(vector),entry.getKey(),((Beacon)beaconState).getTier())||CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){//cancel if block is currently or will be in beacon range
                             return true;
                         }
                     }
