@@ -38,6 +38,7 @@ public class BeaconProtect extends JavaPlugin {
     public Logger logger = getLogger();
     public List<Player> bypass = new ArrayList<>();//list of admins currently in bypass mode
     private FileConfiguration config;
+    boolean interactProtectBlacklist = true;//default value to protect all blocks from interaction in case config breaks
     Map<Material,Boolean> interactProtection = new HashMap<>();
     public Map<Material,Map<Material,Integer>> customReinforce = new HashMap<>();
     private Map<String,List<Material>> alternates = new HashMap<>();
@@ -122,24 +123,34 @@ public class BeaconProtect extends JavaPlugin {
         logger.info("Loaded "+defaultBlockDurabilities.size()+" materials with a default durability");
 
         //load interact protection from config
-        List<String> protections = config.getStringList("interact_protect");
+        interactProtectBlacklist = config.getBoolean("interact_protect.blacklist");
+        List<String> protections = config.getStringList("interact_protect.list");
+        List<String> unlockProtections = config.getStringList("interact_protect.unlockable");
         for(String line:protections){
             line = line.replaceAll("\\s","");
-            String[] split = line.split(":",2);
-            boolean one = false;
-            if(split.length==2){
-                one = Boolean.parseBoolean(split[1]);
-            }
-            Material material = Material.getMaterial(split[0]);
+            Material material = Material.getMaterial(line);
             if(material==null) {
-                if(alternates.containsKey(split[0])){
-                    for(Material material1:alternates.get(split[0])){
-                        interactProtection.put(material1,one);
+                if(alternates.containsKey(line)){
+                    for(Material material1:alternates.get(line)){
+                        interactProtection.put(material1,false);
                     }
                 }else {
-                    logger.warning("Could not convert " + split[0] + " to a Bukkit material");
+                    logger.warning("Could not convert " + line + " to a Bukkit material");
                 }
-            }else{interactProtection.put(material,one);}
+            }else{interactProtection.put(material,false);}
+        }
+        for(String line:unlockProtections){
+            line = line.replaceAll("\\s","");
+            Material material = Material.getMaterial(line);
+            if(material==null){
+                if(alternates.containsKey(line)){
+                    for(Material material1:alternates.get(line)){
+                        interactProtection.put(material1,true);
+                    }
+                }else {
+                    logger.warning("Could not convert " + line + " to a Bukkit material");
+                }
+            }else{interactProtection.put(material,true);}
         }
         logger.info("Loaded "+interactProtection.size()+" blocks to protect from interaction");
 

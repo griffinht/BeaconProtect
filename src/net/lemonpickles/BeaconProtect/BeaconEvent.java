@@ -21,6 +21,7 @@ public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
     private Map<Player, Long> isReinforcing = new HashMap<>();
     private long reinforceDelay = 5;//default value
+    private Map<Player,Block> lastBlock = new HashMap<>();
     BeaconEvent(BeaconProtect plugin){
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -75,31 +76,14 @@ public class BeaconEvent implements Listener{
             Block block = checkDoubleBlock(event.getClickedBlock());
             ItemStack stack = player.getInventory().getItemInMainHand();
             boolean reinforce = player.isSneaking() && !stack.getType().isAir();//everything but air works
+            Action action = event.getAction();
             if (isReinforcing.containsKey(player) && !reinforce) {
                 isReinforcing.remove(player);
                 player.sendMessage("Left block reinforce mode.");
                 event.setCancelled(true);
-            } else if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                if (block!=null&&plugin.interactProtection.containsKey(block.getType())) {
-                    if (!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
-                        if(plugin.interactProtection.get(block.getType())){
-                            if(!plugin.durabilities.containsKey(block.getLocation())){
-                                new BlockDurability(plugin, block, player, 0);
-                            }
-                            BlockDurability a = plugin.durabilities.get(block.getLocation());
-                            int dur = a.getDurability()+Math.min(plugin.CustomBeacons.getMaxPenalty(player, block),a.getBeaconDurability());
-                            if(dur!=1){
-                                event.setCancelled(true);
-                                player.sendMessage("You cannot interact here! "+(dur-1)+" hits to unlock.");
-                            }//otherwise you are good
-                        }else{
-                            event.setCancelled(true);
-                            player.sendMessage("You cannot interact here! This block is protected by a beacon.");
-                            infoClick(block, player);
-                        }
-                    }
-                }
-            } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            } else if (event.getHand() == EquipmentSlot.HAND && action == Action.RIGHT_CLICK_BLOCK) {
+                event.setCancelled(checkInteractProtect(block,player,true));
+            } else if (action == Action.LEFT_CLICK_BLOCK) {
                 if (reinforce) {
                     if (isReinforcing.containsKey(player)&&block!=null) {//in reinforce mode
                         reinforceAdd(player);
@@ -163,8 +147,50 @@ public class BeaconEvent implements Listener{
                 } else if(block!=null){//info click
                     infoClick(block, player);
                 }
+            }else if(action==Action.PHYSICAL){
+                event.setCancelled(checkInteractProtect(block,player,false));
             }
         }
+    }
+    private boolean checkInteractProtect(Block block, Player player, boolean click) {
+        if (block != null&&!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
+            if (plugin.interactProtection.containsKey(block.getType())) {
+                if (plugin.interactProtection.get(block.getType())) {
+                    if (!plugin.durabilities.containsKey(block.getLocation())) {
+                        new BlockDurability(plugin, block, player, 0);
+                    }
+                    BlockDurability a = plugin.durabilities.get(block.getLocation());
+                    int dur = a.getDurability() + Math.min(plugin.CustomBeacons.getMaxPenalty(player, block), a.getBeaconDurability());
+                    if (dur != 1) {
+                        if(click||block!=lastBlock.get(player)) {
+                            player.sendMessage("You cannot interact here! " + (dur - 1) + " hits to unlock.");
+                            infoClick(block, player);
+                        }
+                        lastBlock.put(player,block);
+                        return true;
+                    }//otherwise you are good
+                } else if(!plugin.interactProtectBlacklist){//if whitelist
+                    if(click||!block.equals(lastBlock.get(player))) {
+                        player.sendMessage("You cannot interact here! This block is protected by a beacon.");
+                        infoClick(block, player);
+                    }
+                    lastBlock.put(player,block);
+                    return true;
+                }
+            }else{
+                if(plugin.interactProtectBlacklist){
+                    if(click||block!=lastBlock.get(player)) {//todo this is still janky
+                        player.sendMessage("You cannot interact here! This block is protected by a beacon.");
+                        infoClick(block, player);
+                    }
+                    lastBlock.put(player,block);
+                    return true;
+                }else{
+                    return false;//whitelist dont cancel
+                }
+            }
+        }
+        return false;
     }
     private void infoClick(Block block, Player player){
         if (!plugin.durabilities.containsKey(block.getLocation())) {
@@ -172,6 +198,20 @@ public class BeaconEvent implements Listener{
         } else {
             plugin.durabilities.get(block.getLocation()).changeDurability(plugin, player, 0, false);
         }
+    }
+    private void reinforceAdd(Player player){
+        isReinforcing.put(player,System.currentTimeMillis());
+        new Thread(() -> {
+            try {
+                Thread.sleep(reinforceDelay);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (isReinforcing.containsKey(player)&&System.currentTimeMillis()-isReinforcing.get(player)>reinforceDelay) {
+                isReinforcing.remove(player);
+                player.sendMessage("Left block reinforce mode");
+            }
+        }).start();
     }
 
     @EventHandler
@@ -231,52 +271,6 @@ public class BeaconEvent implements Listener{
             }
         }
     }
-
-    @EventHandler
-    public void onPistonExtend(BlockPistonExtendEvent event){
-        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
-    }
-    @EventHandler
-    public void onPistonRetract(BlockPistonRetractEvent event){
-        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
-    }
-    private boolean onPiston(List<Block> blocks,Block piston,BlockFace blockFace){
-        if(blocks.size()>0){
-            Vector vector = new Vector(blockFace.getModX(),blockFace.getModY(),blockFace.getModZ());
-            for(Location location:plugin.beacons.keySet()){
-                BlockState blockState = location.getBlock().getState();
-                if(blockState instanceof Beacon&&CustomBeacons.checkInRange(piston.getLocation(),location,((Beacon)blockState).getTier())){
-                    return false;//dont cancel if piston is already in beacon range therefore friendly beacon
-                }
-            }
-            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-                Block beacon = entry.getValue();
-                BlockState beaconState = beacon.getState();
-                if(beaconState instanceof Beacon){
-                    for(Block block:blocks){
-                        if(CustomBeacons.checkInRange(block.getLocation().add(vector),entry.getKey(),((Beacon)beaconState).getTier())||CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){//cancel if block is currently or will be in beacon range
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    private void reinforceAdd(Player player){
-        isReinforcing.put(player,System.currentTimeMillis());
-        new Thread(() -> {
-            try {
-                Thread.sleep(reinforceDelay);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (isReinforcing.containsKey(player)&&System.currentTimeMillis()-isReinforcing.get(player)>reinforceDelay) {
-                isReinforcing.remove(player);
-                player.sendMessage("Left block reinforce mode");
-            }
-        }).start();
-    }
     private Block checkDoubleBlock(Block block){
         //long start = System.nanoTime();
         if(block!=null) {
@@ -326,5 +320,57 @@ public class BeaconEvent implements Listener{
         }
         //System.out.println((System.nanoTime()-start)/10000);
         return block;//its a regular block
+    }
+
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent event){
+        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
+    }
+    @EventHandler
+    public void onPistonRetract(BlockPistonRetractEvent event){
+        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
+    }
+    private boolean onPiston(List<Block> blocks,Block piston,BlockFace blockFace){
+        if(blocks.size()>0){
+            Vector vector = new Vector(blockFace.getModX(),blockFace.getModY(),blockFace.getModZ());
+            for(Location location:plugin.beacons.keySet()){
+                BlockState blockState = location.getBlock().getState();
+                if(blockState instanceof Beacon&&CustomBeacons.checkInRange(piston.getLocation(),location,((Beacon)blockState).getTier())){
+                    return false;//dont cancel if piston is already in beacon range therefore friendly beacon
+                }
+            }
+            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+                Block beacon = entry.getValue();
+                BlockState beaconState = beacon.getState();
+                if(beaconState instanceof Beacon){
+                    for(Block block:blocks){
+                        if(CustomBeacons.checkInRange(block.getLocation().add(vector),entry.getKey(),((Beacon)beaconState).getTier())||CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){//cancel if block is currently or will be in beacon range
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @EventHandler
+    public void onBlockFromTo(BlockFromToEvent event){//only allow flow out of beacon range, not in
+        Block block = event.getBlock();
+        for(Location location:plugin.beacons.keySet()){
+            BlockState blockState = location.getBlock().getState();
+            if(blockState instanceof Beacon&&CustomBeacons.checkInRange(block.getLocation(),location,((Beacon)blockState).getTier())){
+                return;//dont cancel if the original block is already in beacon range
+            }
+        }
+        Block toBlock = event.getToBlock();
+        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+            Block beacon = entry.getValue();
+            BlockState beaconState = beacon.getState();
+            if(beaconState instanceof Beacon&&CustomBeacons.checkInRange(toBlock.getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){
+                event.setCancelled(true);//cancel if the block to be flowed in is in range of beacon
+                return;
+            }
+        }
     }
 }

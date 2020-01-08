@@ -39,23 +39,26 @@ block_durabilities:
   - 'ANDESITE: 5, 20'
   - 'WOOD_LOG: 5'
 
-# which blocks beacons should protect from interaction
-# also set true if the block can be used when durability is 1
-# helpful so you don't have to break a chest and put contents on the ground to steal from it
-# 'MATERIAL: true/false' also leave blank for false but to still protect from interaction
 interact_protect:
-  - 'CHEST: true'
-  - 'LEVER: true'
-  - 'STONE_BUTTON: true'
-  - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
-  - 'WOOD_PLANKS: true'
+  # list of blocks that will allow interaction if their durability reaches 1
+  unlockable:
+    - 'CHEST'
+    - 'LEVER'
+  # false: whitelist, so only blocks listed below will be protected
+  # true: blacklist, so blocks listed below will not be protected
+  blacklist: true
+  list:
+    - 'STONE_BUTTON'
+    - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
+    - 'STONE_PRESSURE_PLATE'
+    - 'WOOD_PLANKS'
 
-# how long to keep players in reinforce mode (seconds) if they dont cancel it themselves
+# how long to keep players in reinforce mode (seconds) if they don't cancel it themselves
 reinforce_delay: 5
 
 # blocks can be reinforced with items other than themselves and in custom amounts
 # a positive number will reinforce by x amount, and a negative number needs x to reinforce
-# so OAK_PLANKS:2 will reinfroce twice and STICKS:-4 will use 4 sticks for 1 reinforce
+# so OAK_PLANKS:2 will reinforce twice and STICKS:-4 will use 4 sticks for 1 reinforce
 # 'MATERIAL: <MATERIAL>:<amt>, <MATERIAL>:<amt>'
 custom_reinforce:
   - 'CHEST:CHEST:2,WOOD_PLANKS:-4,STICK:-8,WOOD_LOG:2'
