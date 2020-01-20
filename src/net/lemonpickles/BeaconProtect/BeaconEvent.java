@@ -1,14 +1,15 @@
 package net.lemonpickles.BeaconProtect;
 
 import com.google.gson.internal.$Gson$Preconditions;
-import net.minecraft.server.v1_15_R1.Blocks;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
@@ -27,6 +28,7 @@ public class BeaconEvent implements Listener{
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
         reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay")*1000;
     }
+    //deals with block placing
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event){
         if(!plugin.ready){
@@ -64,6 +66,7 @@ public class BeaconEvent implements Listener{
             }
         }
     }
+    //deals with player interaction
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
         if(!plugin.ready){
@@ -213,7 +216,7 @@ public class BeaconEvent implements Listener{
             }
         }).start();
     }
-
+    //deals with block breakage
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event){
         if(!plugin.ready){
@@ -321,7 +324,7 @@ public class BeaconEvent implements Listener{
         //System.out.println((System.nanoTime()-start)/10000);
         return block;//its a regular block
     }
-
+    //deals with pistons
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event){
         event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
@@ -333,13 +336,11 @@ public class BeaconEvent implements Listener{
     private boolean onPiston(List<Block> blocks,Block piston,BlockFace blockFace){
         if(blocks.size()>0){
             Vector vector = new Vector(blockFace.getModX(),blockFace.getModY(),blockFace.getModZ());
-            for(Location location:plugin.beacons.keySet()){
-                BlockState blockState = location.getBlock().getState();
-                if(blockState instanceof Beacon&&CustomBeacons.checkInRange(piston.getLocation(),location,((Beacon)blockState).getTier())){
+            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+                BlockState blockState = entry.getValue().getState();
+                if(blockState instanceof Beacon&&CustomBeacons.checkInRange(piston.getLocation(),entry.getKey(),((Beacon)blockState).getTier())){
                     return false;//dont cancel if piston is already in beacon range therefore friendly beacon
                 }
-            }
-            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
                 Block beacon = entry.getValue();
                 BlockState beaconState = beacon.getState();
                 if(beaconState instanceof Beacon){
@@ -353,23 +354,46 @@ public class BeaconEvent implements Listener{
         }
         return false;
     }
-
+    //deals with liquid flow
     @EventHandler
     public void onBlockFromTo(BlockFromToEvent event){//only allow flow out of beacon range, not in
         Block block = event.getBlock();
-        for(Location location:plugin.beacons.keySet()){
-            BlockState blockState = location.getBlock().getState();
-            if(blockState instanceof Beacon&&CustomBeacons.checkInRange(block.getLocation(),location,((Beacon)blockState).getTier())){
-                return;//dont cancel if the original block is already in beacon range
-            }
-        }
-        Block toBlock = event.getToBlock();
         for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+            BlockState blockState = entry.getValue().getState();
+            if(blockState instanceof Beacon&&CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)blockState).getTier())){
+                return;//don't cancel if the original block is already in beacon range
+            }
             Block beacon = entry.getValue();
             BlockState beaconState = beacon.getState();
-            if(beaconState instanceof Beacon&&CustomBeacons.checkInRange(toBlock.getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){
+            if(beaconState instanceof Beacon&&CustomBeacons.checkInRange(event.getToBlock().getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){
                 event.setCancelled(true);//cancel if the block to be flowed in is in range of beacon
                 return;
+            }
+        }
+    }
+    //deals with lit tnt and other entity explosions
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event){
+        Entity entity = event.getEntity();
+        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+            BlockState blockState = entry.getValue().getState();
+            if(blockState instanceof Beacon){
+                int tier = ((Beacon)blockState).getTier();
+                if(CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),tier))return;
+                event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
+            }
+        }
+    }
+    //deals with beds maybe? don't worry it probably still works
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event){
+        Location boom = event.getBlock().getLocation();
+        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+            BlockState blockState = entry.getValue().getState();
+            if(blockState instanceof Beacon){
+                int tier = ((Beacon)blockState).getTier();
+                if(CustomBeacons.checkInRange(boom,entry.getKey(),tier))return;
+                event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
             }
         }
     }
