@@ -1,15 +1,17 @@
 package net.lemonpickles.BeaconProtect;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
@@ -23,6 +25,7 @@ public class BeaconEvent implements Listener{
     private Map<Player, Long> isReinforcing = new HashMap<>();
     private long reinforceDelay = 5;//default value
     private Map<Player,Block> lastBlock = new HashMap<>();
+    private List<Entity> enemyEntityList = new ArrayList<>();
     BeaconEvent(BeaconProtect plugin){
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -359,13 +362,10 @@ public class BeaconEvent implements Listener{
     public void onBlockFromTo(BlockFromToEvent event){//only allow flow out of beacon range, not in
         Block block = event.getBlock();
         for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-            BlockState blockState = entry.getValue().getState();
-            if(blockState instanceof Beacon&&CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)blockState).getTier())){
+            if(CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
                 return;//don't cancel if the original block is already in beacon range
             }
-            Block beacon = entry.getValue();
-            BlockState beaconState = beacon.getState();
-            if(beaconState instanceof Beacon&&CustomBeacons.checkInRange(event.getToBlock().getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){
+            if(CustomBeacons.checkInRange(event.getToBlock().getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
                 event.setCancelled(true);//cancel if the block to be flowed in is in range of beacon
                 return;
             }
@@ -377,11 +377,9 @@ public class BeaconEvent implements Listener{
         Entity entity = event.getEntity();
         for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
             BlockState blockState = entry.getValue().getState();
-            if(blockState instanceof Beacon){
-                int tier = ((Beacon)blockState).getTier();
-                if(CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),tier))return;
-                event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
-            }
+            int tier = ((Beacon)blockState).getTier();
+            if(CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),tier)&&!enemyEntityList.contains(entity))return;
+            event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
         }
     }
     //deals with beds maybe? don't worry it probably still works
@@ -389,11 +387,21 @@ public class BeaconEvent implements Listener{
     public void onBlockExplode(BlockExplodeEvent event){
         Location boom = event.getBlock().getLocation();
         for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-            BlockState blockState = entry.getValue().getState();
-            if(blockState instanceof Beacon){
-                int tier = ((Beacon)blockState).getTier();
-                if(CustomBeacons.checkInRange(boom,entry.getKey(),tier))return;
-                event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
+            int tier = ((Beacon)entry.getValue().getState()).getTier();
+            if(CustomBeacons.checkInRange(boom,entry.getKey(),tier))return;
+            event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
+        }
+    }
+    //check if new entities are primed tnt, if so check if they should be allowed to blow up in claimed land
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event){
+        Entity entity = event.getEntity();
+        if(entity instanceof TNTPrimed){
+            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+                if(!CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
+                    enemyEntityList.add(event.getEntity());
+                    return;
+                }
             }
         }
     }
