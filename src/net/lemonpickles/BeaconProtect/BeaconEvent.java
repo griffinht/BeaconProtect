@@ -1,5 +1,6 @@
 package net.lemonpickles.BeaconProtect;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.*;
@@ -374,22 +375,37 @@ public class BeaconEvent implements Listener{
     //deals with lit tnt and other entity explosions
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event){
-        Entity entity = event.getEntity();
-        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-            BlockState blockState = entry.getValue().getState();
-            int tier = ((Beacon)blockState).getTier();
-            if(CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),tier)&&!enemyEntityList.contains(entity))return;
-            event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
+        boolean friendly = true;
+        if(CustomBeacons.checkAllRanges(event.getEntity().getLocation(),plugin.beacons)){
+            if(enemyEntityList.contains(event.getEntity()))friendly = false;
         }
+        onExplode(event.getEntity().getLocation(),event.blockList(),friendly);
     }
     //deals with beds maybe? don't worry it probably still works
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event){
-        Location boom = event.getBlock().getLocation();
+        onExplode(event.getBlock().getLocation(),event.blockList(),CustomBeacons.checkAllRanges(event.getBlock().getLocation(),plugin.beacons));
+    }
+    private void onExplode(Location boom, List<Block> blockList, boolean friendly){
         for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
             int tier = ((Beacon)entry.getValue().getState()).getTier();
-            if(CustomBeacons.checkInRange(boom,entry.getKey(),tier))return;
-            event.blockList().removeIf(block -> CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), tier));
+            if(CustomBeacons.checkInRange(boom,entry.getKey(),tier)&&friendly)return;
+            blockList.removeIf(block-> {
+                Location location = block.getLocation();
+                if(CustomBeacons.checkInRange(location,entry.getKey(),tier)) {
+                    if (plugin.durabilities.containsKey(location)) {
+                        plugin.durabilities.get(location).changeDurability(plugin, null, -1, false);
+                    } else {
+                        new BlockDurability(plugin, block, null, -1);
+                    }
+                    if (plugin.durabilities.containsKey(location)) {
+                        if (plugin.durabilities.get(location).getDurability() > 0) {
+                            return true;//block has 0 durability remaining so allow it to be blown up
+                        }
+                    }
+                }
+                return false;
+            });
         }
     }
     //check if new entities are primed tnt, if so check if they should be allowed to blow up in claimed land

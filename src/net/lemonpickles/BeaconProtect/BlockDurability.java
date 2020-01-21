@@ -38,8 +38,10 @@ public class BlockDurability {
         this.setDurability = defaultDurability;
         material = block.getType();
         changeDurability(plugin, player, changeDur, false);
-        if(!(durability>1||plugin.CustomBeacons.getMaxPenalty(player, block)>0)&&plugin.durabilityBars.containsKey(player)) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
-            plugin.durabilityBars.get(player).removeAll();
+        if(player!=null) {
+            if (!(durability > 1 || plugin.CustomBeacons.getMaxPenalty(player, block) > 0) && plugin.durabilityBars.containsKey(player)) {//only show boss bar if the block has more than 1 durability OR the beacon is hostile for the player
+                plugin.durabilityBars.get(player).removeAll();
+            }
         }
         if(durability!=0){addToHash(this, plugin);}
     }
@@ -133,16 +135,18 @@ public class BlockDurability {
         int value = setDurability(durability+changeDurability, setDurability, plugin.CustomBeacons.getMaxPenalty(player, block));
         for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
             Group group = entry.getValue();
-            if(CustomBeacons.checkForBlocks(block, plugin.beacons).size()>0){//TODO this might break with overlapping beacons
+            if(CustomBeacons.checkForBlocks(block, plugin.beacons).size()>0){
                 Material material = block.getType();
                 group.removeMaterialInVaults(material, value, plugin.defaultBlockDurabilities.getOrDefault(material,plugin.defaultBlockDurability).getDefaultBlockDurability());
                 break;
             }
         }
-        if(changeDurability>0) {
-            playerBar(plugin, player, true);
-        }else{
-            playerBar(plugin, player, false);
+        if(player!=null) {
+            if (changeDurability > 0) {
+                playerBar(plugin, player, true);
+            } else {
+                playerBar(plugin, player, false);
+            }
         }
         return (changeDurability+oldDurability)==durability;
     }

@@ -45,6 +45,7 @@ public class CustomBeacons {
         }
     }
     private static boolean checkFriendly(Player player, Block block, Group group){
+        if(player==null)return false;
         if(!group.checkMember(player)) {
             List<Location> beacons = checkForBlocks(block, blockLocationsToMap(group.getBeacons()));
             for (Location location : group.getBeacons()) {
@@ -108,10 +109,16 @@ public class CustomBeacons {
         return group.getMaterialInVaults(block.getType());
     }
 
-    static Boolean checkInRange(Location block, Location beacon, int tier){
+    static boolean checkAllRanges(Location location, Map<Location,Block> beacons){
+        for(Map.Entry<Location,Block> entry:beacons.entrySet()){
+            if(checkInRange(location,entry.getKey(),((Beacon)entry.getValue().getState()).getTier()))return true;
+        }
+        return false;
+    }
+    static boolean checkInRange(Location location, Location beacon, int tier){
         if(tier!=0){
             tier = defaultBeaconRange[tier-1];
-            return(block.toVector().isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier)));
+            return(location.toVector().isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier)));
         }
         return false;
     }
