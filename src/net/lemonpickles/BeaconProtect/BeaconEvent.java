@@ -1,19 +1,18 @@
 package net.lemonpickles.BeaconProtect;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +26,7 @@ public class BeaconEvent implements Listener{
     private long reinforceDelay = 5;//default value
     private Map<Player,Block> lastBlock = new HashMap<>();
     private List<Entity> enemyEntityList = new ArrayList<>();
+    private List<EntityType> explosiveEntities = new ArrayList<>(Arrays.asList(EntityType.PRIMED_TNT,EntityType.MINECART_TNT,EntityType.CREEPER,EntityType.FIREBALL,EntityType.SMALL_FIREBALL));
     BeaconEvent(BeaconProtect plugin){
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -389,14 +389,14 @@ public class BeaconEvent implements Listener{
     private void onExplode(Location boom, List<Block> blockList, boolean friendly){
         for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
             int tier = ((Beacon)entry.getValue().getState()).getTier();
-            if(CustomBeacons.checkInRange(boom,entry.getKey(),tier)&&friendly)return;
+            boolean useBeaconDurability = !(CustomBeacons.checkInRange(boom,entry.getKey(),tier)&&friendly);
             blockList.removeIf(block-> {
                 Location location = block.getLocation();
                 if(CustomBeacons.checkInRange(location,entry.getKey(),tier)) {
                     if (plugin.durabilities.containsKey(location)) {
-                        plugin.durabilities.get(location).changeDurability(plugin, null, -1, false);
+                        plugin.durabilities.get(location).changeDurability(plugin, null, -1, false, useBeaconDurability);
                     } else {
-                        new BlockDurability(plugin, block, null, -1);
+                        new BlockDurability(plugin, block, null, -1, useBeaconDurability);
                     }
                     if (plugin.durabilities.containsKey(location)) {
                         if (plugin.durabilities.get(location).getDurability() > 0) {
@@ -411,13 +411,17 @@ public class BeaconEvent implements Listener{
     //check if new entities are primed tnt, if so check if they should be allowed to blow up in claimed land
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event){
-        Entity entity = event.getEntity();
-        if(entity instanceof TNTPrimed){
-            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-                if(!CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
-                    enemyEntityList.add(event.getEntity());
-                    return;
-                }
+        if(explosiveEntities.contains(event.getEntityType()))explosiveEntityHandler(event.getEntity());
+    }
+    @EventHandler
+    public void onVehicleCreate(VehicleCreateEvent event){
+        if(explosiveEntities.contains(event.getVehicle().getType()))explosiveEntityHandler(event.getVehicle());
+    }
+    private void explosiveEntityHandler(Entity entity){
+        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+            if(!CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
+                enemyEntityList.add(entity);
+                return;
             }
         }
     }
