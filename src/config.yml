@@ -53,6 +53,15 @@ interact_protect:
     - 'STONE_PRESSURE_PLATE'
     - 'WOOD_PLANKS'
 
+# list of moving entities to watch for
+# no need to add stationary entities like end crystals
+explosive_entity_protect:
+  - 'PRIMED_TNT'
+  - 'MINECART_TNT'
+  - 'CREEPER'
+  - 'FIREBALL'
+  - 'SMALL_FIREBALL'
+
 # how long to keep players in reinforce mode (seconds) if they don't cancel it themselves
 reinforce_delay: 5
 

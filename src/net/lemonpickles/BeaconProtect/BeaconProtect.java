@@ -77,6 +77,10 @@ public class BeaconProtect extends JavaPlugin {
         for(String line:alts){
             line = line.replaceAll("\\s","");
             String[] split = line.split(":",2);
+            if(split.length!=2){
+                logger.warning("Could not parse "+line+" for alternates in config");
+                break;
+            }
             List<Material> materials = new ArrayList<>();
             String[] split2 = split[1].split(",");
             for(String string:split2){
@@ -95,6 +99,10 @@ public class BeaconProtect extends JavaPlugin {
         for(String line:durs){
             line = line.replaceAll("\\s","");
             String[] split = line.split(":",2);
+            if(split.length!=2){
+                logger.warning("Could not parse "+line+" for block_durabilities in config");
+                break;
+            }
             String[] split2 = split[1].split(",",2);//can have 2 args, default and max
             String mat = split[0];//material
             int dur = Integer.parseInt(split2[0]);//durability
@@ -159,10 +167,18 @@ public class BeaconProtect extends JavaPlugin {
         for(String line:reinforces){
             line = line.replaceAll("\\s","");//remove spaces
             String[] split = line.split(":",2);
+            if(split.length!=2){
+                logger.warning("Could not parse "+line+" for custom_reinforce in config");
+                break;
+            }
             String[] split2 = split[1].split(",");
             Map<Material, Integer> mats = new HashMap<>();
             for(String string:split2){
                 String[] split3 = string.split(":",2);
+                if(split3.length!=2){
+                    logger.warning("Could not parse "+line+" for custom_reinforce in config");
+                    break;
+                }
                 Material material = Material.getMaterial(split3[0]);
                 try{
                     int inty=Integer.parseInt(split3[1]);

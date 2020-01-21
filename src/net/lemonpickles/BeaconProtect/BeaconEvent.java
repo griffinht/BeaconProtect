@@ -23,14 +23,27 @@ import java.util.*;
 public class BeaconEvent implements Listener{
     private BeaconProtect plugin;
     private Map<Player, Long> isReinforcing = new HashMap<>();
-    private long reinforceDelay = 5;//default value
+    private long reinforceDelay = 5;//backup default value
+    private List<EntityType> explosiveEntities = new ArrayList<>(Arrays.asList(EntityType.PRIMED_TNT,EntityType.MINECART_TNT,EntityType.CREEPER,EntityType.FIREBALL,EntityType.SMALL_FIREBALL));//backup default value
     private Map<Player,Block> lastBlock = new HashMap<>();
     private List<Entity> enemyEntityList = new ArrayList<>();
-    private List<EntityType> explosiveEntities = new ArrayList<>(Arrays.asList(EntityType.PRIMED_TNT,EntityType.MINECART_TNT,EntityType.CREEPER,EntityType.FIREBALL,EntityType.SMALL_FIREBALL));
     BeaconEvent(BeaconProtect plugin){
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
         reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay")*1000;
+        List<EntityType> entityTypes = new ArrayList<>();
+        for(String string:this.plugin.getConfig().getStringList("explosive_entity_protect")){
+            string = string.replaceAll("\\s","");
+            try {
+                EntityType entityType = EntityType.valueOf(string);
+                entityTypes.add(entityType);
+            }catch(IllegalArgumentException e){
+                plugin.logger.warning("Could not convert "+string+" to a Bukkit entity type");
+            }
+        }
+        if(entityTypes.size()>0) {
+            explosiveEntities = entityTypes;
+        }
     }
     //deals with block placing
     @EventHandler
@@ -186,7 +199,7 @@ public class BeaconEvent implements Listener{
                 }
             }else{
                 if(plugin.interactProtectBlacklist){
-                    if(click||block!=lastBlock.get(player)) {//todo this is still janky
+                    if(click||block!=lastBlock.get(player)) {
                         player.sendMessage("You cannot interact here! This block is protected by a beacon.");
                         infoClick(block, player);
                     }
