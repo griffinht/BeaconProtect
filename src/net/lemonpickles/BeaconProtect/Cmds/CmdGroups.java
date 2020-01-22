@@ -37,13 +37,23 @@ public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
             }else if(args.length==2){
                 if(args[0].equalsIgnoreCase("top")) {
                     if(args[1].equalsIgnoreCase("members")) {
-                        sender.sendMessage("Groups by Members:");
+                        sender.sendMessage("Groups by members:");
                         List<Group> groups = new ArrayList<>(plugin.groups.values());
                         groups.sort(Comparator.comparing(Group::getMembersSize));
                         Collections.reverse(groups);
                         for (Group group : groups) {
                             sender.sendMessage(group.getName() + ": " + group.getMembersSize());
                         }
+                    }else if(args[1].equalsIgnoreCase("date")){
+                        sender.sendMessage("Groups by creation date:");
+                        List<Group> groups = new ArrayList<>(plugin.groups.values());
+                        groups.sort(Comparator.comparing(Group::getCreationDate));
+                        Collections.reverse(groups);
+                        List<String> msg = new ArrayList<>();
+                        for (Group group : groups) {
+                            msg.add(group.getName() + ": " + group.getMembersSize());
+                        }
+                        sender.sendMessage((String[]) msg.toArray());
                     }else{sender.sendMessage("Can't sort groups by "+args[1]+". Valid methods are by members");}
                     return true;
                 }

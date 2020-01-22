@@ -57,6 +57,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     if (groupEntry != null) {
                         Group group = groupEntry.getValue();
                         sender.sendMessage(group.getName());
+                        sender.sendMessage("Creation Date: "+new Date(group.getCreationDate()));
                         sender.sendMessage("Description: " + group.getDescription());
                         sender.sendMessage("Owner: " + group.getOwner().getName());
                         sender.sendMessage("Beacons: " + group.getBeaconsAsString());
@@ -253,7 +254,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     for (Group group : plugin.groups.values()) {
                         if (group.getName().equalsIgnoreCase(args[0])) {
                             sender.sendMessage("Group:");
-                            sender.sendMessage("Name: " + group.getName() + ", Description: " + group.getDescription() + ", Owner: " + group.getOwner().getName() + ", Beacons: " + group.getBeaconsAsString() + ", Members: " + group.getMembersAsString());
+                            sender.sendMessage("Name: " + group.getName() + ", Creation Date: "+new Date(group.getCreationDate())+", Description: " + group.getDescription() + ", Owner: " + group.getOwner().getName() + ", Beacons: " + group.getBeaconsAsString() + ", Members: " + group.getMembersAsString());
                         }
                     }
                 }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}

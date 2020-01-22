@@ -11,10 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Group {
     private String name;
@@ -23,11 +20,12 @@ public class Group {
     private List<Location> beacons;
     private List<Location> vaults;
     private Map<OfflinePlayer,PlayerRole> members = new HashMap<>();
+    private long creationDate;
     private List<Player> invites = new ArrayList<>();
     private int materialRemoveAmt = 0;
     private Map<Material,Map<Material,Integer>> customReinforce;
     private Map<Material,Float> leftover = new HashMap<>();
-    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults, Map<Material,Map<Material,Integer>> customReinforce){
+    public Group(String name, String description, OfflinePlayer owner, Map<OfflinePlayer,PlayerRole> members, List<Location> beacons, List<Location> vaults, Map<Material,Map<Material,Integer>> customReinforce, long creationDate){
         this.name = name;
         this.description = description;
         this.owner = owner;
@@ -35,11 +33,13 @@ public class Group {
         this.beacons = beacons;
         this.vaults = vaults;
         this.customReinforce = customReinforce;
+        this.creationDate = creationDate;
     }
     public Group(String name, Player owner, Map<Material,Map<Material,Integer>> customReinforce){
         this.name = name;
         this.owner = owner;
         this.description = "";
+        this.creationDate = System.currentTimeMillis();
         this.members.put(owner, PlayerRole.OWNER);
         this.vaults = new ArrayList<>();
         this.beacons = new ArrayList<>();
@@ -55,18 +55,11 @@ public class Group {
     public Map<OfflinePlayer,PlayerRole> getMembers(){
         return members;
     }
-    public String getName(){
-        return name;
-    }
-    public void setName(String name){
-        this.name = name;
-    }
-    public String getDescription(){
-        return description;
-    }
-    public void setDescription(String description){
-        this.description = description;
-    }
+    public long getCreationDate(){return creationDate;}
+    public String getName(){return name;}
+    public void setName(String name){this.name = name;}
+    public String getDescription(){return description;}
+    public void setDescription(String description){this.description = description;}
 
     //member stuff
     void addMember(OfflinePlayer player, PlayerRole role){

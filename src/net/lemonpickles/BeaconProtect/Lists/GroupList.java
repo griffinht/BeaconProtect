@@ -35,6 +35,7 @@ public class GroupList extends FileMgmt {
                 config.set(path + ".owner", value.getOwner().getUniqueId().toString());
             }
             config.set(path+".description", value.getDescription());
+            config.set(path+".creationDate", value.getCreationDate());
             if(value.getMembers()!=null) {
                 for (Map.Entry<OfflinePlayer, PlayerRole> membersEntry : value.getMembers().entrySet()) {
                     config.set(path + ".members." + membersEntry.getKey().getUniqueId().toString(), membersEntry.getValue().toString());
@@ -81,7 +82,8 @@ public class GroupList extends FileMgmt {
                             }
                         }
                         String description = memorySection2.getString("description");
-
+                        long date = memorySection2.getLong("date");
+                        if(date==0)date = System.currentTimeMillis();
                         Map<OfflinePlayer, PlayerRole> members = new HashMap<>();
                         ConfigurationSection a = memorySection2.getConfigurationSection("members");
                         if (a != null) {
@@ -131,7 +133,7 @@ public class GroupList extends FileMgmt {
                             }
                             vaults.add(new Location(getServer().getWorld("world"), loc[0], loc[1], loc[2]));
                         }
-                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults,plugin.customReinforce));
+                        plugin.groups.put(UUID.fromString(entry2.getKey()), new Group(name, description, owner, members, beacons, vaults,plugin.customReinforce,date));
                     }
                 }
             }
