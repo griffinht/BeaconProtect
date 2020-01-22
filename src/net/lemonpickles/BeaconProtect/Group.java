@@ -131,7 +131,7 @@ public class Group {
         for(Location location:vaults){
             Block block = location.getBlock();
             boolean inRange = false;
-            for (Location loc:CustomBeacons.checkForBlocks(block, CustomBeacons.blockLocationsToMap(beacons))) {
+            for (Location loc:CustomBeacons.checkForBlocks(block.getLocation(), CustomBeacons.blockLocationsToMap(beacons))) {
                 int tier = ((Beacon)loc.getBlock().getState()).getTier();
                 if(location.toVector().isInAABB(new Vector(loc.getX()-tier,loc.getY()-tier,loc.getZ()-tier),new Vector(loc.getX()+tier,loc.getY(),loc.getZ()+tier))) {
                     inRange = true;
@@ -171,7 +171,7 @@ public class Group {
         materialRemoveAmt = materialRemoveAmtA;
         if(amount!=0) {
             for (Location location : vaults) {
-                if (CustomBeacons.checkForBlocks(location.getBlock(), CustomBeacons.blockLocationsToMap(beacons)).size() > 0) {
+                if (CustomBeacons.checkForBlocks(location, CustomBeacons.blockLocationsToMap(beacons)).size() > 0) {
                     Inventory inventory = ((Chest) location.getBlock().getState()).getInventory();
                     for (ItemStack is : inventory) {
                         if (is != null) {

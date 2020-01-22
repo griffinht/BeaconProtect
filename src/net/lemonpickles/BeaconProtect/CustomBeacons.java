@@ -44,7 +44,7 @@ public class CustomBeacons {
             task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 0, 80);
         }
     }
-    private static boolean checkFriendly(Player player, Block block, Group group){
+    private static boolean checkFriendly(Player player, Location block, Group group){
         if(player==null)return false;
         if(!group.checkMember(player)) {
             List<Location> beacons = checkForBlocks(block, blockLocationsToMap(group.getBeacons()));
@@ -56,7 +56,7 @@ public class CustomBeacons {
         }
         return true;
     }
-    static boolean checkFriendly(Player player, Block block, Map<UUID, Group> groups){//true if player is friendly with beacon
+    static boolean checkFriendly(Player player, Location block, Map<UUID, Group> groups){//true if player is friendly with beacon
         for(Map.Entry<UUID, Group> entry:groups.entrySet()){
             if(!checkFriendly(player, block, entry.getValue())){return false;}
         }
@@ -69,7 +69,7 @@ public class CustomBeacons {
         }
         return returnVal;
     }
-    static int getMaxDurability(Block block, Map<Location, Block> beacons){
+    static int getMaxDurability(Location block, Map<Location, Block> beacons){
         int maxTier = 0;
         List<Location> locations = checkForBlocks(block, beacons);
         for(Location location:locations){
@@ -99,7 +99,7 @@ public class CustomBeacons {
         return 0;
     }
     static private int getMaxPenalty(Player player, Block block, Group group){//friendly players have no penalty
-        if(checkFriendly(player, block, group)){
+        if(checkFriendly(player, block.getLocation(), group)){
             return 0;//friendly players bypass beacon
         }else{
             return getMaxHit(block, group);
@@ -108,26 +108,53 @@ public class CustomBeacons {
     private static int getMaxHit(Block block, Group group){
         return group.getMaterialInVaults(block.getType());
     }
-
+    public static Group getOwner(Location location,Map<UUID,Group> groups){
+        for(Group group:groups.values()){
+            for(Location beacon:group.getBeacons()){
+                if(checkInRange(location,beacon,4))return group;
+            }
+        }
+        return null;
+    }
     static boolean checkAllRanges(Location location, Map<Location,Block> beacons){
         for(Map.Entry<Location,Block> entry:beacons.entrySet()){
-            if(checkInRange(location,entry.getKey(),((Beacon)entry.getValue().getState()).getTier()))return true;
+            if(checkInRange(location,entry.getKey(),3))return true;
         }
         return false;
     }
-    static boolean checkInRange(Location location, Location beacon, int tier){
+    public static boolean checkInRange(Location location, Location beacon, int tier){
         if(tier!=0){
             tier = defaultBeaconRange[tier-1];
-            return(location.toVector().isInAABB(new Vector(beacon.getBlockX()-tier, 0, beacon.getBlockZ()-tier), new Vector(beacon.getBlockX()+tier, 256, beacon.getBlockZ()+tier)));
+            return(location.toVector().isInAABB(new Vector(beacon.getX()-tier, 0, beacon.getZ()-tier), new Vector(beacon.getX()+tier, 256, beacon.getZ()+tier)));
         }
         return false;
     }
-    public static List<Location> checkForBlocks(Block blk, Map<Location, Block> beacons){//returns beacons that touch the block
+    public static Location checkOverlap(Location location, Map<UUID,Group> groups){
+        Location block = null;
+        double lastDist = -1;
+        for(Group group:groups.values()){
+            for(Location beacon:group.getBeacons()) {
+                int tier = (defaultBeaconRange[3] * 2) + 1;
+                if (location.toVector().isInAABB(new Vector(beacon.getX() - tier, 0, beacon.getZ() - tier), new Vector(beacon.getX() + tier, 256, beacon.getZ() + tier))) {
+                    double dist = location.toVector().distance(beacon.toVector());
+                    if (lastDist == -1) {
+                        block = beacon;
+                        lastDist = dist;
+                    } else if (lastDist > dist) {
+                        block = beacon;
+                        lastDist = dist;
+                    }
+                }
+            }
+        }
+        return block;
+    }
+    public static List<Location> checkForBlocks(Location blk, Map<Location, Block> beacons){//returns beacons that touch the block
         List<Location> blocks = new ArrayList<>();
         for(Map.Entry<Location, Block> entry:beacons.entrySet()){
             Block block = entry.getValue();
             Beacon beacon = (Beacon) block.getState();
-            if(checkInRange(blk.getLocation(), block.getLocation(), beacon.getTier())){
+            if(checkInRange(blk, block.getLocation(), beacon.getTier())){
                 blocks.add(block.getLocation());
             }
         }

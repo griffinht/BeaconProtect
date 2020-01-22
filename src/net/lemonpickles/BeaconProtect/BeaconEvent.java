@@ -57,17 +57,32 @@ public class BeaconEvent implements Listener{
             Block block = event.getBlock();
             Player player = event.getPlayer();
             block = checkDoubleBlock(block);
-            if (CustomBeacons.checkFriendly(player, block, plugin.groups)) {
+            if (CustomBeacons.checkFriendly(player, block.getLocation(), plugin.groups)) {
                 if (block.getType() == Material.BEACON) {
                     Location location = block.getLocation();
                     if (!plugin.beacons.containsKey(location)) {
                         plugin.beacons.put(location, block);
                         String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been registered";
                         String msg2 = "";
-                        for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//add beacon if player is in a group
-                            if (entry.getValue().checkMember(player)) {
-                                entry.getValue().addBeacon(location);
-                                msg2 = " to group " + entry.getValue().getName();
+                        Location claimed = CustomBeacons.checkOverlap(location,plugin.groups);
+                        if(claimed==null) {
+                            for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//add beacon if player is in a group
+                                if (entry.getValue().checkMember(player)) {
+                                    entry.getValue().addBeacon(location);
+                                    msg2 = " to group " + entry.getValue().getName();
+                                }
+                            }
+                        }else{
+                            System.out.println(claimed+", "+ CustomBeacons.getOwner(claimed,plugin.groups));
+                            Group group1 = CustomBeacons.getOwner(claimed,plugin.groups);
+                            if(group1!=null&&group1.checkMember(player)){
+                                for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//add beacon if player is in a group
+                                    if (entry.getValue().checkMember(player)) {
+                                        entry.getValue().addBeacon(location);
+                                        msg2 = " to group " + entry.getValue().getName();
+                                    }
+                                }
+
                             }
                         }
                         msg = msg + msg2;
@@ -173,7 +188,7 @@ public class BeaconEvent implements Listener{
         }
     }
     private boolean checkInteractProtect(Block block, Player player, boolean click) {
-        if (block != null&&!CustomBeacons.checkFriendly(player, block, plugin.groups)) {
+        if (block != null&&!CustomBeacons.checkFriendly(player, block.getLocation(), plugin.groups)) {
             if (plugin.interactProtection.containsKey(block.getType())) {
                 if (plugin.interactProtection.get(block.getType())) {
                     if (!plugin.durabilities.containsKey(block.getLocation())) {

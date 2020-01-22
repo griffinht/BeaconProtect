@@ -12,12 +12,9 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-import static org.bukkit.Bukkit.getServer;
+import static org.bukkit.Bukkit.*;
 import static org.bukkit.Material.BEACON;
 
 public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
@@ -93,8 +90,21 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                         }
                                     }
                                     if (claimedGroup==null) {
-                                        group.addBeacon(location);
-                                        sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has been claimed to group " + group.getName());
+                                        Location claimed = CustomBeacons.checkOverlap(location,plugin.groups);
+                                        if(claimed==null) {
+                                            group.addBeacon(location);
+                                            sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has been claimed to group " + group.getName());
+                                        }else{
+                                            System.out.println(claimed+", "+ CustomBeacons.getOwner(claimed,plugin.groups));
+                                            Group group1 = CustomBeacons.getOwner(claimed,plugin.groups);
+                                            if(group1!=null&&group1.checkMember(player)){
+                                                group.addBeacon(location);
+                                                sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has been claimed to group " + group.getName());
+
+                                            }else{
+                                                sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " is too close to another claimed beacon");
+                                            }
+                                        }
                                     } else {
                                         sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has already been claimed to group " + claimedGroup.getName());
                                     }
@@ -124,7 +134,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 Block block = player.getTargetBlock(null, 5);
                                 Location location = block.getLocation();
                                 boolean inRange = false;
-                                for (Location beacon:CustomBeacons.checkForBlocks(block, plugin.beacons)) {
+                                for (Location beacon:CustomBeacons.checkForBlocks(block.getLocation(), plugin.beacons)) {
                                     int tier = ((Beacon)beacon.getBlock().getState()).getTier();
                                     if(location.toVector().isInAABB(new Vector(beacon.getX()-tier,beacon.getY()-tier,beacon.getZ()-tier),new Vector(beacon.getX()+tier,beacon.getY(),beacon.getZ()+tier))) {
                                         inRange = true;
