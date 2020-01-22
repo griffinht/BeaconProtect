@@ -56,9 +56,6 @@ public class Group {
     public void setDescription(String description){this.description = description;}
 
     //member stuff
-    void addMember(OfflinePlayer player, PlayerRole role){
-        members.put(player, role);
-    }
     public void addMember(OfflinePlayer player){members.put(player, PlayerRole.DEFAULT);}
     public void removeMember(Player player){members.remove(player);}
     public boolean checkMember(Player player){return members.containsKey(player);}

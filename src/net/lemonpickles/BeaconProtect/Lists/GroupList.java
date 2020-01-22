@@ -82,7 +82,7 @@ public class GroupList extends FileMgmt {
                             }
                         }
                         String description = memorySection2.getString("description");
-                        long date = memorySection2.getLong("date");
+                        long date = memorySection2.getLong("creationDate");
                         if(date==0)plugin.logger.warning("Group "+name+" has a date of "+new Date(date));
                         Map<OfflinePlayer, PlayerRole> members = new HashMap<>();
                         ConfigurationSection a = memorySection2.getConfigurationSection("members");

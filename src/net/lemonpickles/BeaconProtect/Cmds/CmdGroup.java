@@ -453,7 +453,8 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                     StringBuilder builder = new StringBuilder();
                                     for(int i = 0; i<args.length; i++){
                                         if(i>1){
-                                            builder.append(" ").append(args[i]);
+                                            if(i!=2)builder.append(" ");
+                                            builder.append(args[i]);
                                         }
                                     }
                                     plugin.groups.get(key).setDescription(builder.toString());
