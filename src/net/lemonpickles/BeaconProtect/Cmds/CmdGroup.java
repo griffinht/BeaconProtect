@@ -294,16 +294,16 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     if (group != null) {
                         if(sender.hasPermission("beaconprotect.group.kick")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
                             //deja vu i have seen this code before
-                                try {
-                                    Player a = Bukkit.getPlayer(args[1]);
-                                    if (!group.checkMember(player) && a != null) {
-                                        group.removeMember(a);
-                                        sender.sendMessage("Kicked " + a.getDisplayName() + " from " + group.getName());
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    sender.sendMessage("Could not find player " + args[1]);
+                            try {
+                                Player a = Bukkit.getPlayer(args[1]);
+                                if (!group.checkMember(player) && a != null) {
+                                    group.removeMember(a);
+                                    sender.sendMessage("Kicked " + a.getDisplayName() + " from " + group.getName());
                                 }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                sender.sendMessage("Could not find player " + args[1]);
+                            }
                         }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
                     } else {
                         sender.sendMessage("You must be in a group to use that command");
@@ -349,7 +349,9 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     if (group != null) {
                         if (sender.hasPermission("beaconprotect.group.promote") && group.checkPlayerPermission(player, PlayerRole.ASSISTANT)) {
                             Player p = Bukkit.getPlayer(args[1]);
-                            if (p != null && group.checkMember(p)) {
+                            if(group.checkOwner(p)){
+                                sender.sendMessage("You cannot promote the owner");
+                            }else if (p!=null&&group.checkMember(p)) {
                                 PlayerRole role = group.getRole(p);
                                 if (role == PlayerRole.ASSISTANT) {
                                     sender.sendMessage(p.getDisplayName()+" is already Assistant rank. Use /group set owner <player> to set this player as the owner");
@@ -385,7 +387,9 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     if(group!=null) {
                         if (sender.hasPermission("beaconprotect.group.demote") && group.checkPlayerPermission(player, PlayerRole.ASSISTANT)) {
                             Player p = Bukkit.getPlayer(args[1]);
-                            if(p!=null&&group.checkMember(p)){
+                            if(group.checkOwner(p)){
+                                sender.sendMessage("You cannot demote the owner. Use /group set owner <player> to change group owners");
+                            }else if(p!=null&&group.checkMember(p)){
                                 PlayerRole role = group.getRole(p);
                                 if(role==PlayerRole.ASSISTANT){
                                     group.setRole(p, PlayerRole.TRUSTED);
@@ -400,7 +404,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                     sender.sendMessage("Demoted "+p.getDisplayName()+" to Default");
                                     p.sendMessage("You have been promoted to Trusted");
                                 }else if(role==PlayerRole.DEFAULT) {
-                                    sender.sendMessage(p.getDisplayName() + " is already Default rank. Use /group kick <player> to kick this player as the owner");
+                                    sender.sendMessage(p.getDisplayName() + " is already Default rank. Use /group kick <player> to kick this player");
                                 }else if(role==PlayerRole.OWNER){
                                     sender.sendMessage("You cannot demote the owner. Use /group set owner <player> to change group owners");
                                 }else{sender.sendMessage("Error: Couldn't find role or something");}
@@ -448,7 +452,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 if(sender.hasPermission("beaconprotect.group.set.description")) {
                                     StringBuilder builder = new StringBuilder();
                                     for(int i = 0; i<args.length; i++){
-                                        if(i>2){
+                                        if(i>1){
                                             builder.append(" ").append(args[i]);
                                         }
                                     }

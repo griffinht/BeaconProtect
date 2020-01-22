@@ -46,15 +46,9 @@ public class Group {
         this.customReinforce = customReinforce;
     }
     public int getMembersSize(){return members.size();}
-    public OfflinePlayer getOwner(){
-        return owner;
-    }
-    public void setOwner(OfflinePlayer owner){
-        this.owner = owner;
-    }
-    public Map<OfflinePlayer,PlayerRole> getMembers(){
-        return members;
-    }
+    public OfflinePlayer getOwner(){return owner;}
+    public void setOwner(OfflinePlayer owner){this.owner = owner;}
+    public Map<OfflinePlayer,PlayerRole> getMembers(){return members;}
     public long getCreationDate(){return creationDate;}
     public String getName(){return name;}
     public void setName(String name){this.name = name;}
@@ -68,6 +62,7 @@ public class Group {
     public void addMember(OfflinePlayer player){members.put(player, PlayerRole.DEFAULT);}
     public void removeMember(Player player){members.remove(player);}
     public boolean checkMember(Player player){return members.containsKey(player);}
+    public boolean checkOwner(Player player){return owner.equals(player);}
     public String getMembersAsString(){
         String thingy = "";
         String a = getMembersByRoleAsString(PlayerRole.DEFAULT);
@@ -131,7 +126,7 @@ public class Group {
                     break;
                 }
             }
-            if(!inRange){return 0;}//dont remove, just return 0
+            if(!inRange){return 0;}//don't remove, just return 0
             if(block.getType()==Material.CHEST){
                 Inventory inventory = ((Chest) block.getState()).getInventory();
                 for (ItemStack is : inventory) {
