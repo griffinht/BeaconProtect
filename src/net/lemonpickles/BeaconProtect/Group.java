@@ -53,6 +53,7 @@ public class Group {
     public String getName(){return name;}
     public void setName(String name){this.name = name;}
     public String getDescription(){return description;}
+    public int getBeaconsAmount(){return beacons.size();}
     public void setDescription(String description){this.description = description;}
 
     //member stuff

@@ -31,7 +31,15 @@ public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
                 return true;
             }else if(args.length==1){
                 if (args[0].equalsIgnoreCase("top")) {
-                    sender.sendMessage("Please specify how to sort groups");
+                    sender.sendMessage("Groups by alphabetical order");
+                    List<Group> groups = new ArrayList<>(plugin.groups.values());
+                    groups.sort(Comparator.comparing(Group::getName));
+                    Collections.reverse(groups);
+                    List<String> msg = new ArrayList<>();
+                    for (Group group : groups) {
+                        msg.add(group.getName());
+                    }
+                    sender.sendMessage(msg.toArray(new String[0]));
                     return true;
                 }
             }else if(args.length==2){
@@ -41,20 +49,32 @@ public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
                         List<Group> groups = new ArrayList<>(plugin.groups.values());
                         groups.sort(Comparator.comparing(Group::getMembersSize));
                         Collections.reverse(groups);
+                        List<String> msg = new ArrayList<>();
                         for (Group group : groups) {
-                            sender.sendMessage(group.getName() + ": " + group.getMembersSize());
+                            msg.add(group.getName() + ": " + group.getMembersSize());
                         }
-                    }else if(args[1].equalsIgnoreCase("date")){
+                        sender.sendMessage(msg.toArray(new String[0]));
+                    }else if(args[1].equalsIgnoreCase("date")) {
                         sender.sendMessage("Groups by creation date:");
                         List<Group> groups = new ArrayList<>(plugin.groups.values());
                         groups.sort(Comparator.comparing(Group::getCreationDate));
                         Collections.reverse(groups);
                         List<String> msg = new ArrayList<>();
                         for (Group group : groups) {
-                            msg.add(group.getName() + ": " + group.getMembersSize());
+                            msg.add(group.getName() + ": " + new Date(group.getCreationDate()));
                         }
-                        sender.sendMessage((String[]) msg.toArray());
-                    }else{sender.sendMessage("Can't sort groups by "+args[1]+". Valid methods are by members");}
+                        sender.sendMessage(msg.toArray(new String[0]));
+                    }else if(args[1].equalsIgnoreCase("beacons")){
+                        sender.sendMessage("Groups by amount of beacons");
+                        List<Group> groups = new ArrayList<>(plugin.groups.values());
+                        groups.sort(Comparator.comparing(Group::getBeaconsAmount));
+                        Collections.reverse(groups);
+                        List<String> msg = new ArrayList<>();
+                        for (Group group : groups) {
+                            msg.add(group.getName() + ": " + group.getBeaconsAmount());
+                        }
+                        sender.sendMessage(msg.toArray(new String[0]));
+                    }else{sender.sendMessage("Can't sort groups by "+args[1]+". Valid methods are by members, date, or by amount of beacons");}
                     return true;
                 }
             }
@@ -73,6 +93,8 @@ public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
             }else if(args.length==2){
                 if(args[0].equalsIgnoreCase("top")){
                     if(checkCompletions("members",args[1])){completions.add("members");}
+                    if(checkCompletions("date",args[1])){completions.add("date");}
+                    if(checkCompletions("beacons",args[1])){completions.add("beacons");}
                 }
             }
             return completions;
