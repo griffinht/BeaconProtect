@@ -70,6 +70,7 @@ public class BeaconEvent implements Listener{
                                 if (entry.getValue().checkMember(player)) {
                                     entry.getValue().addBeacon(location);
                                     msg2 = " to group " + entry.getValue().getName();
+                                    break;
                                 }
                             }
                         }else{
@@ -80,6 +81,7 @@ public class BeaconEvent implements Listener{
                                     if (entry.getValue().checkMember(player)) {
                                         entry.getValue().addBeacon(location);
                                         msg2 = " to group " + entry.getValue().getName();
+                                        break;
                                     }
                                 }
 
