@@ -5,10 +5,7 @@ import net.lemonpickles.BeaconProtect.*;
 import org.bukkit.*;
 import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -20,6 +17,11 @@ import static org.bukkit.Material.BEACON;
 public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
     public CmdGroup(BeaconProtect plugin){
         super(plugin);
+        PluginCommand pluginCommand = plugin.getCommand("group");
+        if(pluginCommand!=null){
+            pluginCommand.setExecutor(this);
+            pluginCommand.setTabCompleter(this);
+        }
         List<String> list = new ArrayList<>();
         list.add("/group - commands related to managing your group");
         list.add("/group claimbeacon - claim a new protection beacon");

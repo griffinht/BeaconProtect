@@ -233,24 +233,9 @@ public class BeaconProtect extends JavaPlugin {
         //block events
         new BeaconEvent(this);
         //commands
-        PluginCommand pluginCommand1 = getCommand("beaconprotect");
-        if(pluginCommand1!=null){
-            CmdBeaconprotect cmdBeaconprotect = new CmdBeaconprotect(this);
-            pluginCommand1.setExecutor(cmdBeaconprotect);
-            pluginCommand1.setTabCompleter(cmdBeaconprotect);
-        }
-        PluginCommand pluginCommand2 = getCommand("group");
-        if(pluginCommand2!=null){
-            CmdGroup cmdGroup = new CmdGroup(this);
-            pluginCommand2.setExecutor(cmdGroup);
-            pluginCommand2.setTabCompleter(cmdGroup);
-        }
-        PluginCommand pluginCommand3 = getCommand("groups");
-        if(pluginCommand3!=null){
-            CmdGroups cmdGroups = new CmdGroups(this);
-            pluginCommand3.setExecutor(cmdGroups);
-            pluginCommand3.setTabCompleter(cmdGroups);
-        }
+        new CmdBeaconprotect(this);
+        new CmdGroup(this);
+        new CmdGroups(this);
         //done
         logger.info("BeaconProtect has been enabled ("+(System.currentTimeMillis()-start)+"ms)");
     }

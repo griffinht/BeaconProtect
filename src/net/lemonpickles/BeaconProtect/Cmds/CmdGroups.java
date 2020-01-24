@@ -4,10 +4,7 @@ import com.sun.istack.internal.NotNull;
 import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.BeaconProtect.Group;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 
 import java.util.*;
 import java.util.List;
@@ -15,6 +12,11 @@ import java.util.List;
 public class CmdGroups extends Cmd implements CommandExecutor, TabCompleter {
     public CmdGroups(BeaconProtect plugin){
         super(plugin);
+        PluginCommand pluginCommand = plugin.getCommand("groups");
+        if(pluginCommand!=null){
+            pluginCommand.setExecutor(this);
+            pluginCommand.setTabCompleter(this);
+        }
         List<String> list = new ArrayList<>();
         list.add("/groups - list all groups");
         list.add("/groups top <method> - list all groups sorted by a certain method");

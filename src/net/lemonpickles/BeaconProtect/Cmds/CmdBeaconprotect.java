@@ -4,10 +4,7 @@ import com.sun.istack.internal.NotNull;
 import net.lemonpickles.BeaconProtect.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -19,6 +16,11 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
     public CmdBeaconprotect(BeaconProtect plugin){
         super(plugin);
         this.plugin = plugin;
+        PluginCommand pluginCommand = plugin.getCommand("beaconprotect");
+        if(pluginCommand!=null){
+            pluginCommand.setExecutor(this);
+            pluginCommand.setTabCompleter(this);
+        }
         List<String> list = new ArrayList<>();
         list.add("/bp - commands related to managing BeaconProtect");
         list.add("/bp add <x,y,z> - add a new protection beacon if it does not exist");
@@ -189,7 +191,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     sender.sendMessage("There are " + plugin.durabilities.size() + " blocks with a set durability");
                 } else if (args[1].equalsIgnoreCase("clean")) {
                     int start = plugin.durabilities.size();
-                    sender.sendMessage("Checking " + start + " durabilities for unnecessary entries");
+                    sender.sendMessage("Checking " + start + ". durabilities for unnecessary entries");
                     long startTime = System.currentTimeMillis();
                     plugin.durabilityList.clean();
                     sender.sendMessage("Removed " + (start - plugin.durabilities.size()) + " of " + start + " entries (" + (System.currentTimeMillis() - startTime) + "ms)");
