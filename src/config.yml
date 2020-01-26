@@ -16,13 +16,13 @@ beacon_tiers:
     reinforce: 2
   tier2:
     range: 60
-    reinforce: 3
+    reinforce: 4
   tier3:
     range: 80
-    reinforce: 4
+    reinforce: 8
   tier4:
     range: 100
-    reinforce: 5
+    reinforce: 10
 
 # add/remove as needed
 # if there is no max durability the plugin will use the global default durability
@@ -32,26 +32,26 @@ default_durability: 1
 default_max_durability: 10
 
 block_durabilities:
-  - 'OBSIDIAN: 5'
-  - 'STONE: 2'
-  - 'STONE_BRICKS: 3'
-  - 'BEACON: 1, 1'
-  - 'ANDESITE: 5, 20'
-  - 'WOOD_LOG: 5'
+  - 'OBSIDIAN:5,25'
+  - 'STONE_BRICKS:5,25'
+  - 'BEACON:1,1'
 
 interact_protect:
   # list of blocks that will allow interaction if their durability reaches 1
   unlockable:
     - 'CHEST'
     - 'LEVER'
+    - 'STONE_BUTTON'
+    - 'STONE_PRESSURE_PLATE'
   # false: whitelist, so only blocks listed below will be protected
   # true: blacklist, so blocks listed below will not be protected
   blacklist: true
   list:
-    - 'STONE_BUTTON'
-    - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
-    - 'STONE_PRESSURE_PLATE'
-    - 'WOOD_PLANKS'
+    - 'WOOD_BUTTON'
+    - 'WOOD_PRESSURE_PLATE'
+    - 'WOOD_DOOR'
+    - 'WOOD_FENCE'
+    - 'WOOD_TRAPDOOR'
 
 # list of moving entities to watch for
 # no need to add stationary entities like end crystals
@@ -70,10 +70,17 @@ reinforce_delay: 5
 # so OAK_PLANKS:2 will reinforce twice and STICKS:-4 will use 4 sticks for 1 reinforce
 # 'MATERIAL: <MATERIAL>:<amt>, <MATERIAL>:<amt>'
 custom_reinforce:
-  - 'CHEST:CHEST:2,WOOD_PLANKS:-4,STICK:-8,WOOD_LOG:2'
-  - 'ACACIA_DOOR,BIRCH_DOOR,DARK_OAK_DOOR,JUNGLE_DOOR,OAK_DOOR,SPRUCE_DOOR:WOOD_PLANKS:2'
+  - 'CHEST:WOOD_PLANKS:-8'
+  - 'WOOD_DOOR:WOOD_PLANKS:-2'
+  - 'OBSIDIAN:5'
+  - 'STONE_BRICKS:5'
 
 # create custom groups to use - WOOD_LOG for all the log types
 alternates:
   - 'WOOD_LOG:ACACIA_LOG,BIRCH_LOG,DARK_OAK_LOG,JUNGLE_LOG,OAK_LOG,SPRUCE_LOG'
   - 'WOOD_PLANKS:ACACIA_PLANKS,BIRCH_PLANKS,DARK_OAK_PLANKS,JUNGLE_PLANKS,OAK_PLANKS,SPRUCE_PLANKS'
+  - 'WOOD_BUTTON:ACACIA_BUTTON,BIRCH_BUTTON,DARK_OAK_BUTTON,JUNGLE_BUTTON,OAK_BUTTON,SPRUCE_BUTTON'
+  - 'WOOD_PRESSURE_PLATE:ACACIA_PRESSURE_PLATE,BIRCH_PRESSURE_PLATE,DARK_OAK_PRESSURE_PLATE,JUNGLE_PRESSURE_PLATE,OAK_PRESSURE_PLATE,SPRUCE_PRESSURE_PLATE'
+  - 'WOOD_DOOR:ACACIA_DOOR,BIRCH_DOOR,DARK_OAK_DOOR,JUNGLE_DOOR,OAK_DOOR,SPRUCE_DOOR'
+  - 'WOOD_FENCE_GATE:ACACIA_FENCE_GATE,BIRCH_FENCE_GATE,DARK_OAK_FENCE_GATE,JUNGLE_FENCE_GATE,OAK_FENCE_GATE,SPRUCE_FENCE_GATE'
+  - 'WOOD_TRAPDOOR:ACACIA_TRAPDOOR,BIRCH_TRAPDOOR,DARK_OAK_TRAPDOOR,JUNGLE_TRAPDOOR,OAK_TRAPDOOR,SPRUCE_TRAPDOOR'
