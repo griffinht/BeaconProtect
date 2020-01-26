@@ -9,7 +9,7 @@ import java.io.IOException;
 
 
 public class FileManagement {
-    protected JavaPlugin plugin;
+    private JavaPlugin plugin;
     protected File file;
     protected FileConfiguration config;
 
