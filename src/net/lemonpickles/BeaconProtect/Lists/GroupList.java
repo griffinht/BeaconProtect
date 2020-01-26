@@ -3,6 +3,7 @@ package net.lemonpickles.BeaconProtect.Lists;
 import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.BeaconProtect.Group;
 import net.lemonpickles.BeaconProtect.PlayerRole;
+import net.lemonpickles.util.FileManagement;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -14,7 +15,7 @@ import java.util.*;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class GroupList extends net.lemonpickles.util.FileMgmt {
+public class GroupList extends FileManagement {
     private BeaconProtect plugin;
     public GroupList(BeaconProtect plugin) {
         super(plugin, "groups.yml");

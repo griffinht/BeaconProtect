@@ -3,6 +3,7 @@ package net.lemonpickles.BeaconProtect.Lists;
 import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.BeaconProtect.BlockDurability;
 import net.lemonpickles.BeaconProtect.DefaultBlockDurability;
+import net.lemonpickles.util.FileManagement;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class DurabilityList extends net.lemonpickles.util.FileMgmt {
+public class DurabilityList extends FileManagement {
     private BeaconProtect plugin;
     public DurabilityList(BeaconProtect plugin){
         super(plugin, "durabilities.yml");

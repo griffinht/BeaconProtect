@@ -8,12 +8,12 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class FileMgmt {
+public class FileManagement {
     protected JavaPlugin plugin;
     protected File file;
     protected FileConfiguration config;
 
-    public FileMgmt(JavaPlugin plugin, String fileName) {
+    public FileManagement(JavaPlugin plugin, String fileName) {
         this.plugin = plugin;
         if(!plugin.getDataFolder().exists())if(!plugin.getDataFolder().mkdir())plugin.getLogger().warning("Could not create plugin data folder");
         file = new File(plugin.getDataFolder(), fileName);
