@@ -1,7 +1,6 @@
 package net.lemonpickles.BeaconProtect.Lists;
 
 import net.lemonpickles.BeaconProtect.BeaconProtect;
-import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -10,9 +9,11 @@ import java.util.Map;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class BeaconList extends FileMgmt {
+public class BeaconList extends net.lemonpickles.util.FileMgmt {
+    private BeaconProtect plugin;
     public BeaconList(BeaconProtect plugin){
         super(plugin, "beacons.yml");
+        this.plugin = plugin;
         if(config.getList("beacons")==null){
             config.createSection("beacons");
         }

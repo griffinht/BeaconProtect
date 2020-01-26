@@ -3,10 +3,8 @@ package net.lemonpickles.BeaconProtect.Lists;
 import net.lemonpickles.BeaconProtect.BeaconProtect;
 import net.lemonpickles.BeaconProtect.Group;
 import net.lemonpickles.BeaconProtect.PlayerRole;
-import net.lemonpickles.util.FileMgmt;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
@@ -16,9 +14,11 @@ import java.util.*;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class GroupList extends FileMgmt {
+public class GroupList extends net.lemonpickles.util.FileMgmt {
+    private BeaconProtect plugin;
     public GroupList(BeaconProtect plugin) {
         super(plugin, "groups.yml");
+        this.plugin = plugin;
         if(config.get("groups")==null){
             config.createSection("groups");
         }

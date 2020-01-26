@@ -1,26 +1,27 @@
 package net.lemonpickles.util;
 
-import net.lemonpickles.BeaconProtect.BeaconProtect;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 
 
 public class FileMgmt {
-    protected BeaconProtect plugin;
+    protected JavaPlugin plugin;
     protected File file;
     protected FileConfiguration config;
 
-    public FileMgmt(BeaconProtect plugin, String fileName) {
+    public FileMgmt(JavaPlugin plugin, String fileName) {
         this.plugin = plugin;
+        if(!plugin.getDataFolder().exists())if(!plugin.getDataFolder().mkdir())plugin.getLogger().warning("Could not create plugin data folder");
         file = new File(plugin.getDataFolder(), fileName);
         if(!file.exists()){
             try{
-                if(file.createNewFile()){plugin.logger.info("Created "+fileName);}else{plugin.logger.info("Could not create "+fileName);}
+                if(file.createNewFile()){plugin.getLogger().info("Created "+fileName);}else{plugin.getLogger().info("Could not create "+fileName);}
             }catch(IOException e){
-                plugin.logger.warning("Could not create "+fileName);
+                plugin.getLogger().warning("Could not create "+fileName);
                 e.printStackTrace();
             }
 
@@ -31,7 +32,7 @@ public class FileMgmt {
         try {
             config.save(file);
         }catch(IOException e){
-            plugin.logger.warning("Could not save file to disk");
+            plugin.getLogger().warning("Could not save file to disk");
             e.printStackTrace();
         }
     }
