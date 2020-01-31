@@ -1,4 +1,4 @@
-package net.lemonpickles.BeaconProtect;
+package net.stzups.BeaconProtect;
 
 public class DefaultBlockDurability {
     private int defaultBlockDurability;

@@ -1,4 +1,4 @@
-package net.lemonpickles.BeaconProtect;
+package net.stzups.BeaconProtect;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

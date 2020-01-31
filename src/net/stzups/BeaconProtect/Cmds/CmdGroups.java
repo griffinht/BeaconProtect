@@ -1,8 +1,8 @@
-package net.lemonpickles.BeaconProtect.Cmds;
+package net.stzups.BeaconProtect.Cmds;
 
 import com.sun.istack.internal.NotNull;
-import net.lemonpickles.BeaconProtect.BeaconProtect;
-import net.lemonpickles.BeaconProtect.Group;
+import net.stzups.BeaconProtect.BeaconProtect;
+import net.stzups.BeaconProtect.Group;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 

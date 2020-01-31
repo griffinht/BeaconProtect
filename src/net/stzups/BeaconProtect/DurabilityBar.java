@@ -1,4 +1,4 @@
-package net.lemonpickles.BeaconProtect;
+package net.stzups.BeaconProtect;
 
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;

@@ -1,9 +1,9 @@
 name: BeaconProtect
 version: 0.1
-author: LemonPickles
+author: stzups
 api-version: 1.15
-main: net.lemonpickles.BeaconProtect.BeaconProtect
-website: lemonpickles.net
+main: net.stzups.BeaconProtect.BeaconProtect
+website: stzups.net
 commands:
   beaconprotect:
     description: Main command for BeaconProtect

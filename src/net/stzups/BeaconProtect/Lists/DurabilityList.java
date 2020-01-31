@@ -1,9 +1,9 @@
-package net.lemonpickles.BeaconProtect.Lists;
+package net.stzups.BeaconProtect.Lists;
 
-import net.lemonpickles.BeaconProtect.BeaconProtect;
-import net.lemonpickles.BeaconProtect.BlockDurability;
-import net.lemonpickles.BeaconProtect.DefaultBlockDurability;
-import net.lemonpickles.util.FileManagement;
+import net.stzups.BeaconProtect.BeaconProtect;
+import net.stzups.BeaconProtect.BlockDurability;
+import net.stzups.BeaconProtect.DefaultBlockDurability;
+import net.stzups.util.FileManagement;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 

@@ -1,9 +1,9 @@
-package net.lemonpickles.BeaconProtect.Lists;
+package net.stzups.BeaconProtect.Lists;
 
-import net.lemonpickles.BeaconProtect.BeaconProtect;
-import net.lemonpickles.BeaconProtect.Group;
-import net.lemonpickles.BeaconProtect.PlayerRole;
-import net.lemonpickles.util.FileManagement;
+import net.stzups.BeaconProtect.BeaconProtect;
+import net.stzups.BeaconProtect.Group;
+import net.stzups.BeaconProtect.PlayerRole;
+import net.stzups.util.FileManagement;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
