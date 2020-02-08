@@ -2,7 +2,7 @@ name: BeaconProtect
 version: 0.1
 author: stzups
 api-version: 1.15
-main: net.stzups.BeaconProtect.BeaconProtect
+main: net.stzups.beaconprotect.BeaconProtect
 website: stzups.net
 commands:
   beaconprotect:
