@@ -1,4 +1,4 @@
-package net.stzups.BeaconProtect;
+package net.stzups.beaconprotect;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

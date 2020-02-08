@@ -1,11 +1,11 @@
-package net.stzups.BeaconProtect;
+package net.stzups.beaconprotect;
 
-import net.stzups.BeaconProtect.Cmds.CmdBeaconprotect;
-import net.stzups.BeaconProtect.Cmds.CmdGroup;
-import net.stzups.BeaconProtect.Cmds.CmdGroups;
-import net.stzups.BeaconProtect.Lists.BeaconList;
-import net.stzups.BeaconProtect.Lists.DurabilityList;
-import net.stzups.BeaconProtect.Lists.GroupList;
+import net.stzups.beaconprotect.Cmds.CmdBeaconprotect;
+import net.stzups.beaconprotect.Cmds.CmdGroup;
+import net.stzups.beaconprotect.Cmds.CmdGroups;
+import net.stzups.beaconprotect.Lists.BeaconList;
+import net.stzups.beaconprotect.Lists.DurabilityList;
+import net.stzups.beaconprotect.Lists.GroupList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

@@ -1,8 +1,8 @@
-package net.stzups.BeaconProtect.Lists;
+package net.stzups.beaconprotect.Lists;
 
-import net.stzups.BeaconProtect.BeaconProtect;
-import net.stzups.BeaconProtect.Group;
-import net.stzups.BeaconProtect.PlayerRole;
+import net.stzups.beaconprotect.BeaconProtect;
+import net.stzups.beaconprotect.Group;
+import net.stzups.beaconprotect.PlayerRole;
 import net.stzups.util.FileManagement;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

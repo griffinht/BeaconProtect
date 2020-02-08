@@ -1,4 +1,4 @@
-package net.stzups.BeaconProtect;
+package net.stzups.beaconprotect;
 
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;

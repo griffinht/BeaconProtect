@@ -1,4 +1,4 @@
-package net.stzups.BeaconProtect;
+package net.stzups.beaconprotect;
 
 public class DefaultBlockDurability {
     private int defaultBlockDurability;

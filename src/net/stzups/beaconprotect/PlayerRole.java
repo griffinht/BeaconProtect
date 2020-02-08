@@ -1,2 +1,2 @@
-package net.stzups.BeaconProtect;
+package net.stzups.beaconprotect;
 public enum PlayerRole{DEFAULT,MEMBER,TRUSTED,ASSISTANT,OWNER}

@@ -1,7 +1,7 @@
-package net.stzups.BeaconProtect.Cmds;
+package net.stzups.beaconprotect.Cmds;
 
 import com.sun.istack.internal.NotNull;
-import net.stzups.BeaconProtect.*;
+import net.stzups.beaconprotect.*;
 import org.bukkit.*;
 import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;

@@ -1,8 +1,8 @@
-package net.stzups.BeaconProtect.Lists;
+package net.stzups.beaconprotect.Lists;
 
-import net.stzups.BeaconProtect.BeaconProtect;
-import net.stzups.BeaconProtect.BlockDurability;
-import net.stzups.BeaconProtect.DefaultBlockDurability;
+import net.stzups.beaconprotect.BeaconProtect;
+import net.stzups.beaconprotect.BlockDurability;
+import net.stzups.beaconprotect.DefaultBlockDurability;
 import net.stzups.util.FileManagement;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
