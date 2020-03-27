@@ -17,6 +17,7 @@ public class CustomBeacons {
     private BukkitTask task;
     private static final int[] defaultBeaconRange = new int[4];
     private static final int[] defaultBeaconMultiplier = new int[4];
+
     static {
         FileConfiguration config = BeaconProtect.getPlugin(BeaconProtect.class).getConfig();
         defaultBeaconRange[0] = config.getInt("beacon_tiers.tier1.range");
@@ -28,25 +29,29 @@ public class CustomBeacons {
         defaultBeaconMultiplier[2] = config.getInt("beacon_tiers.tier3.reinforce");
         defaultBeaconMultiplier[3] = config.getInt("beacon_tiers.tier4.reinforce");
     }
-    CustomBeacons(BeaconProtect plugin){
+
+    CustomBeacons(BeaconProtect plugin) {
         this.plugin = plugin;
         //refreshBeacons();
     }
+
     //clear customBeacons and add again
-    public void stopBeacons(){
-        if(task!=null){
+    public void stopBeacons() {
+        if (task != null) {
             task.cancel();
             task = null;
         }
     }
-    public void startBeacons(){
-        if(task==null) {
+
+    public void startBeacons() {
+        if (task == null) {
             task = new CustomBeaconsUpdate(plugin).runTaskTimer(plugin, 0, 80);
         }
     }
-    private static boolean checkFriendly(Player player, Location block, Group group){
-        if(player==null)return false;
-        if(!group.checkMember(player)) {
+
+    private static boolean checkFriendly(Player player, Location block, Group group) {
+        if (player == null) return false;
+        if (!group.checkMember(player)) {
             List<Location> beacons = checkForBlocks(block, blockLocationsToMap(group.getBeacons()));
             for (Location location : group.getBeacons()) {
                 if (beacons.contains(location)) {
@@ -56,84 +61,103 @@ public class CustomBeacons {
         }
         return true;
     }
-    static boolean checkFriendly(Player player, Location block, Map<UUID, Group> groups){//true if player is friendly with beacon
-        for(Map.Entry<UUID, Group> entry:groups.entrySet()){
-            if(!checkFriendly(player, block, entry.getValue())){return false;}
+
+    static boolean checkFriendly(Player player, Location block, Map<UUID, Group> groups) {//true if player is friendly with beacon
+        for (Map.Entry<UUID, Group> entry : groups.entrySet()) {
+            if (!checkFriendly(player, block, entry.getValue())) {
+                return false;
+            }
         }
         return true;
     }
-    static Map<Location, Block> blockLocationsToMap(List<Location> locations){
+
+    static Map<Location, Block> blockLocationsToMap(List<Location> locations) {
         Map<Location, Block> returnVal = new HashMap<>();
-        for(Location location:locations){
+        for (Location location : locations) {
             returnVal.put(location, location.getBlock());
         }
         return returnVal;
     }
-    static int getMaxDurability(Location block, Map<Location, Block> beacons){
+
+    static int getMaxDurability(Location block, Map<Location, Block> beacons) {
         int maxTier = 0;
         List<Location> locations = checkForBlocks(block, beacons);
-        for(Location location:locations){
-            Beacon beacon = (Beacon)location.getBlock().getState();
+        for (Location location : locations) {
+            Beacon beacon = (Beacon) location.getBlock().getState();
             int tier = beacon.getTier();
-            if(tier>maxTier){maxTier = tier;}
+            if (tier > maxTier) {
+                maxTier = tier;
+            }
         }
-        if(maxTier==0){return 0;}
+        if (maxTier == 0) {
+            return 0;
+        }
         return getMaxTier(maxTier);
     }
-    private static int getMaxTier(int tier){
-        return defaultBeaconMultiplier[tier-1];
+
+    private static int getMaxTier(int tier) {
+        return defaultBeaconMultiplier[tier - 1];
     }
-    int getMaxPenalty(Player player, Block block){
+
+    int getMaxPenalty(Player player, Block block) {
         Group group = null;
-        for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()) {
+        for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {
             for (Location location : entry.getValue().getBeacons()) {
                 BlockState a = location.getBlock().getState();
-                if(a instanceof Beacon) {//safe cast of beacon to ensure no errors if the block is not a beacon
-                    if (checkInRange(block.getLocation(), location, ((Beacon)a).getTier())) {
+                if (a instanceof Beacon) {//safe cast of beacon to ensure no errors if the block is not a beacon
+                    if (checkInRange(block.getLocation(), location, ((Beacon) a).getTier())) {
                         group = entry.getValue();
                     }
                 }
             }
         }
-        if(group!=null){return getMaxPenalty(player, block, group);}
+        if (group != null) {
+            return getMaxPenalty(player, block, group);
+        }
         return 0;
     }
-    static private int getMaxPenalty(Player player, Block block, Group group){//friendly players have no penalty
-        if(checkFriendly(player, block.getLocation(), group)){
+
+    static private int getMaxPenalty(Player player, Block block, Group group) {//friendly players have no penalty
+        if (checkFriendly(player, block.getLocation(), group)) {
             return 0;//friendly players bypass beacon
-        }else{
+        } else {
             return getMaxHit(block, group);
         }
     }
-    private static int getMaxHit(Block block, Group group){
+
+    private static int getMaxHit(Block block, Group group) {
         return group.getMaterialInVaults(block.getType());
     }
-    public static Group getOwner(Location location,Map<UUID,Group> groups){
-        for(Group group:groups.values()){
-            for(Location beacon:group.getBeacons()){
-                if(checkInRange(location,beacon,4))return group;
+
+    public static Group getOwner(Location location, Map<UUID, Group> groups) {
+        for (Group group : groups.values()) {
+            for (Location beacon : group.getBeacons()) {
+                if (checkInRange(location, beacon, 4)) return group;
             }
         }
         return null;
     }
-    static boolean checkAllRanges(Location location, Map<Location,Block> beacons){
-        for(Map.Entry<Location,Block> entry:beacons.entrySet()){
-            if(checkInRange(location,entry.getKey(),3))return true;
+
+    static boolean checkAllRanges(Location location, Map<Location, Block> beacons) {
+        for (Map.Entry<Location, Block> entry : beacons.entrySet()) {
+            if (checkInRange(location, entry.getKey(), 3)) return true;
         }
         return false;
     }
-    public static boolean checkInRange(Location location, Location beacon, int tier){
-        if(tier!=0){
-            tier = defaultBeaconRange[tier-1];
-            return(location.toVector().isInAABB(new Vector(beacon.getX()-tier, 0, beacon.getZ()-tier), new Vector(beacon.getX()+tier, 256, beacon.getZ()+tier)));
+
+    public static boolean checkInRange(Location location, Location beacon, int tier) {
+        if (tier != 0) {
+            tier = defaultBeaconRange[tier - 1];
+            return (location.toVector().isInAABB(new Vector(beacon.getX() - tier, 0, beacon.getZ() - tier), new Vector(beacon.getX() + tier, 256, beacon.getZ() + tier)));
         }
         return false;
     }
-    public static Location checkOverlap(Location location, Map<UUID,Group> groups){
+
+    public static Location checkOverlap(Location location, Map<UUID, Group> groups) {
         Location block = null;
         double lastDist = -1;
-        for(Group group:groups.values()){
-            for(Location beacon:group.getBeacons()) {
+        for (Group group : groups.values()) {
+            for (Location beacon : group.getBeacons()) {
                 int tier = (defaultBeaconRange[3] * 2) + 1;
                 if (location.toVector().isInAABB(new Vector(beacon.getX() - tier, 0, beacon.getZ() - tier), new Vector(beacon.getX() + tier, 256, beacon.getZ() + tier))) {
                     double dist = location.toVector().distance(beacon.toVector());
@@ -149,44 +173,46 @@ public class CustomBeacons {
         }
         return block;
     }
-    public static List<Location> checkForBlocks(Location blk, Map<Location, Block> beacons){//returns beacons that touch the block
+
+    public static List<Location> checkForBlocks(Location blk, Map<Location, Block> beacons) {//returns beacons that touch the block
         List<Location> blocks = new ArrayList<>();
-        for(Map.Entry<Location, Block> entry:beacons.entrySet()){
+        for (Map.Entry<Location, Block> entry : beacons.entrySet()) {
             Block block = entry.getValue();
             Beacon beacon = (Beacon) block.getState();
-            if(checkInRange(blk, block.getLocation(), beacon.getTier())){
+            if (checkInRange(blk, block.getLocation(), beacon.getTier())) {
                 blocks.add(block.getLocation());
             }
         }
         return blocks;
     }
-    private void beaconEffectPlayers(){
-        for(Player player: Bukkit.getOnlinePlayers()){
+
+    private void beaconEffectPlayers() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             Location playerLocation = player.getLocation();
-            for(Map.Entry<Location, Block> entry:plugin.beacons.entrySet()){
+            for (Map.Entry<Location, Block> entry : plugin.beacons.entrySet()) {
                 Block block = entry.getValue();
                 try {
                     Beacon beacon = ((Beacon) block.getState());
                     int beaconTier = beacon.getTier();
-                    if(beaconTier!=0){
-                        if(!beacon.getEntitiesInRange().contains(player)){
-                            if(checkInRange(playerLocation, block.getLocation(), beaconTier)){
+                    if (beaconTier != 0) {
+                        if (!beacon.getEntitiesInRange().contains(player)) {
+                            if (checkInRange(playerLocation, block.getLocation(), beaconTier)) {
                                 PotionEffect effectPrimary = beacon.getPrimaryEffect();
                                 PotionEffect effectSecondary = beacon.getSecondaryEffect();
 
-                                if(effectPrimary!=null) {
+                                if (effectPrimary != null) {
                                     player.removePotionEffect(effectPrimary.getType());
                                     player.addPotionEffect(effectPrimary);
                                 }
-                                if(effectSecondary!=null){
+                                if (effectSecondary != null) {
                                     player.removePotionEffect(effectSecondary.getType());
                                     player.addPotionEffect(effectSecondary);
                                 }
                             }
                         }
                     }
-                }catch(ClassCastException e){
-                    plugin.logger.warning("Block at "+block.getX()+", "+block.getY()+", "+block.getZ()+" is not a beacon");
+                } catch (ClassCastException e) {
+                    plugin.logger.warning("Block at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " is not a beacon");
                 }
             }
         }
@@ -194,12 +220,14 @@ public class CustomBeacons {
 
     public static class CustomBeaconsUpdate extends BukkitRunnable {
         private final BeaconProtect plugin;
-        CustomBeaconsUpdate(BeaconProtect plugin){
+
+        CustomBeaconsUpdate(BeaconProtect plugin) {
             this.plugin = plugin;
 
         }
+
         @Override
-        public void run(){
+        public void run() {
             this.plugin.CustomBeacons.beaconEffectPlayers();
         }
     }

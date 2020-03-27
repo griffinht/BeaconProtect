@@ -15,10 +15,10 @@ import static org.bukkit.Bukkit.*;
 import static org.bukkit.Material.BEACON;
 
 public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
-    public CmdGroup(BeaconProtect plugin){
+    public CmdGroup(BeaconProtect plugin) {
         super(plugin);
         PluginCommand pluginCommand = plugin.getCommand("group");
-        if(pluginCommand!=null){
+        if (pluginCommand != null) {
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(this);
         }
@@ -51,15 +51,16 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
         list.add("Owner: All group permissions");
         usages.put("roles", list);
     }
+
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if(args.length==0) {
+        if (args.length == 0) {
             if (sender instanceof Player) {
-                if(sender.hasPermission("beaconprotect.group")) {
+                if (sender.hasPermission("beaconprotect.group")) {
                     Map.Entry<UUID, Group> groupEntry = findGroup((Player) sender);
                     if (groupEntry != null) {
                         Group group = groupEntry.getValue();
                         sender.sendMessage(group.getName());
-                        sender.sendMessage("Creation Date: "+new Date(group.getCreationDate()));
+                        sender.sendMessage("Creation Date: " + new Date(group.getCreationDate()));
                         sender.sendMessage("Description: " + group.getDescription());
                         sender.sendMessage("Owner: " + group.getOwner().getName());
                         sender.sendMessage("Beacons: " + group.getBeaconsAsString());
@@ -70,41 +71,45 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                         sender.sendMessage("You must be in a group to run that command");
                         return true;
                     }
-                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                } else {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                }
                 return true;
-            }else{sender.sendMessage("You must be a player to use that command");}
-        }else if(args.length==1) {
+            } else {
+                sender.sendMessage("You must be a player to use that command");
+            }
+        } else if (args.length == 1) {
             if (sender instanceof Player) {
                 Player player = ((Player) sender).getPlayer();
                 Map.Entry<UUID, Group> groupEntry = findGroup(player);
                 if (player != null) {
-                    if(groupEntry!=null) {
+                    if (groupEntry != null) {
                         Group group = groupEntry.getValue();
                         if (args[0].equalsIgnoreCase("claimbeacon")) {
-                            if(sender.hasPermission("beaconprotect.group.claimbeacon")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
+                            if (sender.hasPermission("beaconprotect.group.claimbeacon") && group.checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
                                 Block beacon = player.getTargetBlock(null, 5);
                                 Location location = beacon.getLocation();
                                 if (beacon.getType() == BEACON) {
                                     Group claimedGroup = null;
-                                    for(Group groups:plugin.groups.values()){
-                                        if(groups.checkBeacon(location)){
+                                    for (Group groups : plugin.groups.values()) {
+                                        if (groups.checkBeacon(location)) {
                                             claimedGroup = groups;
                                             break;
                                         }
                                     }
-                                    if (claimedGroup==null) {
-                                        Location claimed = CustomBeacons.checkOverlap(location,plugin.groups);
-                                        if(claimed==null) {
+                                    if (claimedGroup == null) {
+                                        Location claimed = CustomBeacons.checkOverlap(location, plugin.groups);
+                                        if (claimed == null) {
                                             group.addBeacon(location);
                                             sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has been claimed to group " + group.getName());
-                                        }else{
-                                            System.out.println(claimed+", "+ CustomBeacons.getOwner(claimed,plugin.groups));
-                                            Group group1 = CustomBeacons.getOwner(claimed,plugin.groups);
-                                            if(group1!=null&&group1.checkMember(player)){
+                                        } else {
+                                            System.out.println(claimed + ", " + CustomBeacons.getOwner(claimed, plugin.groups));
+                                            Group group1 = CustomBeacons.getOwner(claimed, plugin.groups);
+                                            if (group1 != null && group1.checkMember(player)) {
                                                 group.addBeacon(location);
                                                 sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has been claimed to group " + group.getName());
 
-                                            }else{
+                                            } else {
                                                 sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " is too close to another claimed beacon");
                                             }
                                         }
@@ -114,10 +119,12 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
                         } else if (args[0].equalsIgnoreCase("unclaimbeacon")) {
-                            if(sender.hasPermission("beaconprotect.group.unclaimbeacon")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
+                            if (sender.hasPermission("beaconprotect.group.unclaimbeacon") && group.checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
                                 Block beacon = player.getTargetBlock(null, 5);
                                 Location location = beacon.getLocation();
                                 if (beacon.getType() == BEACON) {
@@ -130,16 +137,18 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
                         } else if (args[0].equalsIgnoreCase("addvault")) {
-                            if(sender.hasPermission("beaconprotect.group.addvault")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
+                            if (sender.hasPermission("beaconprotect.group.addvault") && group.checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
                                 Block block = player.getTargetBlock(null, 5);
                                 Location location = block.getLocation();
                                 boolean inRange = false;
-                                for (Location beacon:CustomBeacons.checkForBlocks(block.getLocation(), plugin.beacons)) {
-                                    int tier = ((Beacon)beacon.getBlock().getState()).getTier();
-                                    if(location.toVector().isInAABB(new Vector(beacon.getX()-tier,beacon.getY()-tier,beacon.getZ()-tier),new Vector(beacon.getX()+tier,beacon.getY(),beacon.getZ()+tier))) {
+                                for (Location beacon : CustomBeacons.checkForBlocks(block.getLocation(), plugin.beacons)) {
+                                    int tier = ((Beacon) beacon.getBlock().getState()).getTier();
+                                    if (location.toVector().isInAABB(new Vector(beacon.getX() - tier, beacon.getY() - tier, beacon.getZ() - tier), new Vector(beacon.getX() + tier, beacon.getY(), beacon.getZ() + tier))) {
                                         inRange = true;
                                         break;
                                     }
@@ -158,10 +167,12 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " is not a chest (found " + DisplayName.materialToDisplayName(block.getType()) + ", maybe move closer?");
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
                         } else if (args[0].equalsIgnoreCase("removevault")) {
-                            if(sender.hasPermission("beaconprotect.group.removevault")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
+                            if (sender.hasPermission("beaconprotect.group.removevault") && group.checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
                                 Block block = player.getTargetBlock(null, 5);
                                 Location location = block.getLocation();
                                 if (group.checkVault(location)) {
@@ -170,19 +181,23 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("The block you are looking at " + blockToCoordinates(block) + " has not been registered to group " + group.getName() + " yet");
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
                         } else if (args[0].equalsIgnoreCase("leave")) {
-                            if(sender.hasPermission("beaconprotect.group.leave")) {
+                            if (sender.hasPermission("beaconprotect.group.leave")) {
                                 if (!group.getOwner().getUniqueId().equals(player.getUniqueId())) {
                                     group.removeMember(player);
                                     sender.sendMessage("Left group " + group.getName());
                                 } else {
                                     sender.sendMessage("You cannot leave your group as the owner. Use /group delete to delete your group instead, or make another player the owner");
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
-                        }else if(args[0].equalsIgnoreCase("delete")) {
+                        } else if (args[0].equalsIgnoreCase("delete")) {
                             if (sender.hasPermission("beaconprotect.group.leave") && group.checkPlayerPermission((Player) sender, PlayerRole.OWNER)) {
                                 if (group.getOwner().getUniqueId().equals(player.getUniqueId())) {
                                     String name = group.getName();
@@ -201,14 +216,16 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
                                 return true;
                             }
-                        }else if(args[0].equalsIgnoreCase("promote")||args[0].equalsIgnoreCase("demote")){
-                            if(group.checkPlayerPermission(player, PlayerRole.ASSISTANT)&&(sender.hasPermission("beaconprotect.group.demote")&&args[0].equalsIgnoreCase("demote"))||(args[0].equalsIgnoreCase("promote")&&sender.hasPermission("beaconprotect.group.promte"))){
+                        } else if (args[0].equalsIgnoreCase("promote") || args[0].equalsIgnoreCase("demote")) {
+                            if (group.checkPlayerPermission(player, PlayerRole.ASSISTANT) && (sender.hasPermission("beaconprotect.group.demote") && args[0].equalsIgnoreCase("demote")) || (args[0].equalsIgnoreCase("promote") && sender.hasPermission("beaconprotect.group.promte"))) {
                                 sender.sendMessage("Please specify a player");
                                 usage(sender, "roles");
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
                         } else {
-                            if(sender.hasPermission("beaconprotect.group.others")) {
+                            if (sender.hasPermission("beaconprotect.group.others")) {
                                 for (Group g : plugin.groups.values()) {
                                     if (g.getName().equalsIgnoreCase(args[0])) {
                                         sender.sendMessage("Group:");
@@ -216,14 +233,17 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                         return true;
                                     }
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");return true;}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                                return true;
+                            }
                         }
                         sender.sendMessage("Incorrect argument");
                         usage(sender, "group");
                         return true;
-                    }else{
-                        if(args[0].equalsIgnoreCase("join")) {
-                            if(sender.hasPermission("beaconprotect.group.join")) {
+                    } else {
+                        if (args[0].equalsIgnoreCase("join")) {
+                            if (sender.hasPermission("beaconprotect.group.join")) {
                                 Group group = null;
                                 for (Group a : plugin.groups.values()) {
                                     if (a.checkInvite(player)) {
@@ -237,56 +257,67 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 } else {
                                     sender.sendMessage("You have not been invited to any groups");
                                 }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
-                        }else if(args[0].equalsIgnoreCase("create")){
-                            if(sender.hasPermission("beaconprotect.group.create")) {
+                        } else if (args[0].equalsIgnoreCase("create")) {
+                            if (sender.hasPermission("beaconprotect.group.create")) {
                                 sender.sendMessage("Usage: /group create <name>");
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                            }
                             return true;
-                        }else{
+                        } else {
                             usage(sender, "group");
                             sender.sendMessage("You must be in a group to run that command");
                             return true;
                         }
                     }
-                } else {sender.sendMessage("Error: Could not get player (this should not happen)");return true;}
-            }else{
-                if(sender.hasPermission("beaconprotect.group.others")) {
+                } else {
+                    sender.sendMessage("Error: Could not get player (this should not happen)");
+                    return true;
+                }
+            } else {
+                if (sender.hasPermission("beaconprotect.group.others")) {
                     for (Group group : plugin.groups.values()) {
                         if (group.getName().equalsIgnoreCase(args[0])) {
                             sender.sendMessage("Group:");
-                            sender.sendMessage("Name: " + group.getName() + ", Creation Date: "+new Date(group.getCreationDate())+", Description: " + group.getDescription() + ", Owner: " + group.getOwner().getName() + ", Beacons: " + group.getBeaconsAsString() + ", Members: " + group.getMembersAsString());
+                            sender.sendMessage("Name: " + group.getName() + ", Creation Date: " + new Date(group.getCreationDate()) + ", Description: " + group.getDescription() + ", Owner: " + group.getOwner().getName() + ", Beacons: " + group.getBeaconsAsString() + ", Members: " + group.getMembersAsString());
                         }
                     }
-                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                } else {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                }
                 return true;
             }
-        }else if(args.length==2){
-            if(sender instanceof Player) {
+        } else if (args.length == 2) {
+            if (sender instanceof Player) {
                 Player player = ((Player) sender);
                 if (args[0].equalsIgnoreCase("invite")) {
                     Group group = findGroup(player).getValue();
                     if (group != null) {
-                        if(sender.hasPermission("beaconprotect.group.invite")&&group.checkPlayerPermission((Player)sender, PlayerRole.TRUSTED)) {
-                                try {
-                                    Player a = Bukkit.getPlayer(args[1]);
-                                    if (a != null) {
-                                        if (!group.checkMember(a)) {
-                                            group.addInvite(a);
-                                            sender.sendMessage("Invited player to join " + group.getName());
-                                            a.sendMessage("You have been invited to " + group.getName() + ". Use /group join to accept");
-                                        } else {
-                                            sender.sendMessage("That player is already a member of " + group.getName());
-                                        }
+                        if (sender.hasPermission("beaconprotect.group.invite") && group.checkPlayerPermission((Player) sender, PlayerRole.TRUSTED)) {
+                            try {
+                                Player a = Bukkit.getPlayer(args[1]);
+                                if (a != null) {
+                                    if (!group.checkMember(a)) {
+                                        group.addInvite(a);
+                                        sender.sendMessage("Invited player to join " + group.getName());
+                                        a.sendMessage("You have been invited to " + group.getName() + ". Use /group join to accept");
                                     } else {
-                                        sender.sendMessage("Could not find player " + args[1]);
+                                        sender.sendMessage("That player is already a member of " + group.getName());
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                } else {
                                     sender.sendMessage("Could not find player " + args[1]);
                                 }
-                        }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                sender.sendMessage("Could not find player " + args[1]);
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                        }
                     } else {
                         sender.sendMessage("You must be in a group to use that command");
                     }
@@ -294,7 +325,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("kick")) {
                     Group group = findGroup(player).getValue();
                     if (group != null) {
-                        if(sender.hasPermission("beaconprotect.group.kick")&&group.checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
+                        if (sender.hasPermission("beaconprotect.group.kick") && group.checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
                             //deja vu i have seen this code before
                             try {
                                 Player a = Bukkit.getPlayer(args[1]);
@@ -306,13 +337,15 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                 e.printStackTrace();
                                 sender.sendMessage("Could not find player " + args[1]);
                             }
-                        }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                        }
                     } else {
                         sender.sendMessage("You must be in a group to use that command");
                     }
                     return true;
-                }else if(args[0].equalsIgnoreCase("join")) {
-                    if(sender.hasPermission("beaconprotect.group.join")) {
+                } else if (args[0].equalsIgnoreCase("join")) {
+                    if (sender.hasPermission("beaconprotect.group.join")) {
                         for (Group group : plugin.groups.values()) {
                             if (group.getName().equalsIgnoreCase(args[1])) {
                                 if (!group.checkMember(player)) {
@@ -332,9 +365,11 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                             }
                         }
                         sender.sendMessage("Could not find a group named " + args[1] + ". Check /groups list");
-                    }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                    }
                     return true;
-                }else if(args[0].equalsIgnoreCase("create")) {
+                } else if (args[0].equalsIgnoreCase("create")) {
                     if (sender.hasPermission("beaconprotect.group.create")) {
                         if (findGroup(player) == null) {
                             plugin.groups.put(UUID.randomUUID(), new Group(args[1], player, plugin.customReinforce));
@@ -346,17 +381,17 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                         sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
                     }
                     return true;
-                }else if(args[0].equalsIgnoreCase("promote")) {
+                } else if (args[0].equalsIgnoreCase("promote")) {
                     Group group = findGroup(player).getValue();
                     if (group != null) {
                         if (sender.hasPermission("beaconprotect.group.promote") && group.checkPlayerPermission(player, PlayerRole.ASSISTANT)) {
                             Player p = Bukkit.getPlayer(args[1]);
-                            if(group.checkOwner(p)){
+                            if (group.checkOwner(p)) {
                                 sender.sendMessage("You cannot promote the owner");
-                            }else if (p!=null&&group.checkMember(p)) {
+                            } else if (p != null && group.checkMember(p)) {
                                 PlayerRole role = group.getRole(p);
                                 if (role == PlayerRole.ASSISTANT) {
-                                    sender.sendMessage(p.getDisplayName()+" is already Assistant rank. Use /group set owner <player> to set this player as the owner");
+                                    sender.sendMessage(p.getDisplayName() + " is already Assistant rank. Use /group set owner <player> to set this player as the owner");
                                 } else if (role == PlayerRole.TRUSTED) {
                                     group.setRole(p, PlayerRole.ASSISTANT);
                                     sender.sendMessage("Promoted " + p.getDisplayName() + " to Assistant");
@@ -369,7 +404,7 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                                     group.setRole(p, PlayerRole.MEMBER);
                                     sender.sendMessage("Promoted " + p.getDisplayName() + " to Member");
                                     p.sendMessage("You have been promoted to Member");
-                                }else if(role==PlayerRole.OWNER){
+                                } else if (role == PlayerRole.OWNER) {
                                     sender.sendMessage("You cannot promote the Owner.");
                                 } else {
                                     sender.sendMessage("Error: Couldn't find role or something");
@@ -384,86 +419,101 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                         sender.sendMessage("You must be in a group to run that command");
                     }
                     return true;
-                }else if(args[0].equalsIgnoreCase("demote")){
+                } else if (args[0].equalsIgnoreCase("demote")) {
                     Group group = findGroup(player).getValue();
-                    if(group!=null) {
+                    if (group != null) {
                         if (sender.hasPermission("beaconprotect.group.demote") && group.checkPlayerPermission(player, PlayerRole.ASSISTANT)) {
                             Player p = Bukkit.getPlayer(args[1]);
-                            if(group.checkOwner(p)){
+                            if (group.checkOwner(p)) {
                                 sender.sendMessage("You cannot demote the owner. Use /group set owner <player> to change group owners");
-                            }else if(p!=null&&group.checkMember(p)){
+                            } else if (p != null && group.checkMember(p)) {
                                 PlayerRole role = group.getRole(p);
-                                if(role==PlayerRole.ASSISTANT){
+                                if (role == PlayerRole.ASSISTANT) {
                                     group.setRole(p, PlayerRole.TRUSTED);
-                                    sender.sendMessage("Demoted "+p.getDisplayName()+" to Trusted");
+                                    sender.sendMessage("Demoted " + p.getDisplayName() + " to Trusted");
                                     p.sendMessage("You have been demoted to Trusted");
-                                }else if(role==PlayerRole.TRUSTED){
+                                } else if (role == PlayerRole.TRUSTED) {
                                     group.setRole(p, PlayerRole.MEMBER);
-                                    sender.sendMessage("Demoted "+p.getDisplayName()+" to Member");
+                                    sender.sendMessage("Demoted " + p.getDisplayName() + " to Member");
                                     p.sendMessage("You have been demote to Member");
-                                }else if(role==PlayerRole.MEMBER){
+                                } else if (role == PlayerRole.MEMBER) {
                                     group.setRole(p, PlayerRole.DEFAULT);
-                                    sender.sendMessage("Demoted "+p.getDisplayName()+" to Default");
+                                    sender.sendMessage("Demoted " + p.getDisplayName() + " to Default");
                                     p.sendMessage("You have been promoted to Trusted");
-                                }else if(role==PlayerRole.DEFAULT) {
+                                } else if (role == PlayerRole.DEFAULT) {
                                     sender.sendMessage(p.getDisplayName() + " is already Default rank. Use /group kick <player> to kick this player");
-                                }else if(role==PlayerRole.OWNER){
+                                } else if (role == PlayerRole.OWNER) {
                                     sender.sendMessage("You cannot demote the owner. Use /group set owner <player> to change group owners");
-                                }else{sender.sendMessage("Error: Couldn't find role or something");}
-                            }else{sender.sendMessage("That player is not in your group");}
+                                } else {
+                                    sender.sendMessage("Error: Couldn't find role or something");
+                                }
+                            } else {
+                                sender.sendMessage("That player is not in your group");
+                            }
                         } else {
                             sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
                         }
-                    }else{sender.sendMessage("You must be in a group to run that command");}
+                    } else {
+                        sender.sendMessage("You must be in a group to run that command");
+                    }
                     return true;
-                }else{
+                } else {
                     sender.sendMessage("Unknown argument");
                     usage(sender, "group");
                 }
-            }else{sender.sendMessage("You must be a player to run this command");return true;}
+            } else {
+                sender.sendMessage("You must be a player to run this command");
+                return true;
+            }
             sender.sendMessage("Unknown argument");
-        }else{
-            if(args[0].equalsIgnoreCase("set")){
-                if(sender instanceof Player){
-                    for(Map.Entry<UUID, Group> entry:plugin.groups.entrySet()){
-                        if(entry.getValue().checkMember((Player)sender)){
+        } else {
+            if (args[0].equalsIgnoreCase("set")) {
+                if (sender instanceof Player) {
+                    for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {
+                        if (entry.getValue().checkMember((Player) sender)) {
                             UUID key = entry.getKey();
                             String name = entry.getValue().getName();
-                            if(args[1].equalsIgnoreCase("owner")){
-                                if(sender.hasPermission("beaconprotect.group.set.owner")&&entry.getValue().checkPlayerPermission((Player)sender, PlayerRole.OWNER)) {
+                            if (args[1].equalsIgnoreCase("owner")) {
+                                if (sender.hasPermission("beaconprotect.group.set.owner") && entry.getValue().checkPlayerPermission((Player) sender, PlayerRole.OWNER)) {
                                     try {
                                         Player p = getServer().getPlayer(args[2]);
                                         Group group = plugin.groups.get(key);
                                         group.setOwner(p);
                                         group.setRole(p, PlayerRole.OWNER);
-                                        group.setRole((Player)sender, PlayerRole.ASSISTANT);
+                                        group.setRole((Player) sender, PlayerRole.ASSISTANT);
                                         sender.sendMessage("Set " + args[2] + " as owner of " + name);
                                     } catch (Exception e) {
                                         sender.sendMessage("Could not find player by the name of " + args[2]);
                                     }
-                            }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                                } else {
+                                    sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                                }
                                 return true;
-                            }else if(args[1].equalsIgnoreCase("name")&&entry.getValue().checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)){
-                                if(sender.hasPermission("beaconprotect.group.set.name")) {
+                            } else if (args[1].equalsIgnoreCase("name") && entry.getValue().checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
+                                if (sender.hasPermission("beaconprotect.group.set.name")) {
                                     String oldName = plugin.groups.get(key).getName();
                                     plugin.groups.get(key).setName(args[2]);
                                     sender.sendMessage("Changed name of group from " + oldName + " to " + args[2]);
-                                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                                } else {
+                                    sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                                }
                                 return true;
-                            }else if(args[1].equalsIgnoreCase("description")&&entry.getValue().checkPlayerPermission((Player)sender, PlayerRole.ASSISTANT)) {
-                                if(sender.hasPermission("beaconprotect.group.set.description")) {
+                            } else if (args[1].equalsIgnoreCase("description") && entry.getValue().checkPlayerPermission((Player) sender, PlayerRole.ASSISTANT)) {
+                                if (sender.hasPermission("beaconprotect.group.set.description")) {
                                     StringBuilder builder = new StringBuilder();
-                                    for(int i = 0; i<args.length; i++){
-                                        if(i>1){
-                                            if(i!=2)builder.append(" ");
+                                    for (int i = 0; i < args.length; i++) {
+                                        if (i > 1) {
+                                            if (i != 2) builder.append(" ");
                                             builder.append(args[i]);
                                         }
                                     }
                                     plugin.groups.get(key).setDescription(builder.toString());
                                     sender.sendMessage("Set description of " + name);
-                                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use that command");}
+                                } else {
+                                    sender.sendMessage(ChatColor.RED + "You do not have permission to use that command");
+                                }
                                 return true;
-                            }else{
+                            } else {
                                 sender.sendMessage("Incorrect argument");
                                 usage(sender, "set");
                             }
@@ -472,56 +522,65 @@ public class CmdGroup extends Cmd implements CommandExecutor, TabCompleter {
                     sender.sendMessage("You must be in a group to use that command");
                     return true;
                 }
-            }else{sender.sendMessage("Could not find group by the name of "+args[0]);return true;}
+            } else {
+                sender.sendMessage("Could not find group by the name of " + args[0]);
+                return true;
+            }
         }
         usage(sender, "group");
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args){
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
         List<String> completions = new ArrayList<>();
-        if(args.length==1){
-            for(String string:new String[]{"claimbeacon","unclaimbeacon","addvault","invite","set","join","leave","create","delete","promote","demote"})if(sender.hasPermission("beaconprotect.group."+string)&&checkCompletions(string,args[0]))completions.add(string);
-            if(completions.size()==0){
-                if(sender.hasPermission("beaconprotect.group.other")) {
+        if (args.length == 1) {
+            for (String string : new String[]{"claimbeacon", "unclaimbeacon", "addvault", "invite", "set", "join", "leave", "create", "delete", "promote", "demote"})
+                if (sender.hasPermission("beaconprotect.group." + string) && checkCompletions(string, args[0]))
+                    completions.add(string);
+            if (completions.size() == 0) {
+                if (sender.hasPermission("beaconprotect.group.other")) {
                     for (Group group : plugin.groups.values()) {
                         if (checkCompletions(group.getName(), args[0])) {
                             completions.add(group.getName());
                         }
                     }
-                }else if(sender.hasPermission("beaconprotect.group")){
+                } else if (sender.hasPermission("beaconprotect.group")) {
                     for (Group group : plugin.groups.values()) {
-                        if (group.checkMember((Player)sender)&&checkCompletions(group.getName(), args[0])) {
+                        if (group.checkMember((Player) sender) && checkCompletions(group.getName(), args[0])) {
                             completions.add(group.getName());
                         }
                     }
                 }
             }
             return completions;
-        }else if(args.length==2){
-            if(args[0].equalsIgnoreCase("set")){
-                for(String string:new String[]{"name","description","owner"})if(sender.hasPermission("beaconprotect.group.set."+string)&&checkCompletions(string, args[1]))completions.add(string);
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("set")) {
+                for (String string : new String[]{"name", "description", "owner"})
+                    if (sender.hasPermission("beaconprotect.group.set." + string) && checkCompletions(string, args[1]))
+                        completions.add(string);
                 return completions;
-            }else if(sender.hasPermission("beaconprotect.group.invite")&&args[0].equalsIgnoreCase("invite")){
+            } else if (sender.hasPermission("beaconprotect.group.invite") && args[0].equalsIgnoreCase("invite")) {
                 return null;//online players
-            }else if(sender.hasPermission("beaconprotect.group.kick")&&args[0].equalsIgnoreCase("kick")||(sender.hasPermission("beaconprotect.group.promote")&&args[0].equalsIgnoreCase("promote")||(sender.hasPermission("beaconprotect.group.demote")&&args[0].equalsIgnoreCase("demote")))) {
+            } else if (sender.hasPermission("beaconprotect.group.kick") && args[0].equalsIgnoreCase("kick") || (sender.hasPermission("beaconprotect.group.promote") && args[0].equalsIgnoreCase("promote") || (sender.hasPermission("beaconprotect.group.demote") && args[0].equalsIgnoreCase("demote")))) {
                 return getGroupMembers(sender, args[1]);
-            }else if(sender.hasPermission("beaconprotect.group.create")&&args[0].equalsIgnoreCase("create")){
+            } else if (sender.hasPermission("beaconprotect.group.create") && args[0].equalsIgnoreCase("create")) {
                 return new ArrayList<>();
-            }else if(sender.hasPermission("beaconprotect.group.join")&&args[0].equalsIgnoreCase("join")){
-                for(Group group:plugin.groups.values()){
-                    if(checkCompletions(group.getName(),args[1])){completions.add(group.getName());}
+            } else if (sender.hasPermission("beaconprotect.group.join") && args[0].equalsIgnoreCase("join")) {
+                for (Group group : plugin.groups.values()) {
+                    if (checkCompletions(group.getName(), args[1])) {
+                        completions.add(group.getName());
+                    }
                 }
                 return completions;
             }
-        }else if(args.length>=3){
-            if(args[0].equalsIgnoreCase("set")){
-                if(sender.hasPermission("beaconprotect.group.name")&&args[1].equalsIgnoreCase("name")){
+        } else if (args.length >= 3) {
+            if (args[0].equalsIgnoreCase("set")) {
+                if (sender.hasPermission("beaconprotect.group.name") && args[1].equalsIgnoreCase("name")) {
                     return new ArrayList<>();
-                }else if(sender.hasPermission("beaconprotect.group.description")&&args[1].equalsIgnoreCase("description")){
+                } else if (sender.hasPermission("beaconprotect.group.description") && args[1].equalsIgnoreCase("description")) {
                     return new ArrayList<>();
-                }else if(sender.hasPermission("beaconprotect.group.owner")&&args[1].equalsIgnoreCase("owner")){
+                } else if (sender.hasPermission("beaconprotect.group.owner") && args[1].equalsIgnoreCase("owner")) {
                     return getGroupMembers(sender, args[2]);
                 }
             }

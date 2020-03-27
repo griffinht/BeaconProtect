@@ -20,40 +20,42 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class BeaconEvent implements Listener{
+public class BeaconEvent implements Listener {
     private BeaconProtect plugin;
     private Map<Player, Long> isReinforcing = new HashMap<>();
     private long reinforceDelay = 5;//backup default value
-    private List<EntityType> explosiveEntities = new ArrayList<>(Arrays.asList(EntityType.PRIMED_TNT,EntityType.MINECART_TNT,EntityType.CREEPER,EntityType.FIREBALL,EntityType.SMALL_FIREBALL));//backup default value
-    private Map<Player,Block> lastBlock = new HashMap<>();
+    private List<EntityType> explosiveEntities = new ArrayList<>(Arrays.asList(EntityType.PRIMED_TNT, EntityType.MINECART_TNT, EntityType.CREEPER, EntityType.FIREBALL, EntityType.SMALL_FIREBALL));//backup default value
+    private Map<Player, Block> lastBlock = new HashMap<>();
     private List<Entity> enemyEntityList = new ArrayList<>();
-    BeaconEvent(BeaconProtect plugin){
+
+    BeaconEvent(BeaconProtect plugin) {
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay")*1000;
+        reinforceDelay = this.plugin.getConfig().getLong("reinforce_delay") * 1000;
         List<EntityType> entityTypes = new ArrayList<>();
-        for(String string:this.plugin.getConfig().getStringList("explosive_entity_protect")){
-            string = string.replaceAll("\\s","");
+        for (String string : this.plugin.getConfig().getStringList("explosive_entity_protect")) {
+            string = string.replaceAll("\\s", "");
             try {
                 EntityType entityType = EntityType.valueOf(string);
                 entityTypes.add(entityType);
-            }catch(IllegalArgumentException e){
-                plugin.logger.warning("Could not convert "+string+" to a Bukkit entity type");
+            } catch (IllegalArgumentException e) {
+                plugin.logger.warning("Could not convert " + string + " to a Bukkit entity type");
             }
         }
-        if(entityTypes.size()>0) {
+        if (entityTypes.size() > 0) {
             explosiveEntities = entityTypes;
         }
     }
+
     //deals with block placing
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event){
-        if(!plugin.ready){
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (!plugin.ready) {
             event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
             event.setCancelled(true);
             return;
         }
-        if(!plugin.bypass.contains(event.getPlayer())) {
+        if (!plugin.bypass.contains(event.getPlayer())) {
             Block block = event.getBlock();
             Player player = event.getPlayer();
             block = checkDoubleBlock(block);
@@ -64,8 +66,8 @@ public class BeaconEvent implements Listener{
                         plugin.beacons.put(location, block);
                         String msg = "The beacon at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " has been registered";
                         String msg2 = "";
-                        Location claimed = CustomBeacons.checkOverlap(location,plugin.groups);
-                        if(claimed==null) {
+                        Location claimed = CustomBeacons.checkOverlap(location, plugin.groups);
+                        if (claimed == null) {
                             for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//add beacon if player is in a group
                                 if (entry.getValue().checkMember(player)) {
                                     entry.getValue().addBeacon(location);
@@ -73,10 +75,10 @@ public class BeaconEvent implements Listener{
                                     break;
                                 }
                             }
-                        }else{
-                            System.out.println(claimed+", "+ CustomBeacons.getOwner(claimed,plugin.groups));
-                            Group group1 = CustomBeacons.getOwner(claimed,plugin.groups);
-                            if(group1!=null&&group1.checkMember(player)){
+                        } else {
+                            System.out.println(claimed + ", " + CustomBeacons.getOwner(claimed, plugin.groups));
+                            Group group1 = CustomBeacons.getOwner(claimed, plugin.groups);
+                            if (group1 != null && group1.checkMember(player)) {
                                 for (Map.Entry<UUID, Group> entry : plugin.groups.entrySet()) {//add beacon if player is in a group
                                     if (entry.getValue().checkMember(player)) {
                                         entry.getValue().addBeacon(location);
@@ -88,7 +90,7 @@ public class BeaconEvent implements Listener{
                             }
                         }
                         msg = msg + msg2;
-                        if(player.hasPermission("beaconprotect.admin")){
+                        if (player.hasPermission("beaconprotect.admin")) {
                             player.sendMessage(msg);
                         }
                         plugin.logger.info(msg);
@@ -100,15 +102,16 @@ public class BeaconEvent implements Listener{
             }
         }
     }
+
     //deals with player interaction
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event){
-        if(!plugin.ready){
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!plugin.ready) {
             event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
             event.setCancelled(true);
             return;
         }
-        if(!plugin.bypass.contains(event.getPlayer())) {
+        if (!plugin.bypass.contains(event.getPlayer())) {
             Player player = event.getPlayer();
             Block block = checkDoubleBlock(event.getClickedBlock());
             ItemStack stack = player.getInventory().getItemInMainHand();
@@ -119,34 +122,36 @@ public class BeaconEvent implements Listener{
                 player.sendMessage("Left block reinforce mode.");
                 event.setCancelled(true);
             } else if (event.getHand() == EquipmentSlot.HAND && action == Action.RIGHT_CLICK_BLOCK) {
-                event.setCancelled(checkInteractProtect(block,player,true));
+                event.setCancelled(checkInteractProtect(block, player, true));
             } else if (action == Action.LEFT_CLICK_BLOCK) {
                 if (reinforce) {
-                    if (isReinforcing.containsKey(player)&&block!=null) {//in reinforce mode
+                    if (isReinforcing.containsKey(player) && block != null) {//in reinforce mode
                         reinforceAdd(player);
                         Material blockType = block.getType();
-                        Map<Material,Integer> materials = plugin.customReinforce.get(blockType);
+                        Map<Material, Integer> materials = plugin.customReinforce.get(blockType);
                         Material stackType = stack.getType();
                         boolean yes = false;
                         boolean alsoYes = false;
                         int reinforceAmt = 1;
                         int stackAmt = 1;
                         int playerStackAmt = stack.getAmount();
-                        if(materials!=null&&materials.containsKey(stackType)){
+                        if (materials != null && materials.containsKey(stackType)) {
                             int matAmt = materials.get(stackType);
-                            if(matAmt<0){//negative so needs it
-                                if(Math.abs(matAmt)<playerStackAmt){
+                            if (matAmt < 0) {//negative so needs it
+                                if (Math.abs(matAmt) < playerStackAmt) {
                                     yes = true;
                                     stackAmt = matAmt;
-                                }else{
-                                    player.sendMessage("You need "+(Math.abs(matAmt)-playerStackAmt)+" more "+DisplayName.materialToDisplayName(stackType));
+                                } else {
+                                    player.sendMessage("You need " + (Math.abs(matAmt) - playerStackAmt) + " more " + DisplayName.materialToDisplayName(stackType));
                                 }
-                            }else{
+                            } else {
                                 reinforceAmt = Math.abs(matAmt);
                                 yes = true;
                             }
-                        }else{alsoYes=true;}//could be a block not on materials list
-                        if(yes||stackType==blockType){//this is a warning in intellij but it is necessary
+                        } else {
+                            alsoYes = true;
+                        }//could be a block not on materials list
+                        if (yes || stackType == blockType) {//this is a warning in intellij but it is necessary
                             BlockDurability blockDur;
                             if (!plugin.durabilities.containsKey(block.getLocation())) {
                                 blockDur = new BlockDurability(plugin, block, player, 0);
@@ -154,24 +159,26 @@ public class BeaconEvent implements Listener{
                                 blockDur = plugin.durabilities.get(block.getLocation());
                             }
                             if (blockDur.changeDurability(plugin, player, reinforceAmt, true)) {//changedur returns true if there was change, so if locks must be removed from invent
-                                stack.setAmount(stack.getAmount()-Math.abs(stackAmt));
+                                stack.setAmount(stack.getAmount() - Math.abs(stackAmt));
                             } else {
                                 player.sendMessage("This block cannot be reinforced anymore.");
                             }
-                        } else if(yes||alsoYes){//doesnt have the right block thing
+                        } else if (yes || alsoYes) {//doesnt have the right block thing
                             String msg;
-                            if(materials!=null) {
+                            if (materials != null) {
                                 StringBuilder mats = new StringBuilder();
                                 int lastIndex = 0;
                                 for (Material material : materials.keySet()) {
-                                    lastIndex = mats.length()-1;
+                                    lastIndex = mats.length() - 1;
                                     mats.append(DisplayName.materialToDisplayName(material)).append(", ");
                                 }
-                                msg = mats.toString().substring(0,mats.length() - 2);
-                                if(materials.keySet().size()>1) {
+                                msg = mats.toString().substring(0, mats.length() - 2);
+                                if (materials.keySet().size() > 1) {
                                     msg = msg.substring(0, lastIndex) + " or" + msg.substring(lastIndex);
                                 }
-                            }else{msg = DisplayName.materialToDisplayName(blockType);}
+                            } else {
+                                msg = DisplayName.materialToDisplayName(blockType);
+                            }
                             player.sendMessage("You must use " + msg + " to reinforce this block");
                         }
                     } else {//set to reinforce mode
@@ -181,16 +188,17 @@ public class BeaconEvent implements Listener{
                 } else if (isReinforcing.containsKey(player)) {
                     isReinforcing.remove(player);
                     player.sendMessage("Left block reinforce mode.");//no need to cancel event here
-                } else if(block!=null){//info click
+                } else if (block != null) {//info click
                     infoClick(block, player);
                 }
-            }else if(action==Action.PHYSICAL){
-                event.setCancelled(checkInteractProtect(block,player,false));
+            } else if (action == Action.PHYSICAL) {
+                event.setCancelled(checkInteractProtect(block, player, false));
             }
         }
     }
+
     private boolean checkInteractProtect(Block block, Player player, boolean click) {
-        if (block != null&&!CustomBeacons.checkFriendly(player, block.getLocation(), plugin.groups)) {
+        if (block != null && !CustomBeacons.checkFriendly(player, block.getLocation(), plugin.groups)) {
             if (plugin.interactProtection.containsKey(block.getType())) {
                 if (plugin.interactProtection.get(block.getType())) {
                     if (!plugin.durabilities.containsKey(block.getLocation())) {
@@ -199,61 +207,64 @@ public class BeaconEvent implements Listener{
                     BlockDurability a = plugin.durabilities.get(block.getLocation());
                     int dur = a.getDurability() + Math.min(plugin.CustomBeacons.getMaxPenalty(player, block), a.getBeaconDurability());
                     if (dur != 1) {
-                        if(click||block!=lastBlock.get(player)) {
+                        if (click || block != lastBlock.get(player)) {
                             player.sendMessage("You cannot interact here! " + (dur - 1) + " hits to unlock.");
                             infoClick(block, player);
                         }
-                        lastBlock.put(player,block);
+                        lastBlock.put(player, block);
                         return true;
                     }//otherwise you are good
-                } else if(!plugin.interactProtectBlacklist){//if whitelist
-                    if(click||!block.equals(lastBlock.get(player))) {
+                } else if (!plugin.interactProtectBlacklist) {//if whitelist
+                    if (click || !block.equals(lastBlock.get(player))) {
                         player.sendMessage("You cannot interact here! This block is protected by a beacon.");
                         infoClick(block, player);
                     }
-                    lastBlock.put(player,block);
+                    lastBlock.put(player, block);
                     return true;
                 }
-            }else{
-                if(plugin.interactProtectBlacklist){
-                    if(click||block!=lastBlock.get(player)) {
+            } else {
+                if (plugin.interactProtectBlacklist) {
+                    if (click || block != lastBlock.get(player)) {
                         player.sendMessage("You cannot interact here! This block is protected by a beacon.");
                         infoClick(block, player);
                     }
-                    lastBlock.put(player,block);
+                    lastBlock.put(player, block);
                     return true;
-                }else{
+                } else {
                     return false;//whitelist dont cancel
                 }
             }
         }
         return false;
     }
-    private void infoClick(Block block, Player player){
+
+    private void infoClick(Block block, Player player) {
         if (!plugin.durabilities.containsKey(block.getLocation())) {
             new BlockDurability(plugin, block, player, 0);
         } else {
             plugin.durabilities.get(block.getLocation()).changeDurability(plugin, player, 0, false);
         }
     }
-    private void reinforceAdd(Player player){
-        isReinforcing.put(player,System.currentTimeMillis());
+
+    private void reinforceAdd(Player player) {
+        isReinforcing.put(player, System.currentTimeMillis());
         new Thread(() -> {
             try {
                 Thread.sleep(reinforceDelay);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (isReinforcing.containsKey(player)&&System.currentTimeMillis()-isReinforcing.get(player)>reinforceDelay) {
+            if (isReinforcing.containsKey(player) && System.currentTimeMillis() - isReinforcing.get(player) > reinforceDelay) {
                 isReinforcing.remove(player);
                 player.sendMessage("Left block reinforce mode");
             }
         }).start();
     }
+
     //deals with block breakage
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event){
-        if(!plugin.ready){
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!plugin.ready) {
             event.getPlayer().sendMessage("Please wait until BeaconProtect has initialized");
             event.setCancelled(true);
             return;
@@ -308,18 +319,19 @@ public class BeaconEvent implements Listener{
             }
         }
     }
-    private Block checkDoubleBlock(Block block){
+
+    private Block checkDoubleBlock(Block block) {
         //long start = System.nanoTime();
-        if(block!=null) {
+        if (block != null) {
             BlockState state = block.getState();
             List<Material> doors = new ArrayList<>(Arrays.asList(Material.ACACIA_DOOR, Material.BIRCH_DOOR, Material.DARK_OAK_DOOR, Material.JUNGLE_DOOR, Material.OAK_DOOR, Material.SPRUCE_DOOR));
-            if (state instanceof Chest){
-                InventoryHolder holder = ((Chest)state).getInventory().getHolder();
-                if(holder instanceof DoubleChest) {
+            if (state instanceof Chest) {
+                InventoryHolder holder = ((Chest) state).getInventory().getHolder();
+                if (holder instanceof DoubleChest) {
                     DoubleChest doubleChest = (DoubleChest) holder;
                     InventoryHolder left = doubleChest.getLeftSide();
                     InventoryHolder right = doubleChest.getRightSide();
-                    if(left==null||right==null){
+                    if (left == null || right == null) {
                         plugin.logger.warning("Couldn't use DoubleChest at (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ") as an InventoryHolder");
                         return block;
                     }
@@ -358,28 +370,31 @@ public class BeaconEvent implements Listener{
         //System.out.println((System.nanoTime()-start)/10000);
         return block;//its a regular block
     }
+
     //deals with pistons
     @EventHandler
-    public void onPistonExtend(BlockPistonExtendEvent event){
-        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
+    public void onPistonExtend(BlockPistonExtendEvent event) {
+        event.setCancelled(onPiston(event.getBlocks(), event.getBlock(), event.getDirection()));
     }
+
     @EventHandler
-    public void onPistonRetract(BlockPistonRetractEvent event){
-        event.setCancelled(onPiston(event.getBlocks(),event.getBlock(),event.getDirection()));
+    public void onPistonRetract(BlockPistonRetractEvent event) {
+        event.setCancelled(onPiston(event.getBlocks(), event.getBlock(), event.getDirection()));
     }
-    private boolean onPiston(List<Block> blocks,Block piston,BlockFace blockFace){
-        if(blocks.size()>0){
-            Vector vector = new Vector(blockFace.getModX(),blockFace.getModY(),blockFace.getModZ());
-            for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
+
+    private boolean onPiston(List<Block> blocks, Block piston, BlockFace blockFace) {
+        if (blocks.size() > 0) {
+            Vector vector = new Vector(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ());
+            for (Map.Entry<Location, Block> entry : plugin.beacons.entrySet()) {
                 BlockState blockState = entry.getValue().getState();
-                if(blockState instanceof Beacon&&CustomBeacons.checkInRange(piston.getLocation(),entry.getKey(),((Beacon)blockState).getTier())){
+                if (blockState instanceof Beacon && CustomBeacons.checkInRange(piston.getLocation(), entry.getKey(), ((Beacon) blockState).getTier())) {
                     return false;//dont cancel if piston is already in beacon range therefore friendly beacon
                 }
                 Block beacon = entry.getValue();
                 BlockState beaconState = beacon.getState();
-                if(beaconState instanceof Beacon){
-                    for(Block block:blocks){
-                        if(CustomBeacons.checkInRange(block.getLocation().add(vector),entry.getKey(),((Beacon)beaconState).getTier())||CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)beaconState).getTier())){//cancel if block is currently or will be in beacon range
+                if (beaconState instanceof Beacon) {
+                    for (Block block : blocks) {
+                        if (CustomBeacons.checkInRange(block.getLocation().add(vector), entry.getKey(), ((Beacon) beaconState).getTier()) || CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), ((Beacon) beaconState).getTier())) {//cancel if block is currently or will be in beacon range
                             return true;
                         }
                     }
@@ -388,41 +403,45 @@ public class BeaconEvent implements Listener{
         }
         return false;
     }
+
     //deals with liquid flow
     @EventHandler
-    public void onBlockFromTo(BlockFromToEvent event){//only allow flow out of beacon range, not in
+    public void onBlockFromTo(BlockFromToEvent event) {//only allow flow out of beacon range, not in
         Block block = event.getBlock();
-        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-            if(CustomBeacons.checkInRange(block.getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
+        for (Map.Entry<Location, Block> entry : plugin.beacons.entrySet()) {
+            if (CustomBeacons.checkInRange(block.getLocation(), entry.getKey(), ((Beacon) entry.getValue().getState()).getTier())) {
                 return;//don't cancel if the original block is already in beacon range
             }
-            if(CustomBeacons.checkInRange(event.getToBlock().getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
+            if (CustomBeacons.checkInRange(event.getToBlock().getLocation(), entry.getKey(), ((Beacon) entry.getValue().getState()).getTier())) {
                 event.setCancelled(true);//cancel if the block to be flowed in is in range of beacon
                 return;
             }
         }
     }
+
     //deals with lit tnt and other entity explosions
     @EventHandler
-    public void onEntityExplode(EntityExplodeEvent event){
+    public void onEntityExplode(EntityExplodeEvent event) {
         boolean friendly = true;
-        if(CustomBeacons.checkAllRanges(event.getEntity().getLocation(),plugin.beacons)){
-            if(enemyEntityList.contains(event.getEntity()))friendly = false;
+        if (CustomBeacons.checkAllRanges(event.getEntity().getLocation(), plugin.beacons)) {
+            if (enemyEntityList.contains(event.getEntity())) friendly = false;
         }
-        onExplode(event.getEntity().getLocation(),event.blockList(),friendly);
+        onExplode(event.getEntity().getLocation(), event.blockList(), friendly);
     }
+
     //deals with beds maybe? don't worry it probably still works
     @EventHandler
-    public void onBlockExplode(BlockExplodeEvent event){
-        onExplode(event.getBlock().getLocation(),event.blockList(),CustomBeacons.checkAllRanges(event.getBlock().getLocation(),plugin.beacons));
+    public void onBlockExplode(BlockExplodeEvent event) {
+        onExplode(event.getBlock().getLocation(), event.blockList(), CustomBeacons.checkAllRanges(event.getBlock().getLocation(), plugin.beacons));
     }
-    private void onExplode(Location boom, List<Block> blockList, boolean friendly){
-        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-            int tier = ((Beacon)entry.getValue().getState()).getTier();
-            boolean useBeaconDurability = !(CustomBeacons.checkInRange(boom,entry.getKey(),tier)&&friendly);
-            blockList.removeIf(block-> {
+
+    private void onExplode(Location boom, List<Block> blockList, boolean friendly) {
+        for (Map.Entry<Location, Block> entry : plugin.beacons.entrySet()) {
+            int tier = ((Beacon) entry.getValue().getState()).getTier();
+            boolean useBeaconDurability = !(CustomBeacons.checkInRange(boom, entry.getKey(), tier) && friendly);
+            blockList.removeIf(block -> {
                 Location location = block.getLocation();
-                if(CustomBeacons.checkInRange(location,entry.getKey(),tier)) {
+                if (CustomBeacons.checkInRange(location, entry.getKey(), tier)) {
                     if (plugin.durabilities.containsKey(location)) {
                         plugin.durabilities.get(location).changeDurability(plugin, null, -1, false, useBeaconDurability);
                     } else {
@@ -438,18 +457,21 @@ public class BeaconEvent implements Listener{
             });
         }
     }
+
     //check if new entities are primed tnt, if so check if they should be allowed to blow up in claimed land
     @EventHandler
-    public void onEntitySpawn(EntitySpawnEvent event){
-        if(explosiveEntities.contains(event.getEntityType()))explosiveEntityHandler(event.getEntity());
+    public void onEntitySpawn(EntitySpawnEvent event) {
+        if (explosiveEntities.contains(event.getEntityType())) explosiveEntityHandler(event.getEntity());
     }
+
     @EventHandler
-    public void onVehicleCreate(VehicleCreateEvent event){
-        if(explosiveEntities.contains(event.getVehicle().getType()))explosiveEntityHandler(event.getVehicle());
+    public void onVehicleCreate(VehicleCreateEvent event) {
+        if (explosiveEntities.contains(event.getVehicle().getType())) explosiveEntityHandler(event.getVehicle());
     }
-    private void explosiveEntityHandler(Entity entity){
-        for(Map.Entry<Location,Block> entry:plugin.beacons.entrySet()){
-            if(!CustomBeacons.checkInRange(entity.getLocation(),entry.getKey(),((Beacon)entry.getValue().getState()).getTier())){
+
+    private void explosiveEntityHandler(Entity entity) {
+        for (Map.Entry<Location, Block> entry : plugin.beacons.entrySet()) {
+            if (!CustomBeacons.checkInRange(entity.getLocation(), entry.getKey(), ((Beacon) entry.getValue().getState()).getTier())) {
                 enemyEntityList.add(entity);
                 return;
             }

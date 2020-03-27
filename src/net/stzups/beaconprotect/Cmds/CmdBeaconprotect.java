@@ -13,11 +13,11 @@ import static java.lang.Integer.parseInt;
 import static org.bukkit.Material.BEACON;
 
 public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabCompleter {
-    public CmdBeaconprotect(BeaconProtect plugin){
+    public CmdBeaconprotect(BeaconProtect plugin) {
         super(plugin);
         this.plugin = plugin;
         PluginCommand pluginCommand = plugin.getCommand("beaconprotect");
-        if(pluginCommand!=null){
+        if (pluginCommand != null) {
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(this);
         }
@@ -44,20 +44,27 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
         list.add("/bp group size - returns amount of currently registered groups");
         usages.put("group", list);
     }
-    private boolean add(Location location){
-        if(!plugin.beacons.containsKey(location)){
+
+    private boolean add(Location location) {
+        if (!plugin.beacons.containsKey(location)) {
             plugin.beacons.put(location, location.getBlock());
             return false;
-        }else{return true;}
+        } else {
+            return true;
+        }
     }
-    private boolean remove(Location location){
-        if(plugin.beacons.containsKey(location)){
+
+    private boolean remove(Location location) {
+        if (plugin.beacons.containsKey(location)) {
             plugin.beacons.remove(location);
             return true;
-        }else{return false;}
+        } else {
+            return false;
+        }
     }
+
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if(sender.hasPermission("beaconprotect.bp")) {
+        if (sender.hasPermission("beaconprotect.bp")) {
             World world = Bukkit.getServer().getWorld("world");
             if (args.length == 0) {
                 usage(sender, "beaconprotect");
@@ -76,7 +83,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                                 sender.sendMessage("The beacon you are looking at " + blockToCoordinates(beacon) + " has already been registered");
                             }
                         } else {
-                            sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found "+ DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
+                            sender.sendMessage("The block you are looking at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ", maybe move closer?");
                         }
                     } else {
                         sender.sendMessage("You must be a player to run that command");
@@ -114,7 +121,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                             if (beacon.getType() == BEACON) {
                                 sender.sendMessage("The beacon at " + blockToCoordinates(beacon) + " does not already exist");
                             } else {
-                                sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " +DisplayName.materialToDisplayName(beacon.getType())+ ")");
+                                sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ")");
                             }
                         }
                     } else {
@@ -129,7 +136,7 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                         if (beacon.getType() == BEACON) {
                             sender.sendMessage("The beacon at " + blockToCoordinates(beacon) + " does not already exist");
                         } else {
-                            sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " +DisplayName.materialToDisplayName(beacon.getType()) + ")");
+                            sender.sendMessage("The block at " + blockToCoordinates(beacon) + " is not a beacon (found " + DisplayName.materialToDisplayName(beacon.getType()) + ")");
                         }
                     }
                 } else {
@@ -152,19 +159,23 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
             } else if (args[0].equalsIgnoreCase("start")) {
                 plugin.CustomBeacons.startBeacons();
                 sender.sendMessage("Started running beacons");
-            }else if(args[0].equalsIgnoreCase("bypass")){
-                if(sender.hasPermission("beaconprotect.bp.bypass")){
-                    if(sender instanceof Player){
+            } else if (args[0].equalsIgnoreCase("bypass")) {
+                if (sender.hasPermission("beaconprotect.bp.bypass")) {
+                    if (sender instanceof Player) {
                         Player player = (Player) sender;
-                        if(plugin.bypass.contains(player)){
+                        if (plugin.bypass.contains(player)) {
                             plugin.bypass.remove(player);
                             sender.sendMessage("Toggled admin bypass mode off");
-                        }else{
+                        } else {
                             plugin.bypass.add(player);
                             sender.sendMessage("Toggled admin bypass mode on");
                         }
-                    }else{sender.sendMessage("You must be a player to run this command");}
-                }else{sender.sendMessage(ChatColor.RED+"You do not have permission to use this command");}
+                    } else {
+                        sender.sendMessage("You must be a player to run this command");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to use this command");
+                }
             } else if (args[0].equalsIgnoreCase("durability") && args.length >= 2) {
                 if (args[1].equalsIgnoreCase("list")) {
                     sender.sendMessage("Listing all set block durabilities (" + plugin.durabilities.size() + ")");
@@ -179,11 +190,11 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     sender.sendMessage(msg);
                 } else if (args[1].equalsIgnoreCase("defaultlist")) {
                     sender.sendMessage("Listing all set default block durabilities (" + plugin.defaultBlockDurabilities.size() + ")");
-                    sender.sendMessage("Global default block durability is "+plugin.defaultBlockDurability.getDefaultBlockDurability()+", "+plugin.defaultBlockDurability.getMaxBlockDurability());
+                    sender.sendMessage("Global default block durability is " + plugin.defaultBlockDurability.getDefaultBlockDurability() + ", " + plugin.defaultBlockDurability.getMaxBlockDurability());
                     String[] msg = new String[plugin.defaultBlockDurabilities.size()];
                     int i = 0;
                     for (Map.Entry<Material, DefaultBlockDurability> defaultBlockDurability : plugin.defaultBlockDurabilities.entrySet()) {
-                        msg[i] = (defaultBlockDurability.getKey()+": "+defaultBlockDurability.getValue().getDefaultBlockDurability()+", "+defaultBlockDurability.getValue().getMaxBlockDurability());
+                        msg[i] = (defaultBlockDurability.getKey() + ": " + defaultBlockDurability.getValue().getDefaultBlockDurability() + ", " + defaultBlockDurability.getValue().getMaxBlockDurability());
                         i++;
                     }
                     sender.sendMessage(msg);
@@ -199,21 +210,21 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                     sender.sendMessage("Unknown argument. Use /bp durability for help");
                 }
                 return true;
-            }else if(args[0].equalsIgnoreCase("group")&&args.length>=2){
-                if(args[1].equalsIgnoreCase("clean")){
+            } else if (args[0].equalsIgnoreCase("group") && args.length >= 2) {
+                if (args[1].equalsIgnoreCase("clean")) {
                     int start = plugin.groups.size();
                     sender.sendMessage("Checking " + start + " groups for unnecessary entries");
                     long startTime = System.currentTimeMillis();
                     for (Iterator<Map.Entry<UUID, Group>> iterator = plugin.groups.entrySet().iterator(); iterator.hasNext(); ) {
                         Group group = iterator.next().getValue();
-                        if (group.getOwner()==null||group.getMembersSize()==0) {
+                        if (group.getOwner() == null || group.getMembersSize() == 0) {
                             iterator.remove();
                         }
                     }
                     sender.sendMessage("Removed " + (start - plugin.groups.size()) + " of " + start + " entries (" + (System.currentTimeMillis() - startTime) + "ms)");
-                }else if(args[1].equalsIgnoreCase("size")){
+                } else if (args[1].equalsIgnoreCase("size")) {
                     sender.sendMessage("There are " + plugin.groups.size() + " registered groups");
-                }else{
+                } else {
                     sender.sendMessage("Unknown argument. Use /bp group for help");
                 }
             } else if (args[0].equalsIgnoreCase("groups")) {
@@ -236,43 +247,46 @@ public class CmdBeaconprotect extends Cmd implements CommandExecutor, TabComplet
                 }
             } else if (args[0].equalsIgnoreCase("durability")) {
                 usage(sender, "durability");
-            }else if(args[0].equalsIgnoreCase("group")) {
+            } else if (args[0].equalsIgnoreCase("group")) {
                 usage(sender, "group");
             } else {
                 sender.sendMessage("Unknown argument. Use /bp for help");
                 usage(sender, "beaconprotect");
             }
-        }else{
-            sender.sendMessage(ChatColor.RED+"You do not have permission to use this command");
+        } else {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command");
         }
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args){
-        if(sender.hasPermission("beaconprotect.bp")){
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
+        if (sender.hasPermission("beaconprotect.bp")) {
             List<String> completions = new ArrayList<>();
-            if(args.length==1){
-                for(String string:new String[]{"add","remove","list","stop","start","durability","bypass","group"})if(checkCompletions(string,args[0]))completions.add(string);
+            if (args.length == 1) {
+                for (String string : new String[]{"add", "remove", "list", "stop", "start", "durability", "bypass", "group"})
+                    if (checkCompletions(string, args[0])) completions.add(string);
                 return completions;
-            }else if(args.length==2){
-                if(args[0].equalsIgnoreCase("durability")) {
-                    for (String string : new String[]{"list", "size", "clean","defaultlist"})if (checkCompletions(string, args[1])) completions.add(string);
+            } else if (args.length == 2) {
+                if (args[0].equalsIgnoreCase("durability")) {
+                    for (String string : new String[]{"list", "size", "clean", "defaultlist"})
+                        if (checkCompletions(string, args[1])) completions.add(string);
                     return completions;
-                }else if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
+                } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                     completions.add("0 0 0");
                     return completions;
-                }else if(args[0].equalsIgnoreCase("group")){
-                    for(String string:new String[]{"clean","size"})if(checkCompletions(string,args[1]))completions.add(string);
+                } else if (args[0].equalsIgnoreCase("group")) {
+                    for (String string : new String[]{"clean", "size"})
+                        if (checkCompletions(string, args[1])) completions.add(string);
                     return completions;
                 }
-            }else if(args.length==3){
-                if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
+            } else if (args.length == 3) {
+                if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                     completions.add("0 0");
                     return completions;
                 }
-            }else if(args.length==4){
-                if(args[0].equalsIgnoreCase("add")||args[0].equalsIgnoreCase("remove")){
+            } else if (args.length == 4) {
+                if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                     completions.add("0");
                     return completions;
                 }

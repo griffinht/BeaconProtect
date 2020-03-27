@@ -3,18 +3,22 @@ package net.stzups.beaconprotect;
 public class DefaultBlockDurability {
     private int defaultBlockDurability;
     private int maxBlockDurability;
-    DefaultBlockDurability(int defaultBlockDurability, int maxBlockDurability){
+
+    DefaultBlockDurability(int defaultBlockDurability, int maxBlockDurability) {
         this.defaultBlockDurability = defaultBlockDurability;
         this.maxBlockDurability = maxBlockDurability;
     }
-    DefaultBlockDurability(int defaultBlockDurability){
+
+    DefaultBlockDurability(int defaultBlockDurability) {
         this.defaultBlockDurability = defaultBlockDurability;
         this.maxBlockDurability = defaultBlockDurability;
     }
-    public int getDefaultBlockDurability(){
+
+    public int getDefaultBlockDurability() {
         return defaultBlockDurability;
     }
-    public int getMaxBlockDurability(){
+
+    public int getMaxBlockDurability() {
         return maxBlockDurability;
     }
 }
