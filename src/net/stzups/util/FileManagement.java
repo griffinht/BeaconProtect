@@ -15,28 +15,39 @@ public class FileManagement {
 
     public FileManagement(JavaPlugin plugin, String fileName) {
         this.plugin = plugin;
-        if(!plugin.getDataFolder().exists())if(!plugin.getDataFolder().mkdir())plugin.getLogger().warning("Could not create plugin data folder");
+        if (!plugin.getDataFolder().exists() && !plugin.getDataFolder().mkdir()) {
+            plugin.getLogger().warning("Could not create plugin data folder");
+        }
+
         file = new File(plugin.getDataFolder(), fileName);
-        if(!file.exists()){
-            try{
-                if(file.createNewFile()){plugin.getLogger().info("Created "+fileName);}else{plugin.getLogger().info("Could not create "+fileName);}
-            }catch(IOException e){
-                plugin.getLogger().warning("Could not create "+fileName);
+
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    plugin.getLogger().info("Created " + fileName);
+                } else {
+                    plugin.getLogger().info("Could not create " + fileName);
+                }
+            } catch (IOException e) {
+                plugin.getLogger().warning("Could not create " + fileName);
                 e.printStackTrace();
             }
 
         }
+
         config = YamlConfiguration.loadConfiguration(file);
     }
-    public void save(){
+
+    public void save() {
         try {
             config.save(file);
-        }catch(IOException e){
+        } catch (IOException e) {
             plugin.getLogger().warning("Could not save file to disk");
             e.printStackTrace();
         }
     }
-    public void load(){
+
+    public void load() {
         config = YamlConfiguration.loadConfiguration(file);
     }
 }
