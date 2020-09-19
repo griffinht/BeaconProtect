@@ -3,7 +3,7 @@ package net.stzups.beaconprotect.Lists;
 import net.stzups.beaconprotect.BeaconProtect;
 import net.stzups.beaconprotect.Group;
 import net.stzups.beaconprotect.PlayerRole;
-import net.stzups.util.FileManagement;
+import net.stzups.util.bukkit.FileManagement;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;

@@ -1,4 +1,4 @@
-package net.stzups.util;
+package net.stzups.util.bukkit;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

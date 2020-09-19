@@ -1,7 +1,7 @@
 package net.stzups.beaconprotect.Lists;
 
 import net.stzups.beaconprotect.BeaconProtect;
-import net.stzups.util.FileManagement;
+import net.stzups.util.bukkit.FileManagement;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
